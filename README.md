@@ -99,6 +99,7 @@ MCP มีเฉพาะ `read` + `draft_write` (ตาม Decision D8) — ไ
 ## 7. เอกสารเพิ่มเติม
 
 - [`AI-CLIP-FACTORY.md`](AI-CLIP-FACTORY.md) — สถาปัตยกรรม + ระบบ prompt/QC ฉบับเต็ม
+- [`_docs/STRUCTURE.md`](_docs/STRUCTURE.md) — โครงสร้างโปรแกรม + โครงสร้าง prompt/QC (โมดูล, ไฟล์สำคัญ, flow การประกอบ prompt)
+- [`CHANGELOG.md`](CHANGELOG.md) — บันทึกการแก้ตั้งแต่รับโปรเจกต์มา (30 ก.ค.–4 ส.ค. 2026)
 - [`DEPLOY_RAILWAY.md`](DEPLOY_RAILWAY.md) — วิธี deploy ขึ้น Railway
-- [`_docs/veo-extension-README.md`](_docs/veo-extension-README.md) — คู่มือติดตั้ง Chrome extension + web builder
 - [`_docs/`](_docs/) — SRS / PRD / spec ทั้งหมด
