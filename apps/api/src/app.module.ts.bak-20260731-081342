@@ -1,0 +1,73 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { CharactersModule } from './characters/characters.module';
+import { AssetsModule } from './assets/assets.module';
+import { PromptsModule } from './prompts/prompts.module';
+import { ExportsModule } from './exports/exports.module';
+import { AiModule } from './ai/ai.module';
+import { UsersModule } from './users/users.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { TasksModule } from './tasks/tasks.module';
+import { SearchModule } from './search/search.module';
+import { ProductsModule } from './products/products.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { JobsModule } from './jobs/jobs.module';
+import { ProductionModule } from './production/production.module';
+import { LibraryModule } from './library/library.module';
+import { PublishingModule } from './publishing/publishing.module';
+import { SettingsModule } from './settings/settings.module';
+import { PerformanceModule } from './performance/performance.module';
+import { IntelligenceModule } from './intelligence/intelligence.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { KpiModule } from './kpi/kpi.module';
+import { AudienceModule } from './audience/audience.module';
+import { TieInsModule } from './tie-ins/tie-ins.module';
+import { AiUsageModule } from './ai-usage/ai-usage.module';
+import { MediaModule } from './media/media.module';
+import { HealthModule } from './health/health.module';
+import { ContentIntelligenceModule } from './content-intelligence/content-intelligence.module';
+import { ImageRequestsModule } from './image-requests/image-requests.module';
+import { InteractionModule } from './interaction/interaction.module';
+import { AffiliateClipsModule } from './affiliate-clips/affiliate-clips.module';
+import { ComplianceModule } from './compliance/compliance.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    HealthModule,
+    AuthModule,
+    CharactersModule,
+    AssetsModule,
+    PromptsModule,
+    ExportsModule,
+    AiModule,
+    UsersModule,
+    NotificationsModule,
+    TasksModule,
+    SearchModule,
+    ProductsModule,
+    CampaignsModule,
+    JobsModule,
+    ProductionModule,
+    LibraryModule,
+    PublishingModule,
+    PerformanceModule,
+    IntelligenceModule,
+    SettingsModule,
+    DashboardModule,
+    KpiModule,
+    AudienceModule,
+    TieInsModule,
+    AiUsageModule,
+    MediaModule,
+    ContentIntelligenceModule,
+    ImageRequestsModule,
+    InteractionModule,
+    AffiliateClipsModule,
+    ComplianceModule,
+  ],
+})
+export class AppModule {}

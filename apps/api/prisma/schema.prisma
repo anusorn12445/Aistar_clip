@@ -1,0 +1,2155 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["queryCompiler", "driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users & RBAC ────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique
+  passwordHash String
+  name         String
+  status       UserStatus @default(active)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  roleAssignments RoleAssignment[]
+  refreshTokens   RefreshToken[]
+  notifications   Notification[]
+  tasks           Task[]           @relation("TaskAssignee")
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+enum UserStatus {
+  active
+  suspended
+}
+
+model Role {
+  id   String @id @default(uuid()) @db.Uuid
+  key  String @unique // admin, founder, creative_lead, ...
+  name String
+
+  assignments RoleAssignment[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model RoleAssignment {
+  userId String @db.Uuid
+  roleId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("role_assignments")
+}
+
+model RolePermission {
+  id      String   @id @default(uuid()) @db.Uuid
+  roleId  String   @db.Uuid
+  module  String // character, asset, prompt, campaign, ...
+  actions String[] // V, C, A, P, E, X
+  // ขอบเขตการเห็นแถวข้อมูล (row-level scope) ของ module นี้:
+  // 'all' = เห็นทั้งหมด (default, พฤติกรรมเดิม) · 'own' = เห็นเฉพาะงานที่ตัวเองเป็น owner/assignee/ผู้สร้าง/crew
+  viewScope String @default("all")
+  role    Role     @relation(fields: [roleId], references: [id])
+
+  @@unique([roleId, module])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("refresh_tokens")
+}
+
+// ─── Creators — ทะเบียนผู้สร้างตัวละคร (freelance/ทีมใน) ───────
+// เก็บ contact ไว้ตามตัวได้ เวลาต้องแก้รูป/จ้างทำเพิ่ม
+
+model Creator {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  phone     String?
+  line      String?
+  email     String?
+  portfolio String? // ลิงก์ผลงาน
+  rateNote  String? // เรตราคา/เงื่อนไขการจ้างคร่าวๆ
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  characters Character[]
+  jobCrew    JobCrew[]
+
+  @@map("creators")
+}
+
+// ─── Characters ──────────────────────────────────────────────
+
+model Character {
+  id          String          @id @default(uuid()) @db.Uuid
+  displayCode String          @unique // CHR-PRAEWA-001 (immutable)
+  nameTh      String
+  nameEn      String?
+  nickname    String? // ชื่อเล่น — ใช้เรียกสั้น ๆ ในทีม/คอนเทนต์
+  universe    String?
+  series      String?
+  roleLabel   String? // role in story
+  age         Int?
+  gender      String?
+  region      String?
+  status      ApprovalStatus  @default(draft)
+  version     String          @default("v0.1")
+  // sections เขียนโดย AI wizard ต่อ section — เก็บเป็น JSON เพื่อความยืดหยุ่น
+  persona         Json?
+  visualDna       Json?
+  commerceProfile Json?
+  voiceProfile    Json?
+  createdBy   String          @db.Uuid
+  creatorId   String?         @db.Uuid // ผู้สร้างตัวละคร (freelance/ทีมใน)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  archivedAt  DateTime?
+
+  creator Creator? @relation(fields: [creatorId], references: [id])
+
+  jobPresenters JobPresenter[]
+
+  // PRD §5.2 — sections ประจำตัวละคร
+  relationshipsFrom CharacterRelationship[] @relation("relFrom")
+  relationshipsTo   CharacterRelationship[] @relation("relTo")
+  wardrobes         CharacterWardrobe[]
+  expressions       CharacterExpression[]
+
+  // กลุ่มผู้ติดตาม — อ้างอิง taxonomy กลาง (Audience Segment)
+  audiences CharacterAudience[]
+
+  // ประเภทตัวละคร (หลายอันต่อตัว) — taxonomy จัดการที่ Settings
+  categories CharacterCategoryLink[]
+
+  // สินค้าที่ Tie-In (ไม่บังคับ) — ผูกกับสินค้าจริงในระบบ
+  tieInProducts CharacterProduct[]
+
+  // Blueprint (พิมพ์เขียว) ที่ใช้ตอนสร้าง — คุมมาตรฐาน AI Wizard + Reverse-capture (additive, ไม่มี relation)
+  blueprintId String? @db.Uuid
+
+  // Do's & Don'ts ประจำตัวละคร (Character Sheet ข้อ 4) — ฝังเข้า Master Prompt DIRECTIVE ทุกครั้งที่ก๊อป
+  dos   String[] @default([]) // สิ่งที่ต้องมี/ทำเสมอ เช่น "ยิ้มเห็นลักยิ้มซ้ายทุกรูป"
+  donts String[] @default([]) // ข้อห้าม เช่น "ห้ามแต่งหรูเกินจริง", "ห้ามถือแอลกอฮอล์"
+
+  poses CharacterPose[]
+
+  @@map("characters")
+}
+
+// ─── Character sections (PRD §5.2) ───────────────────────────
+
+model CharacterRelationship {
+  id              String   @id @default(uuid()) @db.Uuid
+  fromCharacterId String   @db.Uuid
+  toCharacterId   String   @db.Uuid
+  relationType    String // เพื่อน, คู่แข่ง, พี่น้อง, แฟนเก่า, เจ้านาย-ลูกน้อง ฯลฯ (free text)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  from Character @relation("relFrom", fields: [fromCharacterId], references: [id], onDelete: Cascade)
+  to   Character @relation("relTo", fields: [toCharacterId], references: [id], onDelete: Cascade)
+
+  @@index([fromCharacterId])
+  @@index([toCharacterId])
+  @@map("character_relationships")
+}
+
+model CharacterWardrobe {
+  id          String   @id @default(uuid()) @db.Uuid
+  characterId String   @db.Uuid
+  name        String // ชื่อชุด เช่น "ชุดออฟฟิศ", "ชุดไลฟ์สด"
+  occasion    String? // โอกาสใช้
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@map("character_wardrobes")
+}
+
+model CharacterExpression {
+  id          String   @id @default(uuid()) @db.Uuid
+  characterId String   @db.Uuid
+  name        String // ชื่ออารมณ์/สีหน้า เช่น "ยิ้มหวาน", "โกรธ", "เขิน"
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@map("character_expressions")
+}
+
+// ท่าโพสเต็มตัวประจำตัวละคร (Character Sheet ข้อ 3) — ยืนถือของ/นั่งรีวิว/ชี้กล้อง
+// รูปมาตรฐานต่อท่า ผูกผ่าน AssetLink (entityType 'pose') เหมือน expression/wardrobe
+model CharacterPose {
+  id          String   @id @default(uuid()) @db.Uuid
+  characterId String   @db.Uuid
+  name        String // ชื่อท่า เช่น "ยืนถือสินค้าระดับอก", "นั่งรีวิวหน้ากล้อง"
+  description String? // รายละเอียดท่า มือ/ทิศทางสายตา/ระยะกล้อง
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@map("character_poses")
+}
+
+// ใช้ร่วมกันทั้ง character / prompt / asset (state machine D.2)
+enum ApprovalStatus {
+  draft
+  internal_review
+  revision_needed
+  approved
+  production_ready
+  rejected
+  archived
+}
+
+// ─── Versioning (F.1 ข้อ 4 — full JSONB snapshot, polymorphic) ─
+
+model EntityVersion {
+  id           String   @id @default(uuid()) @db.Uuid
+  entityType   String // character, prompt, script
+  entityId     String   @db.Uuid
+  versionLabel String // v1.0
+  snapshot     Json
+  notes        String?
+  createdBy    String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@map("entity_versions")
+}
+
+// ─── Assets (F.3) ────────────────────────────────────────────
+
+model Asset {
+  id               String      @id @default(uuid()) @db.Uuid
+  assetType        String // face_reference, full_body, expression_sheet, ...
+  storageKey       String
+  originalFilename String
+  mimeType         String
+  fileSize         Int
+  width            Int?
+  height           Int?
+  duration         Int? // seconds, for video/audio
+  checksumSha256   String?
+  generationTool   String? // provenance: grok, kling, ...
+  promptVersionId  String?     @db.Uuid
+  status           AssetStatus @default(uploaded)
+  uploadedBy       String      @db.Uuid
+  createdAt        DateTime    @default(now())
+  archivedAt       DateTime?
+
+  promptVersion PromptVersion? @relation(fields: [promptVersionId], references: [id])
+  links         AssetLink[]
+
+  @@index([checksumSha256])
+  @@map("assets")
+}
+
+enum AssetStatus {
+  uploaded
+  ai_generated
+  selected
+  rejected
+  approved_reference
+  production_used
+  archived
+}
+
+model AssetLink {
+  id         String @id @default(uuid()) @db.Uuid
+  assetId    String @db.Uuid
+  entityType String // character, episode, shot, campaign
+  entityId   String @db.Uuid
+  linkRole   String @default("reference") // reference, primary_reference, deliverable, thumbnail
+  asset      Asset  @relation(fields: [assetId], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("asset_links")
+}
+
+// ─── Prompt Library (F.2 — platform-agnostic ตาม D4) ────────
+
+model Platform {
+  id     String @id @default(uuid()) @db.Uuid
+  key    String @unique // grok, kling, veo, midjourney, ...
+  name   String
+  status String @default("active")
+
+  @@map("platforms")
+}
+
+model Prompt {
+  id         String         @id @default(uuid()) @db.Uuid
+  name       String
+  promptType String // identity, character_sheet, expression, outfit, scene, shot, negative, anti_clone
+  status     ApprovalStatus @default(draft)
+  bestFlag   Boolean        @default(false)
+  createdBy  String         @db.Uuid
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  archivedAt DateTime?
+
+  versions PromptVersion[]
+
+  @@map("prompts")
+}
+
+model PromptVersion {
+  id               String   @id @default(uuid()) @db.Uuid
+  promptId         String   @db.Uuid
+  versionLabel     String
+  body             String
+  negativeBody     String?
+  targetPlatform   String // string ไม่ใช่ enum ปิด — Admin เพิ่ม platform ใหม่ได้ (D4)
+  modelName        String?
+  modelVersion     String?
+  generationParams Json?
+  seed             String?
+  performanceNote  String?
+  sourceUrl        String? // ที่มาของ prompt (เช่น โพสต์/กลุ่ม Facebook) — quick-capture เก็บอ้างอิง
+  createdBy        String   @db.Uuid
+  createdAt        DateTime @default(now())
+
+  prompt Prompt              @relation(fields: [promptId], references: [id])
+  links  PromptLink[]
+  runs   PromptGenerationRun[]
+  assets Asset[]
+
+  @@map("prompt_versions")
+}
+
+model PromptLink {
+  id              String        @id @default(uuid()) @db.Uuid
+  promptVersionId String        @db.Uuid
+  entityType      String
+  entityId        String        @db.Uuid
+  promptVersion   PromptVersion @relation(fields: [promptVersionId], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("prompt_links")
+}
+
+model PromptGenerationRun {
+  id              String        @id @default(uuid()) @db.Uuid
+  promptVersionId String        @db.Uuid
+  platform        String
+  modelVersion    String?
+  paramsUsed      Json?
+  assetId         String?       @db.Uuid
+  qcScore         Int? // 1–5
+  notes           String?
+  createdAt       DateTime      @default(now())
+  promptVersion   PromptVersion @relation(fields: [promptVersionId], references: [id])
+
+  @@map("prompt_generation_runs")
+}
+
+// ─── Tags ────────────────────────────────────────────────────
+
+model Tag {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+
+  entityTags EntityTag[]
+
+  @@map("tags")
+}
+
+model EntityTag {
+  tagId      String @db.Uuid
+  entityType String
+  entityId   String @db.Uuid
+  tag        Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([tagId, entityType, entityId])
+  @@index([entityType, entityId])
+  @@map("entity_tags")
+}
+
+// ─── Tasks (E.2) ─────────────────────────────────────────────
+
+model Task {
+  id          String       @id @default(uuid()) @db.Uuid
+  title       String
+  description String? // รายละเอียดยาวแบบ Trello
+  labels      String[]     @default([]) // รูปแบบ "color:ชื่อ" เช่น "green:ถ่ายทำ"
+  checklist   Json? // [{id, text, done}]
+  entityType  String?
+  entityId    String?      @db.Uuid
+  assigneeId  String?      @db.Uuid
+  dueDate     DateTime?
+  priority    TaskPriority @default(normal)
+  status      TaskStatus   @default(todo)
+  createdFrom String       @default("manual") // handoff, postit, manual, qc
+  createdBy   String       @db.Uuid
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  assignee User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  comments TaskComment[]
+
+  @@index([assigneeId, status])
+  @@map("tasks")
+}
+
+model TaskComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  taskId    String   @db.Uuid
+  content   String
+  createdBy String   @db.Uuid
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [taskId], references: [id])
+
+  @@map("task_comments")
+}
+
+enum TaskPriority {
+  low
+  normal
+  urgent
+}
+
+enum TaskStatus {
+  todo
+  in_progress
+  done
+  blocked
+}
+
+// ─── Notifications (E.3) ─────────────────────────────────────
+
+model Notification {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  type       String
+  entityType String?
+  entityId   String?   @db.Uuid
+  message    String
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// ─── Export & Audit (G, §27.1) ───────────────────────────────
+
+model ExportJob {
+  id          String    @id @default(uuid()) @db.Uuid
+  entityType  String
+  entityId    String    @db.Uuid
+  format      String // zip, pdf, markdown, json
+  status      String    @default("queued") // queued, running, done, failed
+  fileKey     String?
+  requestedBy String    @db.Uuid
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@map("export_jobs")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  via        String   @default("ui") // ui, api, mcp
+  action     String // create, update, status_change, export, login, ...
+  entityType String?
+  entityId   String?  @db.Uuid
+  meta       Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+// ค่า config ของระบบ — แก้ผ่านหน้า Settings (override ค่าจาก .env)
+model SystemSetting {
+  key       String   @id
+  value     String
+  isSecret  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+  updatedBy String?  @db.Uuid
+
+  @@map("system_settings")
+}
+
+model DownloadLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  exportJobId String?  @db.Uuid
+  assetId     String?  @db.Uuid
+  createdAt   DateTime @default(now())
+
+  @@map("download_logs")
+}
+
+// ─── Phase 2: Products & Brands (addendum E.1) ───────────────
+
+// ประเภทตัวละคร (taxonomy) — จัดการที่ Settings, ตัวละครเลือกได้หลายอัน (many-to-many)
+model CharacterCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique // เช่น "reviewer"
+  label     String // ชื่อไทยที่แสดง เช่น "รีวิวเวอร์"
+  sortOrder Int      @default(0)
+  status    String   @default("active") // active, archived
+  builtin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  characters CharacterCategoryLink[]
+
+  @@map("character_categories")
+}
+
+model CharacterCategoryLink {
+  characterId String            @db.Uuid
+  categoryId  String            @db.Uuid
+  character   Character         @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  category    CharacterCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([characterId, categoryId])
+  @@index([categoryId])
+  @@map("character_category_links")
+}
+
+// Character Blueprint (พิมพ์เขียว) — "ข้อกำหนด" ที่คุมการสร้างตัวละครให้ได้มาตรฐาน
+// เลือกตอนสร้าง → ฉีดกฎ/ค่า default/ฟิลด์บังคับ เข้า AI Wizard + Reverse-capture ทั้งคู่
+// จัดการที่ Settings (สร้าง/แก้/หลายแบบ) — additive, ไม่มี relation กับ Character (เก็บ blueprintId ตรง ๆ)
+model CharacterBlueprint {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  // "แม่บ้านอีสาน", "Beauty Presenter", "Gen-Z Reviewer"
+  description String?
+  icon        String? // emoji ประจำ blueprint
+  // House Rules — directive ที่ฉีดเพิ่มเข้า system prompt ของ AI (กฎบ้าน: identity lock, โทนแบรนด์ ฯลฯ)
+  houseRules  String?
+  // ฟิลด์บังคับ (ห้ามเว้นว่าง) — keys ของ persona/visualDna เช่น ["ethnicity","distinctive_features"]
+  requiredFields String[] @default([])
+  // ค่า default/แนะนำที่ฉีดให้ AI ยึด — เช่น { ethnicity, art_style, aspect_ratio, lighting, age_range, region }
+  defaults    Json?
+  isDefault   Boolean @default(false) // blueprint มาตรฐานที่ pre-select ตอนสร้าง
+  sortOrder   Int     @default(0)
+  status      String  @default("active") // active | archived
+  createdBy   String  @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime?
+
+  @@index([status, sortOrder])
+  @@map("character_blueprints")
+}
+
+model ProductCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique // ค่าที่เก็บใน Product.category — เช่น "beauty"
+  label     String // ชื่อไทยที่แสดง แก้ไขได้
+  sortOrder Int      @default(0)
+  status    String   @default("active") // active, archived
+  builtin   Boolean  @default(false) // 7 ตัว seed — ลบไม่ได้, key แก้ไม่ได้
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_categories")
+}
+
+model Brand {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String
+  contact   String?
+  notes     String?
+  status    String    @default("active") // active, archived
+  // ─── Brand Knowledge Base (Content Intelligence ระบบ 1) — additive ──
+  brandStory       String? // เรื่องราว/ตัวตนแบรนด์
+  toneOfVoice      String? // โทนการสื่อสาร (เช่น เป็นกันเอง สนุก จริงใจ)
+  doList           String[] @default([]) // สิ่งที่ควรทำ/พูด
+  dontList         String[] @default([]) // สิ่งที่ห้ามทำ/พูด
+  keyMessages      String[] @default([]) // สารหลักที่ต้องสื่อ
+  usp              String? // จุดขายที่ต่างจากคู่แข่ง
+  restrictedClaims String[] @default([]) // คำ/เคลมที่ห้ามใช้ (ระดับแบรนด์)
+  visualIdentity   String? // อัตลักษณ์ภาพ: สี/มู้ด/สไตล์ (legacy — โครงใหม่ใช้ brandColors/brandFonts)
+  competitorsNote  String? // คู่แข่งหลัก + จุดต่าง
+  // ─── Brand Book เต็มรูป (spec: _docs/brand_book_requirement.md) — additive ──
+  // แก่นแบรนด์ (Foundation)
+  mission     String?
+  vision      String?
+  coreValues  String[] @default([])
+  positioning String? // เราคือใคร ให้ใคร ต่างยังไง
+  personality String? // บุคลิก/archetype เช่น The Caregiver
+  tagline     String?
+  taglineFont String? // ฟอนต์สโลแกน เช่น Great Vibes
+  // ภาษาแบรนด์ (Verbal)
+  wordBankUse    String[] @default([]) // คำที่ใช้
+  wordBankAvoid  String[] @default([]) // คำที่ห้ามใช้ (โทน ไม่ใช่เคลม — เคลมอยู่ restrictedClaims)
+  exampleOnBrand  String? // ตัวอย่างประโยค on-brand
+  exampleOffBrand String? // ตัวอย่างประโยค off-brand
+  platformGuides  Json? // {facebook, tiktok, instagram, ...} แนวเขียนต่อแพลตฟอร์ม
+  // อัตลักษณ์ภาพ (Visual — โครงจาก SRS JangKert §2)
+  nameUsage     String? // วิธีเขียนชื่อ เช่น NA**RA** เน้น syllable
+  logoUsageNote String? // กติกาใช้โลโก้ + misuse
+  moodNote      String? // มู้ดภาพ do/don't
+  brandColors   Json? // [{token, dark, light, usage}]
+  brandFonts    Json? // [{role: heading|body|display, family, note}]
+  // การกำกับ (Governance)
+  bookVersion         String? // เช่น "2.1"
+  bookApproverName    String?
+  bookApproverContact String?
+  bookUpdatedAt       DateTime? // stamp ทุกครั้งที่แก้ field ของ book
+  bookShareToken      String?   @unique // token ลิงก์แชร์ read-only ให้ลูกค้า (null = ปิดแชร์)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products       Product[]
+  clients        Client[]
+  brandAudiences BrandAudience[]
+
+  @@map("brands")
+}
+
+model Product {
+  id             String        @id @default(uuid()) @db.Uuid
+  displayCode    String        @unique // PRD-0001
+  name           String
+  brandId        String?       @db.Uuid
+  category       String? // fashion, beauty, food, supplement, home, gadget, other
+  packagingType  String? // รูปแบบแพ็กเกจ (jelly_stick_sachet | pump_bottle | squeeze_tube | ...) → ดึง Prompt ประเภทสินค้าเข้า compose
+  description    String?
+  price          Decimal?      @db.Decimal(12, 2)
+  salePrice      Decimal?      @db.Decimal(12, 2)
+  platformLinks  Json? // {shopee: url, tiktok_shop: url, lazada: url}
+  claimRiskLevel String        @default("low") // low, medium, high
+  restrictedClaims String[]    @default([])
+  reviewBrief    Json? // ข้อมูลรีวิวสำหรับทำคอนเทนต์ — {highlights[], specs, targetAudience, painPoint, howToUse[], promo, cautions, extraNote} กรอกครั้งเดียวใช้ทุก Clip Job
+  commissionNote String?
+  status         String        @default("active") // active, paused, discontinued
+  ownerId        String?       @db.Uuid
+  // ─── Affiliate Content Factory (Phase 1) — additive ──────────
+  isAffiliate       Boolean    @default(false) // สินค้าที่ดึงมาทำคอนเทนต์ affiliate
+  affiliateUrl      String? // ลิงก์ affiliate สำหรับก๊อปไปโพสต์
+  affiliatePlatform String? // shopee | tiktok_shop | lazada | other
+  commissionPct     Float? // % ค่าคอมมิชชัน (0-100)
+  // ─── Import จากไฟล์ export (shoptool.app / pyptools.io / อื่นๆ) — additive ──
+  sourcePlatform String? // เครื่องมือต้นทาง: shoptool.app | pyptools.io | ...
+  sourceType     String? // subtype ของเครื่องมือ เช่น flash_sale | livextra | productv4
+  externalItemId String? // shopee item id (ดึงจากลิงก์) — ใช้กันซ้ำ
+  externalShopId String? // shopee shop id
+  shopName       String? // ชื่อร้าน
+  rating         Float? // เรตติ้งสินค้า
+  soldMonth      Int? // ยอดขาย/เดือน
+  soldTotal      Int? // ยอดขายรวม
+  stockQty       Int? // สต๊อก
+  sourceRaw      Json? // ทุกคอลัมน์ต้นฉบับ — แสดงผลตรงไฟล์ 100%
+  importedAt     DateTime? // เวลานำเข้าล่าสุด
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  archivedAt     DateTime?
+
+  brand             Brand?              @relation(fields: [brandId], references: [id])
+  campaignProducts  CampaignProduct[]
+  episodeProducts   EpisodeProduct[]
+  contentProducts   ContentItemProduct[]
+  liveProducts      LiveProduct[]
+  jobLinks          JobProduct[]
+  characterTieIns   CharacterProduct[]
+  seriesTieIns      SeriesProduct[]
+  locationTieIns    LocationProduct[]
+  contentItems      ContentItem[] // คอนเทนต์ affiliate ที่ผูกกับสินค้านี้โดยตรง
+
+  @@map("products")
+}
+
+// ─── Phase 2: Campaigns ──────────────────────────────────────
+
+enum CampaignStatus {
+  brief
+  planning
+  production
+  review
+  published
+  completed
+  archived
+}
+
+model Campaign {
+  id           String         @id @default(uuid()) @db.Uuid
+  displayCode  String         @unique // CMP-0001
+  name         String
+  clientBrand  String?
+  objective    String? // awareness, engagement, follower_growth, product_click, order, gmv, character_launch, series_launch
+  campaignType String?
+  startDate    DateTime?
+  endDate      DateTime?
+  targetKpi    Json?
+  ownerId      String?        @db.Uuid
+  status       CampaignStatus @default(brief)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  archivedAt   DateTime?
+
+  characters CampaignCharacter[]
+  products   CampaignProduct[]
+  episodes   Episode[]
+  contents   ContentItem[]
+
+  @@map("campaigns")
+}
+
+model CampaignCharacter {
+  campaignId  String   @db.Uuid
+  characterId String   @db.Uuid
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  @@id([campaignId, characterId])
+  @@map("campaign_characters")
+}
+
+model CampaignProduct {
+  campaignId String   @db.Uuid
+  productId  String   @db.Uuid
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+
+  @@id([campaignId, productId])
+  @@map("campaign_products")
+}
+
+// ─── Phase 2: Series / Episodes / Shots ──────────────────────
+
+model Series {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  universe    String?
+  description String?
+  premise     String? // โครงเรื่องหลักของทั้งซีรีส์
+  coverAssetId String?  @db.Uuid
+  // Series Bible — continuity ระดับเรื่อง (world_rules[], timeline[], relationships[], last_cliffhanger, notes)
+  bible       Json?
+  // ตารางออกอากาศประจำ เช่น [{day:'tue', time:'19:00', platform:'tiktok'}]
+  broadcastSchedule Json?
+  status      String    @default("active") // active, hiatus, completed
+  // เป้ายอดวิว (คนดูเป้าหมาย) — targetViewsUnit = per_episode | series_total
+  targetViews     Int?
+  targetViewsUnit String? @default("per_episode")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  episodes   Episode[]
+  characters SeriesCharacter[]
+  locations  SeriesLocation[]
+  seasons    SeriesSeason[]
+
+  // คนดูเป้าหมาย — อ้างอิง taxonomy กลาง (Audience Segment)
+  audiences  SeriesAudience[]
+
+  // สินค้าที่ Tie-In (ไม่บังคับ) — ผูกกับสินค้าจริงในระบบ
+  tieInProducts SeriesProduct[]
+
+  @@map("series")
+}
+
+// นักแสดงประจำเรื่อง — สร้างตอนใหม่ auto-link ให้เลย
+model SeriesCharacter {
+  seriesId    String @db.Uuid
+  characterId String @db.Uuid
+  role        String @default("main") // main, supporting, recurring_guest
+  series      Series @relation(fields: [seriesId], references: [id])
+
+  @@id([seriesId, characterId])
+  @@map("series_characters")
+}
+
+model SeriesLocation {
+  seriesId   String @db.Uuid
+  locationId String @db.Uuid
+  series     Series @relation(fields: [seriesId], references: [id])
+
+  @@id([seriesId, locationId])
+  @@map("series_locations")
+}
+
+// Season จริงเป็น entity — arc รายซีซัน + สินค้า tie-in ประจำซีซัน
+model SeriesSeason {
+  id        String   @id @default(uuid()) @db.Uuid
+  seriesId  String   @db.Uuid
+  label     String // ต้อง match กับ Episode.season string เช่น "S1"
+  arc       String? // โครงเรื่องของซีซันนี้
+  status    String   @default("active") // planning, active, completed
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  series   Series          @relation(fields: [seriesId], references: [id])
+  products SeasonProduct[]
+
+  @@unique([seriesId, label])
+  @@map("series_seasons")
+}
+
+model SeasonProduct {
+  seasonId  String       @db.Uuid
+  productId String       @db.Uuid
+  season    SeriesSeason @relation(fields: [seasonId], references: [id])
+
+  @@id([seasonId, productId])
+  @@map("season_products")
+}
+
+enum EpisodeStatus {
+  idea
+  script_draft
+  script_review
+  script_approved
+  shot_breakdown
+  production
+  edited
+  published
+  archived
+}
+
+model Episode {
+  id            String        @id @default(uuid()) @db.Uuid
+  displayCode   String        @unique // EP-0001
+  seriesId      String?       @db.Uuid
+  season        String?
+  episodeNumber Int?
+  title         String
+  logline       String?
+  script        String?
+  hook          String?
+  conflict      String?
+  twist         String?
+  cta           String?
+  locationId    String?       @db.Uuid
+  campaignId    String?       @db.Uuid
+  status        EpisodeStatus @default(idea)
+  ownerId       String?       @db.Uuid // ผู้รับผิดชอบอีพี — ใช้กับ row-level viewScope 'own'
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  archivedAt    DateTime?
+
+  series     Series?            @relation(fields: [seriesId], references: [id])
+  campaign   Campaign?          @relation(fields: [campaignId], references: [id])
+  location   Location?          @relation(fields: [locationId], references: [id])
+  characters EpisodeCharacter[]
+  products   EpisodeProduct[]
+  shots      Shot[]
+  contents   ContentItem[]
+
+  @@map("episodes")
+}
+
+model EpisodeCharacter {
+  episodeId   String  @db.Uuid
+  characterId String  @db.Uuid
+  episode     Episode @relation(fields: [episodeId], references: [id])
+
+  @@id([episodeId, characterId])
+  @@map("episode_characters")
+}
+
+model EpisodeProduct {
+  episodeId String  @db.Uuid
+  productId String  @db.Uuid
+  episode   Episode @relation(fields: [episodeId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([episodeId, productId])
+  @@map("episode_products")
+}
+
+// ─── Product Tie-Ins (ไม่บังคับ) — Character / Series / Location ──
+// ผูกสินค้าจริงที่ tie-in กับตัวละคร / ซีรีส์ / โลเคชัน (note = บริบทการ tie-in)
+
+model CharacterProduct {
+  characterId String    @db.Uuid
+  productId   String    @db.Uuid
+  note        String?
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([characterId, productId])
+  @@index([productId])
+  @@map("character_products")
+}
+
+model SeriesProduct {
+  seriesId  String  @db.Uuid
+  productId String  @db.Uuid
+  note      String?
+  series    Series  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([seriesId, productId])
+  @@index([productId])
+  @@map("series_products")
+}
+
+model LocationProduct {
+  locationId String   @db.Uuid
+  productId  String   @db.Uuid
+  note       String?
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([locationId, productId])
+  @@index([productId])
+  @@map("location_products")
+}
+
+enum ShotStatus {
+  planned
+  prompt_ready
+  generating
+  generated
+  selected
+  rejected
+  edited
+  approved
+}
+
+model Shot {
+  id          String     @id @default(uuid()) @db.Uuid
+  episodeId   String     @db.Uuid
+  shotNumber  Int
+  durationSec Int?
+  camera      String? // close_up, medium, wide, over_shoulder, pov, product_close_up, reaction, establishing
+  action      String?
+  dialogue    String?
+  emotion     String?
+  locationId  String?    @db.Uuid
+  outfit      String?
+  status      ShotStatus @default(planned)
+  // ─── Storyboard (Content Intelligence ระบบ 3) — additive ──────
+  imagePrompt String? // prompt ภาพต่อช็อต (AI ร่าง → คนไป gen ใน ChatGPT/Grok เอง)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  episode    Episode         @relation(fields: [episodeId], references: [id])
+  characters ShotCharacter[]
+
+  @@index([episodeId, shotNumber])
+  @@map("shots")
+}
+
+model ShotCharacter {
+  shotId      String @db.Uuid
+  characterId String @db.Uuid
+  shot        Shot   @relation(fields: [shotId], references: [id])
+
+  @@id([shotId, characterId])
+  @@map("shot_characters")
+}
+
+// ─── Phase 2: Location / Voice / Rights / QC ─────────────────
+
+model Location {
+  id              String    @id @default(uuid()) @db.Uuid
+  name            String
+  type            String?
+  regionStyle     String?
+  mood            String?
+  lighting        String?
+  timeOfDay       String?
+  prompt          String?
+  negativePrompt  String?
+  continuityNotes String?
+  status          String    @default("active")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  episodes Episode[]
+
+  // สินค้าที่ Tie-In (ไม่บังคับ) — ผูกกับสินค้าจริงในระบบ
+  tieInProducts LocationProduct[]
+
+  @@map("locations")
+}
+
+model CharacterVoiceProfile {
+  id              String   @id @default(uuid()) @db.Uuid
+  characterId     String   @db.Uuid
+  voiceType       String?
+  tone            String?
+  accent          String?
+  speakingSpeed   String?
+  laughStyle      String?
+  emotionalRange  String[] @default([])
+  sampleDialogues String[] @default([])
+  aiVoiceModel    String?
+  humanVoiceActor String?
+  usageRights     String?
+  status          String   @default("draft")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([characterId])
+  @@map("character_voice_profiles")
+}
+
+enum LegalStatus {
+  draft
+  internal_only
+  commercial_approved
+  restricted
+  expired
+  archived
+}
+
+model Right {
+  id                   String      @id @default(uuid()) @db.Uuid
+  entityType           String // character, asset, voice, prompt, campaign
+  entityId             String      @db.Uuid
+  owner                String
+  commercialUsage      Boolean     @default(false)
+  usageScope           String?
+  territory            String?
+  duration             String?
+  exclusivity          String?
+  restrictedCategories String[]    @default([])
+  disclosureRequired   Boolean     @default(false)
+  legalStatus          LegalStatus @default(draft)
+  riskLevel            String      @default("low")
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  @@index([entityType, entityId])
+  @@map("rights")
+}
+
+model QcReview {
+  id         String   @id @default(uuid()) @db.Uuid
+  entityType String // character, asset, prompt, episode, shot, content
+  entityId   String   @db.Uuid
+  category   String // character_consistency, visual_quality, prompt_quality, asset_readiness, product_claim, brand_safety, rights, originality, publishing_readiness
+  score      Int // 1–5
+  comment    String?
+  reviewerId String   @db.Uuid
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@map("qc_reviews")
+}
+
+// ─── Phase 3: Content Calendar & Live (addendum D.1) ─────────
+
+enum ContentStatus {
+  idea
+  brief
+  in_production
+  internal_review
+  revision_needed
+  approved
+  scheduled
+  published
+  archived
+}
+
+model ContentItem {
+  id            String        @id @default(uuid()) @db.Uuid
+  title         String
+  objective     String?
+  platform      String // tiktok, facebook_reels, instagram_reels, youtube_shorts, tiktok_shop, shopee_video, lazada, line_oa
+  account       String?
+  scheduledAt   DateTime?
+  contentFormat String? // short_video, live, image_post, article
+  contentType   String? // drama, review, tie_in, vlog, meme
+  episodeId     String?       @db.Uuid
+  campaignId    String?       @db.Uuid
+  caption       String?
+  hashtags      String[]      @default([])
+  cta           String?
+  thumbnailAssetId String?    @db.Uuid
+  postUrl       String?
+  blockedReason String?
+  status        ContentStatus @default(idea)
+  ownerId       String?       @db.Uuid
+  reviewerId    String?       @db.Uuid
+  // ─── Affiliate Content Factory (Phase 1) — additive ──────────
+  sourceType    String? // 'affiliate' = ชุดคอนเทนต์ที่ AI สร้างจากสินค้า affiliate
+  hook          String? // hook 0-3 วิ สำหรับดึงคนดู
+  scriptJson    Json? // {hook, body, cta, shots:[{scene,camera,action,dialogue?}]}
+  productId     String?       @db.Uuid // สินค้า affiliate ต้นทาง (direct link)
+  affiliateUrlSnapshot String? // snapshot ลิงก์ affiliate ตอนสร้างคอนเทนต์
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  archivedAt    DateTime?
+
+  episode      Episode?              @relation(fields: [episodeId], references: [id])
+  campaign     Campaign?             @relation(fields: [campaignId], references: [id])
+  product      Product?              @relation(fields: [productId], references: [id])
+  characters   ContentItemCharacter[]
+  products     ContentItemProduct[]
+  performances ContentPerformance[]
+
+  @@index([platform, scheduledAt])
+  @@index([productId, sourceType])
+  @@map("content_items")
+}
+
+model ContentItemCharacter {
+  contentItemId String      @db.Uuid
+  characterId   String      @db.Uuid
+  contentItem   ContentItem @relation(fields: [contentItemId], references: [id])
+
+  @@id([contentItemId, characterId])
+  @@map("content_item_characters")
+}
+
+model ContentItemProduct {
+  contentItemId String      @db.Uuid
+  productId     String      @db.Uuid
+  contentItem   ContentItem @relation(fields: [contentItemId], references: [id])
+  product       Product     @relation(fields: [productId], references: [id])
+
+  @@id([contentItemId, productId])
+  @@map("content_item_products")
+}
+
+enum LiveStatus {
+  scheduled
+  live
+  done
+  cancelled
+}
+
+model LiveSession {
+  id              String     @id @default(uuid()) @db.Uuid
+  title           String
+  platform        String
+  account         String?
+  scheduledAt     DateTime
+  humanOperatorId String?    @db.Uuid
+  offer           String?
+  script          String?
+  faq             String?
+  commentGuide    String?
+  sceneSetup      String?
+  targetGmv       Decimal?   @db.Decimal(14, 2)
+  replayAssetId   String?    @db.Uuid
+  status          LiveStatus @default(scheduled)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  hostCharacters LiveCharacter[]
+  products       LiveProduct[]
+  performances   ContentPerformance[]
+
+  @@index([scheduledAt])
+  @@map("live_sessions")
+}
+
+model LiveCharacter {
+  liveId      String      @db.Uuid
+  characterId String      @db.Uuid
+  live        LiveSession @relation(fields: [liveId], references: [id])
+
+  @@id([liveId, characterId])
+  @@map("live_characters")
+}
+
+model LiveProduct {
+  liveId    String      @db.Uuid
+  productId String      @db.Uuid
+  pinOrder  Int         @default(0)
+  live      LiveSession @relation(fields: [liveId], references: [id])
+  product   Product     @relation(fields: [productId], references: [id])
+
+  @@id([liveId, productId])
+  @@map("live_products")
+}
+
+// ─── Phase 3: Performance (time-series, D6: manual + CSV) ────
+
+model ContentPerformance {
+  id             String       @id @default(uuid()) @db.Uuid
+  contentItemId  String?      @db.Uuid
+  liveSessionId  String?      @db.Uuid
+  platform       String
+  recordedAt     DateTime
+  views          Int?
+  reach          Int?
+  impressions    Int?
+  likes          Int?
+  comments       Int?
+  shares         Int?
+  saves          Int?
+  watchTimeSec   Int?
+  retention3Sec  Float?
+  completionRate Float?
+  ctr            Float?
+  productClicks  Int?
+  addToCart      Int?
+  orders         Int?
+  revenue        Decimal?     @db.Decimal(14, 2)
+  gmv            Decimal?     @db.Decimal(14, 2)
+  cvr            Float?
+  roas           Float?
+  source         String       @default("manual") // manual, csv
+  createdBy      String?      @db.Uuid
+  createdAt      DateTime     @default(now())
+
+  contentItem ContentItem? @relation(fields: [contentItemId], references: [id])
+  liveSession LiveSession? @relation(fields: [liveSessionId], references: [id])
+
+  @@index([contentItemId, recordedAt])
+  @@map("content_performance")
+}
+
+model ImportJob {
+  id        String   @id @default(uuid()) @db.Uuid
+  filename  String
+  kind      String   @default("performance_csv")
+  rowCount  Int      @default(0)
+  errorRows Json?
+  status    String   @default("done") // done, failed
+  createdBy String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  @@map("import_jobs")
+}
+
+// ─── Phase 3: Competitor Intelligence ────────────────────────
+
+model Competitor {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  type        String? // brand, creator, studio, shop
+  category    String[] @default([])
+  positioning String?
+  audience    String[] @default([])
+  strength    String?
+  weakness    String?
+  threatLevel String   @default("medium") // low, medium, high
+  watchStatus String   @default("active") // active, paused
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  channels CompetitorChannel[]
+  contents CompetitorContent[]
+  insights CompetitorInsight[]
+
+  @@map("competitors")
+}
+
+model CompetitorChannel {
+  id           String     @id @default(uuid()) @db.Uuid
+  competitorId String     @db.Uuid
+  platform     String
+  handle       String
+  url          String?
+  followers    Int?
+  notes        String?
+  competitor   Competitor @relation(fields: [competitorId], references: [id])
+
+  @@map("competitor_channels")
+}
+
+model CompetitorContent {
+  id           String     @id @default(uuid()) @db.Uuid
+  competitorId String     @db.Uuid
+  url          String
+  platform     String?
+  contentType  String?
+  hook         String?
+  metricsNote  String?
+  notes        String?
+  capturedAt   DateTime   @default(now())
+  createdBy    String?    @db.Uuid
+  competitor   Competitor @relation(fields: [competitorId], references: [id])
+
+  @@map("competitor_contents")
+}
+
+model CompetitorInsight {
+  id                    String      @id @default(uuid()) @db.Uuid
+  competitorId          String?     @db.Uuid
+  fact                  String // §18.4: แยก Fact / Assumption / Recommendation
+  assumption            String?
+  recommendation        String?
+  convertedToCampaignId String?     @db.Uuid
+  createdBy             String      @db.Uuid
+  createdAt             DateTime    @default(now())
+  competitor            Competitor? @relation(fields: [competitorId], references: [id])
+
+  @@map("competitor_insights")
+}
+
+// ─── Phase 3: Ideas & Post-it Board ──────────────────────────
+
+enum IdeaStatus {
+  captured
+  reviewed
+  shortlisted
+  adapted
+  converted
+  used
+  archived
+}
+
+model Idea {
+  id                String     @id @default(uuid()) @db.Uuid
+  title             String
+  ideaType          String? // hook, story, visual, character, comedy, tie_in, live_selling, caption, trend, music, editing
+  url               String?
+  note              String?
+  aiSummary         String?
+  aiAdaptation      String?
+  screenshotAssetId String?    @db.Uuid
+  status            IdeaStatus @default(captured)
+  createdBy         String     @db.Uuid
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@map("ideas")
+}
+
+enum PostitStatus {
+  open
+  in_progress
+  resolved
+  archived
+}
+
+model Postit {
+  id         String       @id @default(uuid()) @db.Uuid
+  type       String       @default("note") // note, idea, todo, issue, feedback, qc_note, risk, reference, decision, question
+  content    String
+  entityType String?
+  entityId   String?      @db.Uuid
+  assigneeId String?      @db.Uuid
+  priority   TaskPriority @default(normal)
+  status     PostitStatus @default(open)
+  createdBy  String       @db.Uuid
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  comments PostitComment[]
+
+  @@index([entityType, entityId])
+  @@map("postits")
+}
+
+model PostitComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  postitId  String   @db.Uuid
+  content   String
+  createdBy String   @db.Uuid
+  createdAt DateTime @default(now())
+  postit    Postit   @relation(fields: [postitId], references: [id])
+
+  @@map("postit_comments")
+}
+
+// ─── Jobs / งานรับจ้างผลิต (client production orders) ─────────
+
+enum JobType {
+  image_pack
+  video_review
+  live
+  mixed
+}
+
+enum JobStatus {
+  inquiry
+  quoted
+  confirmed
+  in_production
+  internal_qc
+  delivered
+  revision
+  approved
+  closed
+  cancelled
+}
+
+enum JobDeliverableStatus {
+  pending
+  submitted
+  approved
+  rejected
+}
+
+model Client {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  contactName String?
+  phone       String?
+  line        String?
+  email       String?
+  type        String? // brand, agency, shop, individual
+  brandId     String?  @db.Uuid // optional link to existing Brand
+  notes       String?
+  status      String   @default("active") // active, archived
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  brand Brand? @relation(fields: [brandId], references: [id])
+  jobs  Job[]
+
+  @@map("clients")
+}
+
+model Job {
+  id          String    @id @default(uuid()) @db.Uuid
+  displayCode String    @unique // JOB-0001
+  title       String
+  clientId    String    @db.Uuid
+  type        JobType   @default(video_review)
+  brief       String?
+  status      JobStatus @default(inquiry)
+  priority    String    @default("normal") // low, normal, urgent
+  dueDate     DateTime?
+  deliveredAt DateTime?
+  // deliverable spec
+  qtyImages         Int?
+  qtyClips          Int?
+  revisionsIncluded Int  @default(1)
+  // pricing — stored now, finance dashboard is phase 2
+  quotePrice    Decimal? @db.Decimal(12, 2)
+  depositAmount Decimal? @db.Decimal(12, 2)
+  paymentStatus String   @default("unpaid") // unpaid, deposit_paid, paid
+  currency      String   @default("THB")
+  ownerId       String?  @db.Uuid // account owner (user)
+  createdBy     String?  @db.Uuid
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  archivedAt    DateTime?
+
+  client       Client           @relation(fields: [clientId], references: [id])
+  products     JobProduct[]
+  presenters   JobPresenter[]
+  crew         JobCrew[]
+  deliverables JobDeliverable[]
+
+  @@map("jobs")
+}
+
+model JobProduct {
+  jobId     String  @db.Uuid
+  productId String  @db.Uuid
+  job       Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([jobId, productId])
+  @@map("job_products")
+}
+
+model JobPresenter {
+  jobId       String    @db.Uuid
+  characterId String    @db.Uuid
+  job         Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id])
+
+  @@id([jobId, characterId])
+  @@map("job_presenters")
+}
+
+model JobCrew {
+  jobId     String  @db.Uuid
+  creatorId String  @db.Uuid
+  roleNote  String?
+  job       Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  creator   Creator @relation(fields: [creatorId], references: [id])
+
+  @@id([jobId, creatorId])
+  @@map("job_crew")
+}
+
+model JobDeliverable {
+  id             String               @id @default(uuid()) @db.Uuid
+  jobId          String               @db.Uuid
+  round          Int                  @default(1)
+  title          String?
+  notes          String?
+  status         JobDeliverableStatus @default(pending)
+  clientFeedback String?
+  createdBy      String?              @db.Uuid
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  job            Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("job_deliverables")
+}
+
+// ─── Team KPI / Goal-setting (Phase 1 MVP) ───────────────────
+// เป้าหมาย output ของทีม ตั้งต่อ role (phase 1) — target เป็นราย "คน" ในบทบาทนั้น
+// actuals คำนวณสด ๆ จาก audit_logs (action='create') ไม่มี snapshot ในเฟสนี้
+model KpiGoal {
+  id        String   @id @default(uuid()) @db.Uuid
+  scope     String   @default("role") // "role" (phase 1); "user" reserved for phase 2
+  roleKey   String? // e.g. "creator"
+  userId    String?  @db.Uuid // phase 2 override
+  metric    String // character_created | episode_created | series_created | content_created | ...
+  period    String   @default("weekly") // weekly | monthly
+  target    Int
+  active    Boolean  @default(true)
+  createdBy String?  @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([scope, roleKey, userId, metric, period])
+  @@map("kpi_goals")
+}
+
+// ─── Audience Segment — taxonomy กลางของกลุ่มผู้ชม (Phase 1) ──
+// นิยามกลุ่มผู้ชมชุดเดียว ใช้ร่วมกันทั้ง Character (ผู้ติดตาม) และ Series (คนดูเป้าหมาย)
+// จัดการใน Settings แบบเดียวกับ brands/categories
+model AudienceSegment {
+  id            String              @id @default(uuid()) @db.Uuid
+  name          String
+  description   String?
+  ageMin        Int?
+  ageMax        Int?
+  gender        String? // any, female, male, mixed
+  interests     String[]            @default([])
+  platforms     String[]            @default([])
+  spendingPower String? // low, medium, high
+  region        String?
+  painPoint     String?
+  status        String              @default("active") // active, archived
+  createdBy     String?             @db.Uuid
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  characters    CharacterAudience[]
+  series        SeriesAudience[]
+  brands        BrandAudience[]
+
+  @@map("audience_segments")
+}
+
+model CharacterAudience {
+  characterId String          @db.Uuid
+  segmentId   String          @db.Uuid
+  isPrimary   Boolean         @default(false)
+  character   Character       @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  segment     AudienceSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+
+  @@id([characterId, segmentId])
+  @@index([segmentId])
+  @@map("character_audiences")
+}
+
+model SeriesAudience {
+  seriesId  String          @db.Uuid
+  segmentId String          @db.Uuid
+  isPrimary Boolean         @default(false)
+  series    Series          @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  segment   AudienceSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+
+  @@id([seriesId, segmentId])
+  @@index([segmentId])
+  @@map("series_audiences")
+}
+
+// ─── AI Usage & Cost Accountability (additive) ───────────────
+// ทุก usage log ต้องผูกงานจริง (AiUsageLink ≥1) — บังคับที่ service ชั้น
+// userId / createdById เก็บเป็น Uuid ตรงๆ ไม่ผูก relation (เลียนแบบ Asset.uploadedBy)
+// เพื่อให้ additive แท้ ไม่ต้องแตะ model User
+
+model AiTool {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String
+  unit            String // 'token' | 'credit' | 'flat'
+  defaultRateBaht Float? // เรตสำรอง ใช้ตอนยังไม่มี top-up ledger
+  status          String   @default("active") // active | archived
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  topups    AiCreditTopup[]
+  usageLogs AiUsageLog[]
+
+  @@map("ai_tools")
+}
+
+model AiCreditTopup {
+  id          String   @id @default(uuid()) @db.Uuid
+  aiToolId    String   @db.Uuid
+  purchasedAt DateTime
+  amountBaht  Decimal // จ่ายจริงกี่บาท
+  quantity    Float // credit/token ที่ได้
+  note        String?
+  createdById String   @db.Uuid
+  createdAt   DateTime @default(now())
+
+  aiTool AiTool @relation(fields: [aiToolId], references: [id])
+
+  @@index([aiToolId, purchasedAt])
+  @@map("ai_credit_topups")
+}
+
+model AiUsageLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  aiToolId     String   @db.Uuid
+  usedAt       DateTime
+  quantity     Float // token/credit ที่ใช้
+  costBaht     Decimal // auto = quantity × blended rate (แก้ทับได้)
+  outputsCount Int
+  outputType   String // 'video' | 'image' | 'other'
+  note         String?
+  createdAt    DateTime @default(now())
+
+  aiTool AiTool        @relation(fields: [aiToolId], references: [id])
+  links  AiUsageLink[]
+
+  @@index([userId, usedAt])
+  @@index([aiToolId])
+  @@map("ai_usage_logs")
+}
+
+model AiUsageLink {
+  id         String  @id @default(uuid()) @db.Uuid
+  usageLogId String  @db.Uuid
+  entityType String // 'episode' | 'shot' | 'content'
+  entityId   String  @db.Uuid
+  label      String?
+
+  usageLog AiUsageLog @relation(fields: [usageLogId], references: [id], onDelete: Cascade)
+
+  @@index([usageLogId])
+  @@index([entityType, entityId])
+  @@map("ai_usage_links")
+}
+
+// ── Media Center — ลิงก์ Google Drive / คลังงานของทีม (จัดการที่ Settings) ──
+model MediaLink {
+  id        String   @id @default(uuid()) @db.Uuid
+  label     String // ชื่อที่แสดง เช่น "ฟุตเทจดิบ Q3"
+  url       String // ลิงก์ Google Drive / โฟลเดอร์
+  category  String? // จัดกลุ่ม เช่น "โปรเจกต์", "คลังฟุตเทจ", "แบรนด์"
+  icon      String? // emoji ไอคอน (ไม่บังคับ)
+  note      String? // คำอธิบายสั้น
+  sortOrder Int      @default(0)
+  status    String   @default("active") // active, archived
+  createdBy String?  @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category, sortOrder])
+  @@map("media_links")
+}
+
+// ── ทีม (Team) — กลุ่มคนทำงาน ใช้กับ viewScope 'team' (เห็นงานของทีมเดียวกัน) ──
+model Team {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  status    String   @default("active") // active, archived
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members TeamMember[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  teamId String @db.Uuid
+  userId String @db.Uuid
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+// ── งานภาพ (Image Request) — mini-ticket ผลิตภาพ banner/ปก/ภาพประกอบ ──
+// flow: brief → assign → gen (ChatGPT/Grok) → upload เวอร์ชัน → review → approve → ติดเข้าคอนเทนต์
+// เวอร์ชันภาพ = AssetLink entityType 'image_request' · comment = Postit (polymorphic เดิม)
+// อนุมัติได้ทั้งผู้ขอ (requesterId) และ role ที่มีสิทธิ์ A ของ module 'image_request'
+model ImageRequest {
+  id          String    @id @default(uuid()) @db.Uuid
+  displayCode String    @unique // IMG-0001
+  title       String
+  imageType   String // banner | cover | illustration | other
+  platform    String? // facebook, tiktok, ig, ...
+  sizeNote    String? // เช่น "1200x628" หรือ "9:16"
+  copyText    String? // ข้อความที่ต้องอยู่บนภาพ
+  brief       String? // รายละเอียดโจทย์
+  brandId     String?   @db.Uuid // ใช้ดึง Brand Book มาช่วยร่าง prompt
+  entityType  String? // ปลายทางที่ภาพจะไปติด: content | campaign | episode
+  entityId    String?   @db.Uuid
+  draftPrompt String? // prompt ที่ AI ร่างให้ (คนก๊อปไป gen เอง แก้ได้)
+  requesterId String    @db.Uuid
+  assigneeId  String?   @db.Uuid
+  dueAt       DateTime?
+  priority    String    @default("normal") // low | normal | urgent
+  status      String    @default("open") // open | in_progress | review | revision | approved | cancelled
+  approvedBy  String?   @db.Uuid
+  approvedAt  DateTime?
+  approvedAssetId String? @db.Uuid // เวอร์ชันภาพที่ถูกเลือกตอนอนุมัติ
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, assigneeId])
+  @@index([entityType, entityId])
+  @@index([requesterId])
+  @@map("image_requests")
+}
+
+// ═══ Product Interaction Library (SRS slice 1) — Hand / Gesture / Product State ═══
+// คลัง "ไวยากรณ์การหยิบจับสินค้า" — moat ของระบบผลิตคลิปรีวิว (คนคุมก่อน ไม่แตะ gen)
+// รูป reference ผ่าน asset system (entityType 'hand' / 'gesture')
+
+model HandProfile {
+  id          String  @id @default(uuid()) @db.Uuid
+  displayCode String  @unique // HAND-0001
+  name        String
+  category    String // adult_female | adult_male | child | elderly | teen | professional | working | farmer | mechanic | mother | business | custom
+  gender      String?
+  ageGroup    String?
+  skinTone    String?
+  handSize    String?
+  fingerLength String?
+  nailLength  String?
+  nailShape   String?
+  nailColor   String?
+  nailStyle   String?
+  accessories String[] @default([]) // ring, bracelet, watch
+  sleeveStyle String?
+  skinTexture String?
+  dominantHand String? // left | right
+  allowedGestures    String[] @default([]) // gesture keys
+  restrictedGestures String[] @default([])
+  productCategorySuitability String[] @default([])
+  // Child hand compliance (SRS §3.2.2)
+  isChild            Boolean @default(false)
+  policyFlag         String?
+  complianceReviewed Boolean @default(false)
+  status      String   @default("draft") // draft | active | archived
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime?
+
+  @@index([category, status])
+  @@map("hand_profiles")
+}
+
+model Gesture {
+  id          String  @id @default(uuid()) @db.Uuid
+  key         String? @unique // hold_product, pour, squeeze ...
+  name        String
+  category    String? // hold | open | pour | apply | ...
+  description String?
+  naturalDurationSec Float?
+  minDurationSec     Float?
+  maxDurationSec     Float?
+  minSpeedMultiplier Float?
+  maxSpeedMultiplier Float?
+  requiredHandCount     Int?
+  requiredProductState  String? // ProductState.key ที่ต้องมีก่อน
+  resultingProductState String? // ProductState.key หลังทำท่านี้
+  compatiblePackaging String[] @default([])
+  compatibleMaterial  String[] @default([])
+  riskLevel   String   @default("low") // low | medium | high
+  promptTemplate String?
+  negativePrompt String?
+  status      String   @default("active") // active | archived
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime?
+
+  @@index([category, status])
+  @@map("gestures")
+}
+
+// สถานะสินค้าในแต่ละช็อต (taxonomy จัดการที่ Settings) + กฎการเปลี่ยนสถานะ
+model ProductState {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique // sealed | opened | cap_removed | in_use | result ...
+  label     String
+  sortOrder Int      @default(0)
+  isInitial Boolean  @default(false) // สถานะเริ่มต้นที่ยอมรับได้
+  isTerminal Boolean @default(false) // สถานะปลายทาง (เช่น result, empty)
+  status    String   @default("active")
+  builtin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fromTransitions ProductStateTransition[] @relation("fromState")
+  toTransitions   ProductStateTransition[] @relation("toState")
+
+  @@map("product_states")
+}
+
+model ProductStateTransition {
+  id          String @id @default(uuid()) @db.Uuid
+  fromStateId String @db.Uuid
+  toStateId   String @db.Uuid
+  note        String?
+  fromState   ProductState @relation("fromState", fields: [fromStateId], references: [id], onDelete: Cascade)
+  toState     ProductState @relation("toState", fields: [toStateId], references: [id], onDelete: Cascade)
+
+  @@unique([fromStateId, toStateId])
+  @@index([toStateId])
+  @@map("product_state_transitions")
+}
+
+// ── Interaction Template (SRS slice 2) — "สูตรคลิป" ผูก มือ+ท่า+state เป็นลำดับช็อต ──
+model InteractionTemplate {
+  id          String  @id @default(uuid()) @db.Uuid
+  displayCode String  @unique // ITPL-0001
+  name        String
+  description String?
+  productCategory String? // ProductCategory.key ที่เหมาะ
+  packagingType   String? // bottle | pump | tube | sachet | spray | dropper | box | ...
+  materialType    String? // serum | cream | powder | ...
+  platform        String? // tiktok | facebook_reels | ...
+  aspectRatio     String? // 9:16 | 1:1 | 3:4
+  storyboardType  String? // unboxing | how_to_use | before_after | texture_demo | ...
+  targetDurationSec Float? // ความยาวรวมเป้าหมาย
+  defaultHandId   String? @db.Uuid // มือ default ทั้งเทมเพลต (step override ได้)
+  defaultCameraId String? @db.Uuid // มุมกล้อง default (Camera Library, step override ได้)
+  defaultLightingId String? @db.Uuid // แสง default (Lighting Library, step override ได้)
+  status      String   @default("draft") // draft | active | archived
+  version     String   @default("v1")
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime?
+
+  steps InteractionTemplateStep[]
+
+  @@index([packagingType, status])
+  @@index([productCategory])
+  @@map("interaction_templates")
+}
+
+model InteractionTemplateStep {
+  id         String  @id @default(uuid()) @db.Uuid
+  templateId String  @db.Uuid
+  stepOrder  Int
+  section    String  @default("interaction") // hook | reveal | interaction | demonstration | result | cta
+  gestureId  String? @db.Uuid // ท่าจาก Gesture Library (state ต่อเนื่องดึงจาก gesture)
+  handId     String? @db.Uuid // override มือเฉพาะ step
+  cameraId     String? @db.Uuid // มุมกล้องจาก Camera Library (override default ของ template)
+  lightingId   String? @db.Uuid // แสงจาก Lighting Library (override default ของ template)
+  cameraNote   String? // หมายเหตุกล้องเพิ่มเติม / override เมื่อไม่เลือกจากคลัง
+  lightingNote String?
+  durationSec  Float?
+  required     Boolean @default(true)
+  note         String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  template InteractionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId, stepOrder])
+  @@map("interaction_template_steps")
+}
+
+// ── Camera & Lighting Library (SRS slice 3, §3.6–3.7) — คลังมุมกล้อง + แสง ──
+// ผูกเข้า InteractionTemplate(default)/Step(override) ผ่าน uuid ตรง ๆ (additive, ไม่มี relation)
+model CameraPreset {
+  id          String  @id @default(uuid()) @db.Uuid
+  displayCode String  @unique // CAM-0001
+  key         String? @unique // front | top_view | macro | pov | product_hero ...
+  name        String
+  description String?
+  shotSize    String? // extreme_closeup | closeup | medium | wide | ...
+  angle       String? // front | 45deg | side | top | over_shoulder | pov | ...
+  lens        String?
+  focalLength String?
+  cameraMovement String? // static | orbit | tracking | handheld | slider | ...
+  movementSpeed  String?
+  distance    String?
+  focusTarget String? // product | hand | face | label
+  depthOfField String?
+  stabilization String?
+  aspectRatio String? // 9:16 | 1:1 | 3:4 | 16:9
+  safeArea    String?
+  productVisibility String? // required | optional | hero
+  handVisibility    String? // required | optional | hidden
+  compatiblePackaging String[] @default([])
+  promptTemplate String?
+  negativePrompt String?
+  status      String   @default("active") // active | archived
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime?
+
+  @@index([shotSize, status])
+  @@map("camera_presets")
+}
+
+model LightingPreset {
+  id          String  @id @default(uuid()) @db.Uuid
+  displayCode String  @unique // LIGHT-0001
+  key         String? @unique // soft_studio | golden_hour | beauty | dark_mood ...
+  name        String
+  description String?
+  keyLight    String?
+  fillLight   String?
+  backLight   String?
+  colorTemperature String? // 5600K | warm | cool | mixed
+  contrast    String?
+  shadowLevel String?
+  highlightControl String?
+  reflectiveProductRule  String? // กฎสำหรับสินค้าสะท้อนแสง (ขวดแก้ว/โลหะ)
+  transparentProductRule String? // กฎสำหรับสินค้าโปร่งใส (เซรั่ม/น้ำ)
+  skinToneCompatibility   String[] @default([])
+  backgroundCompatibility String[] @default([])
+  mood        String? // soft | dramatic | clinical | warm | luxury | neon ...
+  promptTemplate String?
+  negativePrompt String?
+  status      String   @default("active")
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime?
+
+  @@index([mood, status])
+  @@map("lighting_presets")
+}
+
+// ── AI Director (SRS slice 4, §3.13) — Claude แนะนำสูตรถ่ายเต็มต่อสินค้า ──
+// รับ product + platform + duration + objective + style → เลือก template/มือ/ท่า/กล้อง/แสง ต่อ step
+// พร้อมเหตุผล + prompt package → กด "บันทึกเป็นเทมเพลต" สร้าง InteractionTemplate จริงได้
+model DirectorRun {
+  id          String  @id @default(uuid()) @db.Uuid
+  displayCode String  @unique // DIR-0001
+  // input
+  productId       String? @db.Uuid
+  brandId         String? @db.Uuid
+  productCategory String?
+  packagingType   String?
+  platform        String? // tiktok | facebook_reels | ...
+  targetDurationSec Float?
+  objective       String? // awareness | conversion | education | promo | ...
+  creativeStyle   String? // premium | playful | clinical | natural | luxury | ...
+  language        String  @default("th")
+  preferredHandId String? @db.Uuid
+  notes           String? // โจทย์เพิ่มเติมจากผู้ใช้
+  // output (AI)
+  recommendedTemplateId String? @db.Uuid // template เดิมที่ AI แนะนำให้ใช้เป็นฐาน (ถ้ามี match)
+  resultJson      Json? // { storyboardType, durationSec, summary, steps:[{stepOrder,section,gestureId,handId,cameraId,lightingId,durationSec,reason}], reasons:[{topic,text}], promptPackage }
+  reasoning       String? // เหตุผลรวมภาษาไทย
+  status          String  @default("draft") // draft | generating | ready | applied | failed
+  errorMessage    String?
+  appliedTemplateId String? @db.Uuid // InteractionTemplate ที่สร้างจากการกด "บันทึกเป็นเทมเพลต"
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId])
+  @@index([status])
+  @@map("director_runs")
+}
+
+// ── Banned Words Compliance — คำต้องห้ามต่อแพลตฟอร์ม (TikTok/YouTube/Facebook) ──
+// ใช้ 3 ชั้น: ฉีดเข้า system prompt ตอน AI เขียนบท / สแกนสดทุกช่องข้อความพูด / gate block ก่อนพร้อมโพสต์
+model BannedWord {
+  id          String   @id @default(uuid()) @db.Uuid
+  term        String   @unique // คำ/วลีต้องห้าม เช่น "รักษา", "หายขาด"
+  platforms   String[] @default([]) // tiktok | youtube | facebook — ว่าง = ห้ามทุกแพลตฟอร์ม
+  severity    String   @default("ban") // ban (โดนแบน/ลบคลิป — block) | risky (ลดการมองเห็น — เตือน)
+  category    String? // health_claim | beauty_claim | superlative | finance | gambling | ...
+  replacement String? // คำแทนที่แนะนำ เช่น "รักษา" → "ดูแล"
+  note        String?
+  status      String   @default("active") // active | archived
+  builtin     Boolean  @default(false) // seed มาตรฐาน — แก้ label/replacement ได้ ลบไม่ได้
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@map("banned_words")
+}
+
+// ── Affiliate Video Production — Clip Job สายพานผลิตคลิปรีวิวสินค้า (แยกจากสายซีรีส์) ──
+// เลือกสินค้า → โหมดมือ/พรีเซนเตอร์ → วางแผนอัตโนมัติ (Director+Factory) → shot board (prompt คู่)
+// ภาพนิ่ง = อัปโหลด / วิดีโอ = ลิงก์ Google Drive (CEO directive: ไฟล์หนัก ไม่อัป) / genSource รองรับ API เฟส 2
+model AffiliateClipJob {
+  id          String  @id @default(uuid()) @db.Uuid
+  displayCode String  @unique // CLIP-0001
+  name        String
+  // ตัวถูกรีวิว (UGC Studio v2): product = จาก catalog | place = ร้าน/สถานที่ (รวมโรงแรม) | food = อาหาร/เมนู
+  subjectType String  @default("product") // product | place | food
+  productId   String? @db.Uuid // สินค้าจาก catalog — ใช้เมื่อ subjectType = product
+  subjectBrief Json? // place/food: { name, category(cafe|bakery|noodle|restaurant|hotel|menu...), highlights[], vibe, address, mapUrl, openHours, priceRange, note }
+  ctaType     String  @default("basket") // basket | map | line | phone | booking — ปรับสคริปต์ปิดคลิป
+  clientId    String? @db.Uuid // ร้าน/แบรนด์ที่จ้างรีวิว (optional) — ต่อเข้า Clients/Jobs
+  outputType  String  @default("video") // video | stills
+  mode        String  @default("hand") // ค่าตั้งต้นของฉาก (v2: sceneType ต่อ shot ทับได้) hand | presenter
+  // Resource Rail — ทุกช่อง default ไม่เลือก (null = AI จัดให้เหมาะกับตัวถูกรีวิว)
+  handId      String? @db.Uuid // โปรไฟล์มือ (ฉากเห็นแค่มือ)
+  characterId String? @db.Uuid // ตัวละคร (ฉากมีตัวละคร → Master Prompt เต็ม)
+  wardrobeId  String? @db.Uuid // ชุดจากตู้เสื้อผ้าตัวละคร (ล็อคชุดเดียวทั้งคลิป)
+  locationId  String? @db.Uuid // Location จากคลัง — prompt+continuity ฝังทุกฉาก
+  voiceProfileId String? @db.Uuid // เสียงจาก CharacterVoiceProfile (null = default หญิงไทย 20-30)
+  voiceSpec   String? // สเปกเสียงที่ใช้จริง (ประกอบตอนวางแผน แก้ได้)
+  headline    String? // คำพาดหัวหลักฉากแรก (ข้อความบนภาพ — ใส่ตอนตัดต่อ)
+  conceptsJson Json? // คอนเซปต์ 3 แบบล่าสุดที่ AI เสนอ (มี emoji) + ชุดที่ขอใหม่
+  selectedConceptIndex Int? // คอนเซปต์ที่เลือกไปแตก storyboard
+  templateId  String? @db.Uuid // InteractionTemplate สูตรที่ใช้ (จาก Director หรือเลือกเอง)
+  directorRunId String? @db.Uuid // DirectorRun ที่วางแผนให้ (อ้างอิงเหตุผล)
+  platform    String? // tiktok | facebook_reels | ...
+  aspectRatio String? @default("9:16")
+  targetDurationSec Float?
+  script      String? // สคริปต์พูดทั้งคลิป (จาก Factory, แก้ได้)
+  caption     String?
+  hashtags    String[] @default([])
+  affiliateLink String? // ลิงก์สินค้า (default จาก product.platformLinks)
+  finalVideoUrl String? // ลิงก์ Google Drive คลิปตัวเต็มหลังตัดต่อ
+  finalNote   String?
+  planJson    Json? // ผลวางแผนดิบ (เหตุผล Director + meta Factory)
+  status      String  @default("draft") // draft | planning | generating | review | ready | published | archived
+  createdBy   String  @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime?
+
+  shots ClipShot[]
+
+  @@index([productId, status])
+  @@index([status])
+  @@map("affiliate_clip_jobs")
+}
+
+model ClipShot {
+  id        String  @id @default(uuid()) @db.Uuid
+  jobId     String  @db.Uuid
+  shotOrder Int
+  section   String  @default("interaction") // hook | reveal | interaction | demonstration | result | cta
+  title     String?
+  sceneType String  @default("hands") // presenter (มีตัวละคร ห้ามหันหลัง) | hands (เห็นแค่มือ) | product_only (ห้ามมีคน/มือ/เงา)
+  voiceType String? // on_camera (พูดหน้ากล้อง) | female_vo (เสียงบรรยายหญิง) — auto ตาม sceneType แก้ได้
+  onScreenText String? // ข้อความบนภาพ 1-4 คำ (โน้ตใส่ตอนตัดต่อ — ไม่ฝังใน prompt ภาพ)
+  gestureId String? @db.Uuid
+  handId    String? @db.Uuid
+  cameraId  String? @db.Uuid
+  lightingId String? @db.Uuid
+  durationSec Float?
+  dialogue  String? // บทพูดท่อนนี้ (4-6 วิ)
+  stillPrompt  String? // prompt ภาพนิ่ง → ChatGPT/Grok (ประกอบตอนวางแผน แก้ได้)
+  motionPrompt String? // prompt image-to-video → Kling/Veo (ภาพนิ่งเป็น first frame)
+  negativePrompt String?
+  stillAssetId String? @db.Uuid // ภาพนิ่งที่วางกลับ (อัปโหลด — ไฟล์เล็ก)
+  videoUrl  String? // ลิงก์ Google Drive คลิปย่อยของ shot นี้
+  showProduct Boolean @default(true) // เห็นสินค้าในช็อตนี้ไหม — false = compose ตัด reference สินค้า + ใส่บรรทัดซ่อน
+  genSource String  @default("manual") // manual (ก๊อปวาง) | api (เฟส 2)
+  status    String  @default("pending") // pending | generated | approved
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job AffiliateClipJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, shotOrder])
+  @@map("clip_shots")
+}
+
+// ═══ Content Intelligence Loop (4 ระบบ — วงจรปิด) — additive ═══════════
+// 1 Brand Knowledge (ฟิลด์บน Brand + BrandAudience) → 2 Ideation (CustomerFeedback + IdeationRun)
+// → 3 Storyboard (Shot.imagePrompt) → 4 Analytics (ContentInsight) → ป้อนกลับ 2
+// refs เก็บเป็น Uuid ตรง ๆ ไม่ผูก relation (เลียนแบบ Asset.uploadedBy) เพื่อ additive แท้
+
+// ── ระบบ 1: กลุ่มเป้าหมายของแบรนด์ (ผูก Brand ↔ AudienceSegment) ──
+model BrandAudience {
+  brandId   String          @db.Uuid
+  segmentId String          @db.Uuid
+  isPrimary Boolean         @default(false)
+  brand     Brand           @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  segment   AudienceSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+
+  @@id([brandId, segmentId])
+  @@index([segmentId])
+  @@map("brand_audiences")
+}
+
+// ── ระบบ 2: เสียงลูกค้า (Customer Voice) → ป้อนเข้า Ideation ──
+model CustomerFeedback {
+  id            String   @id @default(uuid()) @db.Uuid
+  text          String // ข้อความ feedback ดิบ
+  source        String // 'comment' | 'chat' | 'sales_note'
+  sourceRef     String? // เพจ/ลิงก์/ชื่อลูกค้า (อ้างอิง)
+  brandId       String?  @db.Uuid
+  productId     String?  @db.Uuid
+  characterId   String?  @db.Uuid
+  contentItemId String?  @db.Uuid
+  sentiment     String? // AI จัด: 'positive' | 'negative' | 'neutral'
+  rating        Int? // คะแนนดาวจากรีวิว marketplace (1-5) — ใช้คัด 4-5 ดาวไปทำคอนเทนต์
+  themes        String[] @default([]) // AI แตกประเด็น เช่น "บ่นราคา", "ถามวิธีใช้"
+  aiProcessedAt DateTime? // เวลาที่ AI วิเคราะห์ sentiment+theme เสร็จ
+  createdBy     String   @db.Uuid
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([source])
+  @@index([sentiment])
+  @@index([brandId])
+  @@index([productId])
+  @@map("customer_feedback")
+}
+
+// ── ระบบ 2: รอบการคิดคอนเทนต์ (Auto/Guided/Iterate) — บันทึกที่มา ──
+model IdeationRun {
+  id          String   @id @default(uuid()) @db.Uuid
+  mode        String // 'auto' | 'guided' | 'iterate'
+  seedText    String? // ไอเดียดิบ/โจทย์ที่คนโยนเข้า (guided)
+  seedIdeaId  String?  @db.Uuid // ดึงจาก Idea Library มาต่อยอด
+  brandId     String?  @db.Uuid // บริบทแบรนด์ที่ใช้
+  contextJson Json? // สรุป context ที่ฉีดเข้า (audience/feedback themes/insight ที่ใช้)
+  resultJson  Json // ไอเดียที่ได้ [{hook,angle,platform,format,characterId?,productId?,captionDirection,rationale}]
+  ideaCount   Int      @default(0)
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+
+  @@index([mode])
+  @@index([brandId])
+  @@map("ideation_runs")
+}
+
+// ── ระบบ 4: insight จากคอนเทนต์ที่เคยทำ (ปิดวง → ป้อนกลับ 2) ──
+model ContentInsight {
+  id          String   @id @default(uuid()) @db.Uuid
+  scope       String // 'overall' | 'platform' | 'character' | 'format' | 'time'
+  scopeRef    String? // ค่าของ scope เช่น platform='tiktok', characterId
+  periodFrom  DateTime?
+  periodTo    DateTime?
+  summary     String? // สรุปสั้นอ่านง่าย
+  insightJson Json // {bestHook, bestFormat, bestCharacter, bestTime, patterns[], recommendations[]}
+  sampleSize  Int      @default(0) // จำนวนคอนเทนต์ที่วิเคราะห์
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+
+  @@index([scope])
+  @@map("content_insights")
+}

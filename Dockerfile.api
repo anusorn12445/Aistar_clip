@@ -1,0 +1,22 @@
+# AISTAR Talent OS — API (NestJS + Prisma)
+# build context = repo root (pnpm workspace)
+FROM node:22-slim
+
+# prisma engine ต้องใช้ openssl
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+RUN corepack enable
+WORKDIR /app
+
+# copy ทั้ง workspace (ต้องมี lockfile + apps/* + packages/* เพื่อ resolve workspace deps)
+COPY . .
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter api prisma:generate
+RUN pnpm --filter api build
+
+ENV NODE_ENV=production
+# Railway จะฉีด PORT + DATABASE_URL + JWT_SECRET + CORS_ORIGIN ให้เอง
+# รัน migrate deploy (idempotent) ก่อนสตาร์ท แล้วค่อยรัน dist
+WORKDIR /app/apps/api
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/main.js"]

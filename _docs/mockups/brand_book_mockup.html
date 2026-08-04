@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brand Book — NARA Skincare · AISTAR Talent OS (Mockup)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Noto Sans Thai"', 'Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    [x-cloak]{display:none!important}
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-thumb{background:#3f3f46;border-radius:3px}
+    .slogan-font{font-family:'Great Vibes',cursive}
+    *:focus-visible{outline:none;box-shadow:0 0 0 2px #09090b,0 0 0 4px #fbbf24}
+    @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased" x-data="{ toast: null, copy(t){ navigator.clipboard.writeText(t); this.toast = 'ก๊อป ' + t + ' แล้ว'; setTimeout(()=>this.toast=null, 1600);} }">
+<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded-lg focus:bg-amber-400 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-zinc-950">ข้ามไปเนื้อหา</a>
+
+<!-- ═══ Header ═══ -->
+<header class="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="#" class="hidden text-sm text-zinc-500 hover:text-zinc-300 sm:block">← Products / แบรนด์</a>
+      <span class="hidden text-zinc-700 sm:block">/</span>
+      <h1 class="truncate text-base font-semibold">📖 Brand Book — <span class="text-amber-400">NARA Skincare</span></h1>
+      <span class="rounded-full bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-400">v2.1 · อัปเดต 12 ก.ค. 2026</span>
+    </div>
+    <div class="flex shrink-0 items-center gap-2">
+      <button class="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 transition hover:border-zinc-500 hover:bg-zinc-800">✏️ แก้ไข</button>
+      <button class="cursor-not-allowed rounded-lg border border-zinc-800 px-3 py-1.5 text-sm text-zinc-600" title="เฟส 2" aria-disabled="true">📄 Export PDF <span class="ml-1 rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-amber-400/70">เฟส 2</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-6">
+
+  <!-- ═══ TOC (left) ═══ -->
+  <nav aria-label="หมวดของ Brand Book" class="sticky top-20 hidden h-fit w-52 shrink-0 space-y-0.5 lg:block">
+    <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-600">หมวด</p>
+    <a href="#foundation" class="block rounded-lg bg-amber-400/10 px-3 py-1.5 text-sm font-medium text-amber-300">🏛️ แก่นแบรนด์</a>
+    <a href="#story" class="block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200">📖 เรื่องราว & USP</a>
+    <a href="#verbal" class="block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200">🗣️ ภาษาแบรนด์</a>
+    <a href="#visual" class="block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200">🎨 อัตลักษณ์ภาพ</a>
+    <a href="#audience" class="block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200">👥 กลุ่มเป้าหมาย</a>
+    <a href="#claims" class="block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200">🚫 เคลมต้องห้าม</a>
+    <a href="#templates" class="block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200">🖼️ เทมเพลต</a>
+    <a href="#governance" class="block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200">📋 การกำกับ</a>
+  </nav>
+
+  <!-- ═══ Content ═══ -->
+  <main id="main" class="min-w-0 flex-1 space-y-10">
+
+    <!-- Hero -->
+    <section aria-label="ภาพรวมแบรนด์" class="overflow-hidden rounded-2xl border border-zinc-800">
+      <div class="relative flex h-44 items-end bg-gradient-to-br from-emerald-900/60 via-zinc-900 to-amber-900/30 p-6 sm:h-52">
+        <div class="flex items-end gap-4">
+          <div class="flex h-20 w-20 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-950 text-3xl font-bold text-emerald-300 shadow-xl" aria-label="โลโก้ NARA">N</div>
+          <div class="pb-1">
+            <p class="text-2xl font-bold tracking-tight">NA<span class="text-emerald-400">RA</span> <span class="text-base font-medium text-zinc-400">Skincare</span></p>
+            <p class="slogan-font text-xl text-amber-200/90">Naturally Radiant, Always.</p>
+          </div>
+        </div>
+        <span class="absolute right-4 top-4 rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">ลูกค้า: บจก. นารา เฮลท์แคร์ (Jobs #JOB-0007)</span>
+      </div>
+    </section>
+
+    <!-- 1. Foundation -->
+    <section id="foundation" aria-labelledby="h-foundation" class="scroll-mt-24 space-y-4">
+      <h2 id="h-foundation" class="text-xl font-semibold">🏛️ แก่นแบรนด์ <span class="text-sm font-normal text-zinc-500">Brand Foundation</span></h2>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-amber-400/80">Mission</p>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-300">ให้ผู้หญิงไทยทุกสภาพผิวมั่นใจได้ด้วยสกินแคร์จากธรรมชาติ ราคาจับต้องได้</p>
+        </div>
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-amber-400/80">Vision</p>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-300">แบรนด์สกินแคร์ธรรมชาติอันดับหนึ่งในใจคนไทย ภายในปี 2028</p>
+        </div>
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-amber-400/80">Core Values</p>
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            <span class="rounded-full bg-zinc-800 px-2.5 py-1 text-xs text-zinc-300">จริงใจ</span>
+            <span class="rounded-full bg-zinc-800 px-2.5 py-1 text-xs text-zinc-300">โปร่งใสเรื่องส่วนผสม</span>
+            <span class="rounded-full bg-zinc-800 px-2.5 py-1 text-xs text-zinc-300">ยั่งยืน</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Positioning</p>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-300">สำหรับ<span class="text-amber-300">สาววัยทำงานผิวแพ้ง่าย</span> NARA คือสกินแคร์ธรรมชาติที่<span class="text-amber-300">อ่อนโยนแต่เห็นผลจริง</span> — ต่างจากแบรนด์เคาน์เตอร์ตรงราคาเข้าถึงได้ และต่างจากแบรนด์ถูกตรงส่วนผสมที่เปิดเผยทุกตัว</p>
+        </div>
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">บุคลิกแบรนด์ (Archetype)</p>
+          <p class="mt-2 text-sm text-zinc-300"><span class="rounded-lg bg-emerald-400/10 px-2 py-0.5 font-medium text-emerald-300">The Caregiver</span> — เพื่อนสาวคนโตที่รู้เรื่องผิว: อบอุ่น ให้คำแนะนำแบบไม่ตัดสิน ไม่ hard-sell</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Story & USP -->
+    <section id="story" aria-labelledby="h-story" class="scroll-mt-24 space-y-4">
+      <h2 id="h-story" class="text-xl font-semibold">📖 เรื่องราว & จุดขาย <span class="text-sm font-normal text-zinc-500">จาก Brand Knowledge เดิม</span></h2>
+      <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+        <p class="text-sm leading-relaxed text-zinc-300">เริ่มจากคุณนารา เภสัชกรที่ผิวแพ้สเตียรอยด์จากครีมไม่ได้มาตรฐาน จึงพัฒนาสูตรจากสมุนไพรไทย + งานวิจัยจริง ขายออนไลน์จากห้องแล็บเล็กๆ จนวันนี้มีลูกค้าประจำกว่า 40,000 คน</p>
+        <div class="mt-4 border-t border-zinc-800 pt-4">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">USP</p>
+          <p class="mt-1 text-sm text-zinc-300">🌿 สมุนไพรไทย + ผ่านแล็บทดสอบการแพ้ · เปิดเผยส่วนผสม 100% · คืนเงินใน 30 วันถ้าแพ้</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Verbal -->
+    <section id="verbal" aria-labelledby="h-verbal" class="scroll-mt-24 space-y-4">
+      <h2 id="h-verbal" class="text-xl font-semibold">🗣️ ภาษาแบรนด์ <span class="text-sm font-normal text-zinc-500">Verbal Identity</span></h2>
+      <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">โทนเสียง</p>
+        <p class="mt-1 text-sm text-zinc-300">เป็นกันเองแบบพี่สาว · ให้ความรู้ก่อนขาย · ภาษาไทยง่ายๆ ศัพท์ผิวพรรณอธิบายเสมอ · อีโมจิได้แต่พอดี (ไม่เกิน 2/ประโยค)</p>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-emerald-900/60 bg-emerald-950/20 p-5">
+          <p class="flex items-center gap-2 text-sm font-semibold text-emerald-300"><i data-lucide="check-circle-2" class="h-4 w-4"></i> คำที่ใช้ (Word Bank)</p>
+          <div class="mt-3 flex flex-wrap gap-1.5">
+            <span class="rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-200">ผิวแข็งแรง</span>
+            <span class="rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-200">อ่อนโยน</span>
+            <span class="rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-200">ดูแลตัวเอง</span>
+            <span class="rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-200">จากธรรมชาติ</span>
+            <span class="rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-200">เรารู้ว่าผิวแพ้ง่ายเหนื่อยแค่ไหน</span>
+          </div>
+        </div>
+        <div class="rounded-xl border border-red-900/60 bg-red-950/20 p-5">
+          <p class="flex items-center gap-2 text-sm font-semibold text-red-300"><i data-lucide="x-circle" class="h-4 w-4"></i> คำที่ห้ามใช้</p>
+          <div class="mt-3 flex flex-wrap gap-1.5">
+            <span class="rounded-full bg-red-400/10 px-2.5 py-1 text-xs text-red-200 line-through">ขาวใน 7 วัน</span>
+            <span class="rounded-full bg-red-400/10 px-2.5 py-1 text-xs text-red-200 line-through">หน้าเด้งเหมือนฉีด</span>
+            <span class="rounded-full bg-red-400/10 px-2.5 py-1 text-xs text-red-200 line-through">ของแท้ 100% (โทนขู่)</span>
+            <span class="rounded-full bg-red-400/10 px-2.5 py-1 text-xs text-red-200 line-through">ด่วน! เหลือ 3 ชิ้นสุดท้าย</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold text-emerald-400">✓ ตัวอย่าง on-brand</p>
+          <p class="mt-2 rounded-lg bg-zinc-950 p-3 text-sm leading-relaxed text-zinc-300">"ผิวแพ้ง่ายไม่ใช่ความผิดของเราเลยนะคะ 🌿 มาดูกันว่าเซราไมด์ช่วยเสริมเกราะผิวยังไง แล้วทำไมนาราถึงเลือกใช้จากข้าวหอมมะลิไทย"</p>
+        </div>
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold text-red-400">✗ ตัวอย่าง off-brand</p>
+          <p class="mt-2 rounded-lg bg-zinc-950 p-3 text-sm leading-relaxed text-zinc-500">"🔥🔥ด่วนน!! ครีมเทพขาวไวх10 ใครไม่ซื้อคือพลาดมากกก แม่ค้าใจดีลดให้อีก 50฿ รีบกดก่อนหมด!!"</p>
+        </div>
+      </div>
+      <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">แนวการเขียนต่อแพลตฟอร์ม</p>
+        <div class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+          <div class="rounded-lg bg-zinc-950 p-3"><p class="font-medium text-zinc-200">Facebook</p><p class="mt-1 text-xs leading-relaxed text-zinc-400">เล่าเรื่อง+ให้ความรู้ ยาวได้ ปิดท้ายชวนคุยในคอมเมนต์</p></div>
+          <div class="rounded-lg bg-zinc-950 p-3"><p class="font-medium text-zinc-200">TikTok</p><p class="mt-1 text-xs leading-relaxed text-zinc-400">hook 3 วิแรกด้วย pain ผิว สั้น กระชับ ลงท้าย CTA เบาๆ</p></div>
+          <div class="rounded-lg bg-zinc-950 p-3"><p class="font-medium text-zinc-200">IG</p><p class="mt-1 text-xs leading-relaxed text-zinc-400">ภาพสวยนำ แคปชั่นสั้น มู้ด minimal + แฮชแท็กไม่เกิน 8</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Visual -->
+    <section id="visual" aria-labelledby="h-visual" class="scroll-mt-24 space-y-4">
+      <h2 id="h-visual" class="text-xl font-semibold">🎨 อัตลักษณ์ภาพ <span class="text-sm font-normal text-zinc-500">Visual Identity — โครงจาก SRS §2</span></h2>
+
+      <!-- name usage + tagline -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">ชื่อ & วิธีเขียน</p>
+          <p class="mt-3 text-3xl font-bold">NA<span class="text-emerald-400">RA</span></p>
+          <p class="mt-2 text-xs leading-relaxed text-zinc-400">เขียนตัวพิมพ์ใหญ่เสมอ เน้น "RA" ด้วยสีแบรนด์ · ภาษาไทยใช้ "นารา" (ห้าม "นาร่า")</p>
+        </div>
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">สโลแกน + ฟอนต์สโลแกน</p>
+          <p class="slogan-font mt-3 text-3xl text-amber-200">Naturally Radiant, Always.</p>
+          <p class="mt-2 text-xs text-zinc-400">ฟอนต์ Great Vibes · ใช้คู่โลโก้ในสื่อหลัก ไม่ใช้เดี่ยวๆ</p>
+        </div>
+      </div>
+
+      <!-- logo versions + rules -->
+      <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">โลโก้ & กติกาการใช้</p>
+        <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <figure class="rounded-lg bg-zinc-950 p-4 text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-emerald-950 text-xl font-bold text-emerald-300">N</div>
+            <figcaption class="mt-2 text-[11px] text-zinc-500">Icon</figcaption>
+          </figure>
+          <figure class="rounded-lg bg-zinc-950 p-4 text-center">
+            <div class="mx-auto flex h-14 items-center justify-center text-lg font-bold">NA<span class="text-emerald-400">RA</span></div>
+            <figcaption class="mt-2 text-[11px] text-zinc-500">Full (dark bg)</figcaption>
+          </figure>
+          <figure class="rounded-lg bg-zinc-100 p-4 text-center">
+            <div class="mx-auto flex h-14 items-center justify-center text-lg font-bold text-zinc-900">NA<span class="text-emerald-600">RA</span></div>
+            <figcaption class="mt-2 text-[11px] text-zinc-500">Full (light bg)</figcaption>
+          </figure>
+          <figure class="rounded-lg bg-zinc-950 p-4 text-center">
+            <div class="mx-auto flex h-14 items-center justify-center text-lg font-bold text-zinc-100">NARA</div>
+            <figcaption class="mt-2 text-[11px] text-zinc-500">Mono</figcaption>
+          </figure>
+        </div>
+        <div class="mt-4 grid gap-3 text-xs sm:grid-cols-2">
+          <div class="rounded-lg border border-emerald-900/50 bg-emerald-950/20 p-3 text-emerald-200/90">✓ ใช้: โปรไฟล์เพจ = Icon · ปกวิดีโอ/แพ็กเกจ = Full · เอกสารขาวดำ = Mono · เว้นระยะรอบ ≥ ความสูงตัว N</div>
+          <div class="rounded-lg border border-red-900/50 bg-red-950/20 p-3 text-red-200/90">✗ ห้าม: ยืด/บีบสัดส่วน · เปลี่ยนสีนอก palette · วางบนพื้นลายถี่ · ใส่เงา/effect เพิ่ม</div>
+        </div>
+      </div>
+
+      <!-- color tokens -->
+      <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">สี Palette (token)</p>
+          <p class="text-[11px] text-zinc-600">คลิก swatch เพื่อก๊อปค่า HEX</p>
+        </div>
+        <div class="mt-3 overflow-x-auto">
+          <table class="w-full min-w-[540px] text-sm">
+            <thead>
+              <tr class="text-left text-[11px] uppercase tracking-wider text-zinc-500">
+                <th class="pb-2 pr-4 font-medium">Token</th>
+                <th class="pb-2 pr-4 font-medium">Swatch / HEX</th>
+                <th class="pb-2 pr-4 font-medium">บนพื้นสว่าง</th>
+                <th class="pb-2 font-medium">ใช้ทำ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-800">
+              <tr>
+                <td class="py-2.5 pr-4 font-mono text-xs text-zinc-400">brand.primary</td>
+                <td class="py-2.5 pr-4"><button @click="copy('#34d399')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md" style="background:#34d399"></span><span class="font-mono text-xs">#34d399</span></button></td>
+                <td class="py-2.5 pr-4"><button @click="copy('#059669')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md" style="background:#059669"></span><span class="font-mono text-xs">#059669</span></button></td>
+                <td class="py-2.5 text-xs text-zinc-400">สีหลัก — โลโก้ ปุ่ม ไฮไลต์</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-4 font-mono text-xs text-zinc-400">brand.secondary</td>
+                <td class="py-2.5 pr-4"><button @click="copy('#fde68a')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md" style="background:#fde68a"></span><span class="font-mono text-xs">#fde68a</span></button></td>
+                <td class="py-2.5 pr-4"><button @click="copy('#b45309')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md" style="background:#b45309"></span><span class="font-mono text-xs">#b45309</span></button></td>
+                <td class="py-2.5 text-xs text-zinc-400">สีรอง — สโลแกน จุดเน้นอบอุ่น</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-4 font-mono text-xs text-zinc-400">brand.bg</td>
+                <td class="py-2.5 pr-4"><button @click="copy('#0c1210')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md border border-zinc-700" style="background:#0c1210"></span><span class="font-mono text-xs">#0c1210</span></button></td>
+                <td class="py-2.5 pr-4"><button @click="copy('#f7faf8')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md border border-zinc-700" style="background:#f7faf8"></span><span class="font-mono text-xs">#f7faf8</span></button></td>
+                <td class="py-2.5 text-xs text-zinc-400">พื้นหลังสื่อ (มืด/สว่าง)</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-4 font-mono text-xs text-zinc-400">brand.danger</td>
+                <td class="py-2.5 pr-4"><button @click="copy('#f87171')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md" style="background:#f87171"></span><span class="font-mono text-xs">#f87171</span></button></td>
+                <td class="py-2.5 pr-4"><button @click="copy('#b91c1c')" class="inline-flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-zinc-800"><span class="h-5 w-5 rounded-md" style="background:#b91c1c"></span><span class="font-mono text-xs">#b91c1c</span></button></td>
+                <td class="py-2.5 text-xs text-zinc-400">โปรโมชันหมดเขต/แจ้งเตือน (ใช้น้อย)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- fonts + mood -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">ฟอนต์ (แยกบทบาท)</p>
+          <ul class="mt-3 space-y-2.5 text-sm">
+            <li class="flex items-baseline justify-between gap-3"><span class="text-lg font-bold">Heading — Noto Sans Thai Bold</span><span class="text-[11px] text-zinc-500">พาดหัว</span></li>
+            <li class="flex items-baseline justify-between gap-3"><span>Body — Noto Sans Thai Regular</span><span class="text-[11px] text-zinc-500">เนื้อหา</span></li>
+            <li class="flex items-baseline justify-between gap-3"><span class="slogan-font text-xl text-amber-200">Display — Great Vibes</span><span class="text-[11px] text-zinc-500">สโลแกนเท่านั้น</span></li>
+          </ul>
+        </div>
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">มู้ดภาพ</p>
+          <div class="mt-3 grid grid-cols-3 gap-2" aria-hidden="true">
+            <div class="h-16 rounded-lg bg-gradient-to-br from-emerald-800/60 to-emerald-950"></div>
+            <div class="h-16 rounded-lg bg-gradient-to-br from-amber-100/20 to-zinc-800"></div>
+            <div class="h-16 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-900"></div>
+          </div>
+          <p class="mt-3 text-xs leading-relaxed text-zinc-400">✓ แสงธรรมชาติ ผิวจริงไม่ retouch เกิน โทนเขียว-ครีม · ✗ แสงสตูดิโอจัด ฟิลเตอร์ผิวขาวเว่อร์ พื้นหลังรก</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Audience -->
+    <section id="audience" aria-labelledby="h-audience" class="scroll-mt-24 space-y-4">
+      <h2 id="h-audience" class="text-xl font-semibold">👥 กลุ่มเป้าหมาย <span class="text-sm font-normal text-zinc-500">ผูก Audience Segment เดิม</span></h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-amber-400/30 bg-zinc-900 p-5">
+          <div class="flex items-center justify-between"><p class="font-medium">สาวออฟฟิศผิวแพ้ง่าย</p><span class="rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] text-amber-300">⭐ กลุ่มหลัก</span></div>
+          <p class="mt-2 text-xs leading-relaxed text-zinc-400">หญิง 25–38 · กทม./หัวเมือง · กำลังซื้อกลาง · pain: แพ้ครีมมาก่อน กลัวสเตียรอยด์ · แพลตฟอร์ม: FB, TikTok</p>
+        </div>
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <div class="flex items-center justify-between"><p class="font-medium">คุณแม่ยุคใหม่สายธรรมชาติ</p><span class="rounded-full bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-400">กลุ่มรอง</span></div>
+          <p class="mt-2 text-xs leading-relaxed text-zinc-400">หญิง 30–45 · ทั่วประเทศ · เลือกของ "ปลอดภัยต่อครอบครัว" · แพลตฟอร์ม: FB กลุ่มแม่บ้าน, LINE</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Claims -->
+    <section id="claims" aria-labelledby="h-claims" class="scroll-mt-24 space-y-4">
+      <h2 id="h-claims" class="text-xl font-semibold">🚫 คำ/เคลมต้องห้าม <span class="text-sm font-normal text-zinc-500">AI guardrail ใช้ชุดนี้</span></h2>
+      <div class="rounded-xl border border-red-900/50 bg-red-950/10 p-5">
+        <div class="flex flex-wrap gap-2">
+          <span class="rounded-full border border-red-800/60 bg-red-400/10 px-3 py-1 text-xs text-red-200">รักษาสิว/ฝ้าหาย 100%</span>
+          <span class="rounded-full border border-red-800/60 bg-red-400/10 px-3 py-1 text-xs text-red-200">ขาวขึ้น X ระดับใน Y วัน</span>
+          <span class="rounded-full border border-red-800/60 bg-red-400/10 px-3 py-1 text-xs text-red-200">แทนการพบแพทย์</span>
+          <span class="rounded-full border border-red-800/60 bg-red-400/10 px-3 py-1 text-xs text-red-200">ปลอดภัยสำหรับทารก (ยังไม่มีผลทดสอบ)</span>
+        </div>
+        <p class="mt-3 text-xs text-zinc-500">ระดับความเสี่ยงเคลม: <span class="rounded bg-amber-400/10 px-1.5 py-0.5 text-amber-300">medium</span> — ทุกคอนเทนต์ที่ AI สร้างจะถูกตรวจคำชุดนี้อัตโนมัติ</p>
+      </div>
+    </section>
+
+    <!-- 7. Templates -->
+    <section id="templates" aria-labelledby="h-templates" class="scroll-mt-24 space-y-4">
+      <h2 id="h-templates" class="text-xl font-semibold">🖼️ เทมเพลต & ตัวอย่างการใช้ <span class="text-sm font-normal text-zinc-500">ผ่าน asset เดิม</span></h2>
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <figure class="group cursor-pointer">
+          <div class="flex aspect-[4/5] items-center justify-center rounded-xl border border-zinc-800 bg-gradient-to-br from-emerald-900/40 to-zinc-900 text-3xl transition group-hover:border-zinc-600">📱</div>
+          <figcaption class="mt-1.5 text-xs text-zinc-500">โพสต์ FB/IG</figcaption>
+        </figure>
+        <figure class="group cursor-pointer">
+          <div class="flex aspect-[4/5] items-center justify-center rounded-xl border border-zinc-800 bg-gradient-to-br from-amber-900/30 to-zinc-900 text-3xl transition group-hover:border-zinc-600">🎬</div>
+          <figcaption class="mt-1.5 text-xs text-zinc-500">ปกวิดีโอ TikTok</figcaption>
+        </figure>
+        <figure class="group cursor-pointer">
+          <div class="flex aspect-[4/5] items-center justify-center rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-800 to-zinc-900 text-3xl transition group-hover:border-zinc-600">📦</div>
+          <figcaption class="mt-1.5 text-xs text-zinc-500">แพ็กเกจจิ้ง</figcaption>
+        </figure>
+        <figure class="group cursor-pointer">
+          <div class="flex aspect-[4/5] items-center justify-center rounded-xl border border-dashed border-zinc-700 bg-zinc-950 text-sm text-zinc-600 transition group-hover:border-amber-400/50 group-hover:text-amber-300">+ อัปโหลด</div>
+          <figcaption class="mt-1.5 text-xs text-zinc-600">เพิ่มเทมเพลต</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 8. Governance -->
+    <section id="governance" aria-labelledby="h-governance" class="scroll-mt-24 space-y-4 pb-16">
+      <h2 id="h-governance" class="text-xl font-semibold">📋 การกำกับ <span class="text-sm font-normal text-zinc-500">Governance</span></h2>
+      <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+        <dl class="grid gap-4 text-sm sm:grid-cols-3">
+          <div><dt class="text-xs uppercase tracking-wider text-zinc-500">เจ้าของแบรนด์ / ผู้อนุมัติ</dt><dd class="mt-1 text-zinc-200">คุณนารา วงศ์เภสัช<br><span class="text-xs text-zinc-500">nara@naraskincare.co.th</span></dd></div>
+          <div><dt class="text-xs uppercase tracking-wider text-zinc-500">เวอร์ชัน Brand Book</dt><dd class="mt-1 text-zinc-200">v2.1 <span class="text-xs text-zinc-500">(v2.0 → เพิ่ม TikTok guideline)</span></dd></div>
+          <div><dt class="text-xs uppercase tracking-wider text-zinc-500">อัปเดตล่าสุด</dt><dd class="mt-1 text-zinc-200">12 ก.ค. 2026 <span class="text-xs text-zinc-500">โดย ทีม AISTAR</span></dd></div>
+        </dl>
+      </div>
+      <p class="text-center text-[11px] text-zinc-700">Mockup — Brand Book (มุมมองอ่าน) · AISTAR Talent OS · ข้อมูลแบรนด์ตัวอย่างสมมติทั้งหมด</p>
+    </section>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div x-cloak x-show="toast" x-transition role="status" aria-live="polite" class="fixed bottom-5 right-5 z-50 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2.5 text-sm text-zinc-100 shadow-xl" x-text="toast"></div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

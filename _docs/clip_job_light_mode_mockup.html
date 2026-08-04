@@ -1,0 +1,209 @@
+<meta charset="utf-8" />
+<title>AISTAR — Light Mode + อ่านสบาย (Clip Job)</title>
+<style>
+  /* ── Design tokens: โหมดสว่างเป็นค่าเริ่มต้นของ mockup ── */
+  :root {
+    --bg: #f6f6f4;          /* กระดาษอุ่น ไม่ขาวจ้าจนแสบตา (ใช้ทั้งวัน) */
+    --card: #ffffff;
+    --card2: #fafaf9;
+    --border: #e4e4e7;
+    --text: #1f2937;         /* เข้มพอ อ่านชัด */
+    --muted: #52525b;        /* รอง — ยังผ่าน WCAG AA บนพื้นขาว */
+    --faint: #71717a;
+    --amber: #d97706;        /* amber เข้มขึ้นเพื่อ contrast บนพื้นสว่าง */
+    --amber-bg: #fef3c7;
+    --emerald: #047857;
+    --emerald-bg: #d1fae5;
+    --cyan: #0e7490;
+    --cyan-bg: #cffafe;
+    --sky: #0369a1;
+    --sky-bg: #e0f2fe;
+    --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 14px rgba(0,0,0,.04);
+  }
+  :root[data-theme="dark"] {
+    --bg: #18181b;
+    --card: #232326;         /* อ่อนกว่า zinc-900 เดิมนิด ลด contrast จัด */
+    --card2: #1d1d20;
+    --border: #3f3f46;
+    --text: #f4f4f5;
+    --muted: #b6b6bf;        /* เดิม zinc-500 มืดไป — ยกขึ้น */
+    --faint: #8e8e99;
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,.14);
+    --emerald: #34d399;
+    --emerald-bg: rgba(52,211,153,.15);
+    --cyan: #67e8f9;
+    --cyan-bg: rgba(103,232,249,.12);
+    --sky: #7dd3fc;
+    --sky-bg: rgba(125,211,252,.12);
+    --shadow: none;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    /* ⬆️ ฐาน 16px (เดิมระบบใช้ 14px และป้ายย่อย 10–12px) */
+    font: 16px/1.65 -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+    padding: 24px; max-width: 880px; margin: 0 auto;
+    transition: background .25s, color .25s;
+  }
+  .topnote {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    margin-bottom: 20px; flex-wrap: wrap;
+  }
+  h1 { font-size: 22px; font-weight: 800; }
+  h1 em { color: var(--amber); font-style: normal; }
+  .toggle {
+    display: flex; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    background: var(--card);
+  }
+  .toggle button {
+    border: 0; background: none; color: var(--muted); padding: 10px 18px;
+    font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .toggle button.on { background: var(--amber); color: #fff; }
+  :root[data-theme="dark"] .toggle button.on { color: #1c1917; }
+
+  .spec {
+    background: var(--sky-bg); color: var(--sky); border-radius: 12px; padding: 12px 16px;
+    font-size: 14.5px; margin-bottom: 24px; line-height: 1.7;
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow);
+  }
+  .jobhead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .code { font-family: ui-monospace, monospace; font-size: 15px; color: var(--amber); font-weight: 700; }
+  .jobhead h2 { font-size: 20px; font-weight: 800; flex: 1; min-width: 200px; }
+  .chip {
+    border-radius: 999px; padding: 4px 14px; font-size: 14px; font-weight: 600; white-space: nowrap;
+  }
+  .chip.ready { background: var(--emerald-bg); color: var(--emerald); }
+  .meta { color: var(--muted); font-size: 15px; margin-top: 6px; }
+
+  .stepper { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+  .step {
+    flex: 1; min-width: 160px; text-align: center; padding: 12px 10px; border-radius: 12px;
+    border: 1.5px solid var(--border); color: var(--muted); font-size: 15.5px; font-weight: 600;
+    background: var(--card);
+  }
+  .step.on { border-color: var(--amber); color: var(--amber); background: var(--amber-bg); }
+
+  /* ── Shot card แบบใหม่: โปร่ง อ่านง่าย ── */
+  .shot { border-left: 5px solid var(--amber); }
+  .shot-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .shot-head .idx {
+    background: var(--amber); color: #fff; border-radius: 10px; padding: 4px 12px;
+    font-weight: 800; font-size: 16px;
+  }
+  :root[data-theme="dark"] .shot-head .idx { color: #1c1917; }
+  .shot-head .title { font-size: 18px; font-weight: 700; flex: 1; min-width: 180px; }
+  .shot-head .dur { color: var(--muted); font-size: 15px; }
+  .dialogue {
+    background: var(--sky-bg); color: var(--sky); border-radius: 12px; padding: 12px 16px;
+    font-size: 17px; line-height: 1.7; margin-bottom: 12px;
+  }
+  .dialogue b { font-size: 13.5px; display: block; opacity: .75; letter-spacing: .04em; margin-bottom: 2px; }
+  .promptbox {
+    background: var(--card2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 12px;
+  }
+  .promptbox b {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13.5px; color: var(--faint); letter-spacing: .05em; margin-bottom: 6px; font-weight: 700;
+  }
+  .promptbox p { font-size: 15px; line-height: 1.7; color: var(--text); }
+  .promptbox .more { color: var(--sky); font-size: 14px; cursor: pointer; margin-top: 4px; display: inline-block; }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    border: 0; border-radius: 12px; padding: 12px 20px; font-size: 15.5px; font-weight: 700;
+    cursor: pointer; font-family: inherit; min-height: 46px; /* ปุ่มใหญ่ กดง่าย */
+  }
+  .btn.primary { background: var(--amber); color: #fff; }
+  :root[data-theme="dark"] .btn.primary { color: #1c1917; }
+  .btn.ghost { background: none; border: 1.5px solid var(--border); color: var(--text); }
+  .btn.ok { background: var(--emerald-bg); color: var(--emerald); }
+
+  .compare { border-top: 2px dashed var(--border); margin-top: 28px; padding-top: 18px; }
+  .compare h3 { font-size: 17px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td, th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--faint); font-size: 13.5px; letter-spacing: .04em; }
+  td.old { color: var(--faint); }
+  td.new { color: var(--emerald); font-weight: 700; }
+</style>
+
+<div class="topnote">
+  <h1>AISTAR <em>Light Mode + อ่านสบาย</em> — ตัวอย่างคลิกได้</h1>
+  <div class="toggle">
+    <button id="bLight" class="on" onclick="setTheme('light')">☀️ สว่าง</button>
+    <button id="bDark" onclick="setTheme('dark')">🌙 มืด</button>
+  </div>
+</div>
+
+<div class="spec">
+  💡 กดปุ่มขวาบนเพื่อสลับโหมดดูได้เลย — ของจริงจะมีสวิตช์แบบเดียวกันที่แถบบนทุกหน้า จำค่าต่อคน
+  (คนชอบมืดยังใช้มืดได้ โหมดสว่างปรับ contrast ใหม่ทั้งชุดไม่ใช่แค่กลับสี)
+</div>
+
+<!-- job header ตัวอย่าง -->
+<div class="card">
+  <div class="jobhead">
+    <span class="code">CLIP-0003</span>
+    <h2>รีวิว วิตามินซี Demo</h2>
+    <span class="chip ready">พร้อมโพสต์</span>
+  </div>
+  <p class="meta">🛍️ วิตามินซี Demo · tiktok · 16 วิ · 2 ฉาก</p>
+  <div class="stepper">
+    <div class="step">① เลือกคอนเซปต์</div>
+    <div class="step on">② Storyboard + Prompt</div>
+    <div class="step">③ 📦 ชุดพร้อมโพสต์</div>
+  </div>
+</div>
+
+<!-- shot card แบบใหม่ -->
+<div class="card shot">
+  <div class="shot-head">
+    <span class="idx">#1</span>
+    <span>🧑‍🎤</span>
+    <span class="title">เปิดด้วยปัญหาผิวโทรม</span>
+    <span class="dur">8 วิ</span>
+    <span class="chip ready">gen แล้ว</span>
+  </div>
+  <div class="dialogue">
+    <b>💬 บทพูด</b>
+    ผิวโทรมมาก จนเจอตัวนี้... สองอาทิตย์เพื่อนทักเลยว่าไปทำอะไรมา
+  </div>
+  <div class="promptbox">
+    <b>PROMPT วิดีโอ (Flow/Veo) <span style="cursor:pointer">📋 ก๊อป</span></b>
+    <p>Thai woman in her late 20s, bright morning bedroom, holds an orange vitamin bottle to camera,
+       natural window light, handheld selfie style, speaks with tired-then-surprised expression...</p>
+    <span class="more">▾ ดูเต็ม (มี guard กันพูดไม่จบ 3 บรรทัดต่อท้ายเสมอ)</span>
+  </div>
+  <div class="btns">
+    <button class="btn primary">▶ วางลง Flow</button>
+    <button class="btn ghost">📋 prompt ภาพนิ่ง</button>
+    <button class="btn ok">✅ gen แล้ว</button>
+  </div>
+</div>
+
+<div class="card compare">
+  <h3>📏 สเปกตัวหนังสือใหม่ (เทียบของเดิม)</h3>
+  <table>
+    <tr><th>ส่วน</th><th>เดิม</th><th>ใหม่</th></tr>
+    <tr><td>เนื้อหาหลัก / prompt</td><td class="old">14px</td><td class="new">16px</td></tr>
+    <tr><td>บทพูดตัวละคร</td><td class="old">12px</td><td class="new">17px (เด่นสุด — คือหัวใจของฉาก)</td></tr>
+    <tr><td>ชื่อฉาก</td><td class="old">12.5px</td><td class="new">18px หนา</td></tr>
+    <tr><td>ป้าย/สถานะ</td><td class="old">10–11px</td><td class="new">13.5px (เลิกใช้ต่ำกว่า 13px ทั้งหน้า)</td></tr>
+    <tr><td>ปุ่ม</td><td class="old">เตี้ย ~30px</td><td class="new">สูง 46px กดง่าย ไม่ต้องเล็ง</td></tr>
+    <tr><td>ระยะบรรทัด</td><td class="old">1.4</td><td class="new">1.65–1.7 (ไทยหางยาว ต้องการที่หายใจ)</td></tr>
+  </table>
+</div>
+
+<script>
+  function setTheme(t) {
+    document.documentElement.dataset.theme = t;
+    document.getElementById('bLight').classList.toggle('on', t === 'light');
+    document.getElementById('bDark').classList.toggle('on', t === 'dark');
+  }
+</script>

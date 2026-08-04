@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AISTAR → Flow</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+  <header class="topbar">
+    <!-- คลิกโลโก้ = กลับหน้าแรก (convention เดียวกับเว็บ) -->
+    <button id="brandHome" class="brand brand-btn" title="กลับหน้าแรก">AISTAR <em>→ Flow</em></button>
+    <div class="topbar-actions">
+      <button id="btnHome" class="icon-btn hidden" title="หน้าแรก">🏠</button>
+      <button id="btnRefresh" class="icon-btn" title="โหลดใหม่">⟳</button>
+      <button id="btnLogout" class="icon-btn hidden" title="ออกจากระบบ">⎋</button>
+    </div>
+  </header>
+
+  <!-- ── ล็อกอิน ── -->
+  <section id="viewLogin" class="view hidden">
+    <div class="card">
+      <h2>เข้าสู่ระบบ AISTAR</h2>
+      <label>เซิร์ฟเวอร์</label>
+      <select id="inApiBase">
+        <option value="https://api-production-61ef.up.railway.app/api">Production (Railway)</option>
+        <option value="http://localhost:4000/api">Localhost (dev)</option>
+      </select>
+      <label>อีเมล</label>
+      <input id="inEmail" type="email" autocomplete="username" placeholder="you@aistar.local" />
+      <label>รหัสผ่าน</label>
+      <input id="inPassword" type="password" autocomplete="current-password" placeholder="••••••••" />
+      <button id="btnLogin" class="primary">เข้าสู่ระบบ</button>
+      <p id="loginError" class="error hidden"></p>
+    </div>
+  </section>
+
+  <!-- ── รายการงาน ── -->
+  <section id="viewJobs" class="view hidden">
+    <!-- 📥 ดูดหน้าสินค้า Shopee เข้า AISTAR (โชว์เมื่อมีแท็บ Shopee เปิดอยู่) -->
+    <div id="captureCard" class="card capture-card hidden">
+      <h2>📥 ดูดหน้าสินค้า Shopee เข้า AISTAR</h2>
+      <p id="captureTabName" class="muted"></p>
+      <button id="btnScrape" class="primary">อ่านข้อมูลจากหน้านี้</button>
+      <div id="captureResult" class="hidden">
+        <p id="captureSummary" class="capture-summary"></p>
+
+        <!-- ✏️ ขั้นคัด: คนเป็นตัวกรอง — แก้/เลือกทุกอย่างได้ก่อนเข้าระบบ -->
+        <label>ชื่อสินค้า (แก้ได้)</label>
+        <input id="inCapName" type="text" />
+        <div class="cap-two">
+          <div>
+            <label>ราคา (บาท)</label>
+            <input id="inCapPrice" type="number" min="0" />
+          </div>
+          <div>
+            <label>ร้าน</label>
+            <input id="inCapShop" type="text" />
+          </div>
+        </div>
+        <label>🗂️ หมวดหมู่ในระบบ <span id="capCatHint" class="muted"></span></label>
+        <select id="inCapCategory"></select>
+        <label>รายละเอียด (แก้ได้ — AI ใช้ตัวนี้แตก Brief)</label>
+        <textarea id="inCapDesc" rows="4"></textarea>
+
+        <label>🖼️ เลือกรูปที่จะเก็บ (<span id="capImgCount">0</span> ที่เลือก)</label>
+        <div id="capImages" class="cap-images"></div>
+        <!-- ➕ เพิ่มรูปจากข้างนอก — Marketplace มีไม่พอ ทีมไปหามาเสริมได้เลย -->
+        <div class="cap-add-img">
+          <input id="inCapImgUrl" type="url" placeholder="วางลิงก์รูปจากเว็บอื่น (คลิกขวารูป → Copy image address)..." />
+          <button id="btnCapImgUrl" class="mini">➕ ลิงก์</button>
+          <button id="btnCapImgFile" class="mini">📁 ไฟล์</button>
+          <input id="inCapImgFile" type="file" accept="image/*" multiple class="hidden" />
+        </div>
+        <p class="muted" style="margin-top:4px">หรือก๊อปรูปจากที่ไหนก็ได้แล้วกด Ctrl+V (Cmd+V) ตรงแผงนี้ — รูปนอกติดป้าย 🌐/📁</p>
+
+        <label>💬 รีวิว 5★ ~15 รายการ ติ๊กให้ทั้งหมดแล้ว — เอาอันไหนออกก็เอาติ๊กออก แก้ข้อความได้</label>
+        <div id="capReviews" class="cap-reviews"></div>
+        <button id="btnCapAddReview" class="mini">➕ เพิ่มรีวิวเอง</button>
+
+        <!-- ระบบเลือกสินค้าปลายทางให้อัตโนมัติ (เจอชื่อตรง = เก็บเข้าตัวนั้น / ไม่เจอ = สร้างใหม่) -->
+        <div id="captureTarget" class="capture-target hidden"></div>
+        <button id="btnTargetChange" class="link-btn hidden">เปลี่ยนสินค้าปลายทาง ▾</button>
+        <div id="capTargetPicker" class="hidden">
+          <input id="inCaptureSearch" type="search" placeholder="🔎 ค้นหาสินค้าในระบบ..." />
+          <div id="captureMatches" class="capture-matches"></div>
+          <button id="btnCaptureCreate" class="mini">➕ สร้างสินค้าใหม่จากข้อมูลข้างบน</button>
+        </div>
+
+        <button id="btnCapturePrepare" class="primary hidden">🤖 ให้ AI เตรียม Review Brief (แก้ก่อนบันทึกได้)</button>
+
+        <!-- ✏️ Brief ที่ AI เตรียม — แก้ทุกช่องได้ก่อนบันทึก -->
+        <div id="capBrief" class="hidden">
+          <label>✨ จุดเด่น/USP (บรรทัดละข้อ)</label>
+          <textarea id="bfHighlights" rows="3"></textarea>
+          <label>🧴 สรรพคุณ/สเปกหลัก</label>
+          <textarea id="bfSpecs" rows="2"></textarea>
+          <div class="cap-two">
+            <div>
+              <label>🎯 กลุ่มเป้าหมาย</label>
+              <input id="bfTarget" type="text" />
+            </div>
+            <div>
+              <label>🪞 ปัญหาที่แก้</label>
+              <input id="bfPain" type="text" />
+            </div>
+          </div>
+          <label>📋 วิธีใช้ (บรรทัดละขั้น)</label>
+          <textarea id="bfHowTo" rows="2"></textarea>
+          <div class="cap-two">
+            <div>
+              <label>🏷️ โปรโมชั่น</label>
+              <input id="bfPromo" type="text" />
+            </div>
+            <div>
+              <label>⚠️ ข้อควรระวัง</label>
+              <input id="bfCautions" type="text" />
+            </div>
+          </div>
+          <label>🗒️ โน้ตเพิ่มเติม</label>
+          <textarea id="bfNote" rows="2"></textarea>
+          <button id="btnCaptureSave" class="primary">💾 บันทึกทั้งหมดเข้าระบบ (เฉพาะที่เลือก)</button>
+        </div>
+
+        <div id="captureProgress" class="capture-progress"></div>
+      </div>
+      <!-- ✅ จอเสร็จแล้ว (CEO: gen เสร็จแล้วค้าง ไม่รู้กลับไปเริ่มต้นยังไง) -->
+      <div id="captureDone" class="capture-done hidden">
+        <p class="done-title">✅ เก็บเข้าระบบแล้ว</p>
+        <p id="doneName" class="done-name"></p>
+        <p id="doneStats" class="muted"></p>
+        <div class="done-actions">
+          <a id="btnDoneOpen" class="mini" target="_blank" rel="noopener">🛍️ เปิดดูในระบบ ↗</a>
+          <button id="btnDoneNext" class="mini next">📥 ดูดสินค้าถัดไป</button>
+          <button id="btnDoneHome" class="mini">🏠 หน้าแรก</button>
+        </div>
+      </div>
+    </div>
+    <div class="row filters">
+      <input id="inJobSearch" type="search" placeholder="🔎 ค้นหางาน..." />
+      <select id="inJobStatus">
+        <option value="">สถานะที่ทำงานได้</option>
+        <option value="review">วางแผนแล้ว</option>
+        <option value="generating">กำลัง gen</option>
+        <option value="ready">พร้อมโพสต์</option>
+      </select>
+    </div>
+    <div id="jobList" class="job-list"></div>
+    <p id="jobsEmpty" class="muted hidden">ไม่พบงาน — สร้าง Clip Job ในระบบก่อน แล้วกด ⟳</p>
+  </section>
+
+  <!-- ── Shot Board ── -->
+  <section id="viewShots" class="view hidden">
+    <button id="btnBackJobs" class="link-btn">← กลับรายการงาน</button>
+    <div class="card job-head">
+      <div class="job-head-top">
+        <span id="jobCode" class="code"></span>
+        <a id="jobOpenWeb" class="link-btn" target="_blank" rel="noopener">เปิดในระบบ ↗</a>
+      </div>
+      <h2 id="jobName"></h2>
+      <p id="jobMeta" class="muted"></p>
+      <div class="drive-row">
+        <input id="inDrive" type="url" placeholder="วางลิงก์โฟลเดอร์ Google Drive ของงาน..." />
+        <button id="btnDriveSave" class="mini">บันทึก</button>
+        <a id="btnDriveOpen" class="mini hidden" target="_blank" rel="noopener">📂</a>
+      </div>
+      <div id="jobProgress" class="progress-row"></div>
+      <!-- 🛍️ รูปสินค้าอ้างอิง — ติ๊กแล้วกด ▶ จะแนบไปพร้อมภาพนิ่งของฉากในคลิกเดียว -->
+      <div id="refStrip" class="hidden">
+        <p class="muted" style="margin-top:8px">🛍️ รูปสินค้าอ้างอิง — ติ๊กเพื่อแนบไปกับฉากตอนกด ▶ (แนบพร้อมกันหลายรูปได้)</p>
+        <div id="refImages" class="cap-images ref-images"></div>
+      </div>
+    </div>
+    <div id="shotList" class="shot-list"></div>
+  </section>
+
+  <footer id="toast" class="toast hidden"></footer>
+  <script src="panel.js"></script>
+</body>
+</html>

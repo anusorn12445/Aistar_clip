@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.next/
+.env
+.env.local
+*.log
+.DS_Store
+
+# ไฟล์ upload/export ของผู้ใช้ — เป็นข้อมูล ไม่ใช่โค้ด (backup แยกด้วย scripts/backup.sh)
+apps/api/storage/
+apps/api/test/.storage-test/
+_backup-*/

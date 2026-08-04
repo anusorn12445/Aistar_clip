@@ -1,0 +1,10 @@
+{
+  "name": "aistar-talent-os",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter api start:dev",
+    "dev:web": "pnpm --filter web dev",
+    "migrate": "pnpm --filter api prisma:migrate",
+    "seed": "pnpm --filter api prisma:seed"
+  }
+}

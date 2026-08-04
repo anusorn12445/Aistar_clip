@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "AISTAR → Flow",
+  "description": "ดึง Clip Job จาก AISTAR Talent OS มาวาง prompt + รูปลง Google Flow แล้วรายงานสถานะกลับระบบ",
+  "version": "1.6.0",
+  "action": {
+    "default_title": "เปิดแผง AISTAR → Flow"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "tabs",
+    "clipboardWrite",
+    "downloads",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://labs.google/*",
+    "https://shopee.co.th/*",
+    "https://api-production-61ef.up.railway.app/*",
+    "http://localhost:4000/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://labs.google/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "https://shopee.co.th/*"
+      ],
+      "js": [
+        "content-shopee.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
