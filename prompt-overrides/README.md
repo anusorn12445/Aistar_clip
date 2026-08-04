@@ -34,8 +34,25 @@ node scripts/export-prompt-overrides.js prompt-overrides
 
 > ไฟล์นี้ export เฉพาะคีย์ที่ **ไม่ใช่ secret** (กรอง `isSecret` + คำที่เข้าข่าย key/token/password ออก)
 
-## วิธีนำกลับเข้า (restore)
+## นำเข้าอัตโนมัติตอน setup (พร้อมใช้เลย) ✅
 
-อ่านค่าแต่ละคีย์จาก `ugc-settings.json` แล้ว `UPSERT` กลับเข้า `system_settings` (คีย์เดิม, value เป็น JSON string) — หรือใช้ผ่าน API settings ของแอป
+พรอมป์ระดับ template (recipes / packaging / sceneblocks / sectionprompts) ถูกฝังไว้ที่
+[`apps/api/prisma/seed-data/ugc-prompt-overrides.json`](../apps/api/prisma/seed-data/ugc-prompt-overrides.json)
+และ `prisma:seed` จะโหลดเข้า `system_settings` ให้อัตโนมัติ — **ติดตั้งใหม่แล้วได้พรอมป์ที่ปรับไว้เลย**
 
-> ⚠️ ค่านี้เป็น snapshot ณ เวลา export — ถ้าแก้พรอมป์บนแอปเพิ่ม ต้อง export ใหม่แล้ว commit
+```bash
+pnpm --filter api prisma:seed   # จะ seed พรอมป์ override ให้ด้วย (create-if-absent)
+```
+
+- **create-if-absent** — ถ้าคีย์นั้นมีอยู่แล้วใน DB จะไม่ทับ (กัน clobber ค่าที่แก้สด)
+- อยากอัปเดตค่าที่ commit ไว้ให้ DB เดิม → แก้ผ่านหน้าแอป หรือลบคีย์นั้นก่อน seed ใหม่
+
+## อัปเดต backup เมื่อแก้พรอมป์เพิ่ม
+
+```bash
+node scripts/export-prompt-overrides.js prompt-overrides                       # 1) ดึงจาก DB
+node -e 'const fs=require("fs");const d=require("./prompt-overrides/ugc-settings.json");fs.writeFileSync("apps/api/prisma/seed-data/ugc-prompt-overrides.json",JSON.stringify(d.templateOverrides,null,2))'  # 2) อัปเดตไฟล์ seed
+git add -A && git commit -m "chore: update clip-recipe prompts"                # 3) commit
+```
+
+> ⚠️ ค่านี้เป็น snapshot ณ เวลา export — ถ้าแก้พรอมป์บนแอปเพิ่ม ต้องทำ 3 ขั้นข้างบนแล้ว commit

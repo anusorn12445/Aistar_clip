@@ -2,8 +2,35 @@ process.env.PRISMA_ADAPTER='pg';
 process.env.DATABASE_URL='postgresql://aistar:aistar@localhost:5432/aistar';
 import { Prisma, PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
+
+// ── UGC prompt/สูตรคลิป overrides ที่แก้เอง (backup จาก system_settings) ──
+// โหลดเข้า system_settings ตอน seed → fresh setup พร้อมใช้พรอมป์ที่ปรับไว้เลย
+// create-if-absent: ไม่ทับค่าที่ user แก้สดบน DB เดิม (ตามแบบ seed อื่นในไฟล์นี้)
+async function seedUgcPromptOverrides(adminId: string): Promise<string> {
+  const file = path.join(__dirname, 'seed-data', 'ugc-prompt-overrides.json');
+  if (!fs.existsSync(file)) return 'ugc overrides: (ไม่พบไฟล์ seed-data — ข้าม)';
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(fs.readFileSync(file, 'utf8')) as Record<string, unknown>;
+  } catch {
+    return 'ugc overrides: (อ่าน JSON ไม่ได้ — ข้าม)';
+  }
+  let created = 0;
+  const keys = Object.keys(data);
+  for (const key of keys) {
+    if (!key.startsWith('ugc.')) continue;
+    const value = JSON.stringify(data[key]);
+    const existing = await prisma.systemSetting.findUnique({ where: { key }, select: { key: true } });
+    if (existing) continue; // ไม่ทับ user edit
+    await prisma.systemSetting.create({ data: { key, value, updatedBy: adminId } });
+    created++;
+  }
+  return `ugc overrides +${created}/${keys.length}`;
+}
 
 // Permission Matrix จาก addendum §C (V=View, C=Create/Edit, A=Approve, P=Publish, E=Export, X=Admin)
 const ROLES: Record<string, { name: string; perms: Record<string, string[]> }> = {
@@ -1027,6 +1054,9 @@ async function main() {
     }
   }
 
+  const ugcOverridesSummary = await seedUgcPromptOverrides(admin.id);
+
+  console.log(ugcOverridesSummary);
   console.log(
     `Seeded ${Object.keys(ROLES).length} roles, ${PLATFORMS.length} platforms, ${BUILTIN_CATEGORIES.length} builtin categories, ${demoClients.length} demo clients, ${demoJobs.length} demo jobs, +${segCreated}/${THAI_AUDIENCE_SEGMENTS.length} audience segments, cameras +${cameraCreated}/${BUILTIN_CAMERAS.length}, lightings +${lightingCreated}/${BUILTIN_LIGHTINGS.length}, blueprints +${bpCreated}/${BUILTIN_BLUEPRINTS.length}, banned words +${bannedCreated}/${BUILTIN_BANNED_WORDS.length}, ${BUILTIN_CHARACTER_CATEGORIES.length} char categories, locations +${locCreated}/${SAMPLE_LOCATIONS.length}, voices +${voiceCreated}, prompts +${promptCreated}/${SAMPLE_PROMPTS.length}`,
   );

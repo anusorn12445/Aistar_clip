@@ -1,0 +1,975 @@
+{
+  "ugc.packaging.overrides": {
+    "dropper": {
+      "key": "dropper",
+      "label": "หลอดหยด (dropper)💧",
+      "prompt": "Product form: dropper bottle. Squeeze the rubber bulb to draw liquid, lift the glass pipette showing the liquid inside, release 2-3 clean drops onto the palm, fingertips, or application area. Each drop is a distinct rounded bead. Dropper returned into the bottle after use.",
+      "promptVideo": "Product form: dropper bottle. Squeeze the rubber bulb to draw liquid, lift the glass pipette showing the liquid inside, release 2-3 clean drops onto the palm, fingertips, or application area. Each drop is a distinct rounded bead. Dropper returned into the bottle after use.",
+      "negative": "liquid pouring in a stream from the dropper, drops splashing wide, cloudy dirty pipette, dropper touching skin directly"
+    },
+    "_______": {
+      "key": "_______",
+      "label": "แป้งพับ",
+      "prompt": "DEMO moment — polished commercial-style application, single frozen frame: the powder puff pressed against her cheek mid-dab, a light even veil of powder already on her skin. Her face is clearly visible and angled softly toward the camera with a bright composed smile, polished presenter energy, eyes toward the lens. The open compact is held elegantly in her other hand near her face so her expression, the puff and the powder all read in the same frame. Soft even beauty lighting, smooth radiant skin.",
+      "promptStill": "DEMO moment — polished commercial-style application, single frozen frame: the powder puff pressed against her cheek mid-dab, a light even veil of powder already on her skin. Her face is clearly visible and angled softly toward the camera with a bright composed smile, polished presenter energy, eyes toward the lens. The open compact is held elegantly in her other hand near her face so her expression, the puff and the powder all read in the same frame. Soft even beauty lighting, smooth radiant skin.",
+      "promptVideo": "DEMO moment — polished commercial-style application: she opens the compact with a soft click, picks up the puff and presses the powder onto her cheek in gentle unhurried dabbing motions, every movement clean and intentional, her face clearly visible and angled softly toward the camera with a bright composed smile, a quick satisfied glance into the compact mirror, then eyes up to the lens with polished presenter energy, the open compact held elegantly in her other hand near her face so her expression, the puff and the powder read in the same frame.",
+      "negative": "powder puffing into a dust cloud or floating particles\nloose powder spilling or scattering across the frame\nthe puff morphing, melting or changing shape\ncompact case changing color, shape or design mid-clip\npowder shade changing or patchy mismatched tone on the skin\ncaked, cracked or flaky powder texture on the face\nsmeared or streaky application marks\nthe compact mirror reflecting camera, lights or another person\nlid snapping open or closed on its own\nfingers sinking or clipping through the puff"
+    },
+    "___________": {
+      "key": "___________",
+      "label": "โฟมล้างหน้า🧴",
+      "prompt": "DEMO moment — polished commercial-style cleansing, single frozen frame: thick dense white lather already worked over her cheeks and forehead, foam sitting evenly on her skin like soft whipped cream, her fingertips resting mid-cheek in the lather. Her face is clearly visible and angled softly toward the camera, eyes closed lightly with a calm fresh expression. The cleanser tube is held elegantly in her other hand near her face so her expression, the lather and the product all read in the same frame. Soft even beauty lighting, glowing clean skin.\n\nCTA closing — the product is clean, dry and unused: she simply holds the sealed foam cleanser tube up beside her face, presenting it to the camera with the label facing the lens, her other hand gesturing lightly toward the basket area. No foam, no lather, no water, no washing, nothing squeezed out — just the product held and presented. Warm confident closing smile.",
+      "promptStill": "DEMO moment — polished commercial-style cleansing, single frozen frame: thick dense white lather already worked over her cheeks and forehead, foam sitting evenly on her skin like soft whipped cream, her fingertips resting mid-cheek in the lather. Her face is clearly visible and angled softly toward the camera, eyes closed lightly with a calm fresh expression. The cleanser tube is held elegantly in her other hand near her face so her expression, the lather and the product all read in the same frame. Soft even beauty lighting, glowing clean skin.\n\nCTA closing — the product is clean, dry and unused: she simply holds the sealed foam cleanser tube up beside her face, presenting it to the camera with the label facing the lens, her other hand gesturing lightly toward the basket area. No foam, no lather, no water, no washing, nothing squeezed out — just the product held and presented. Warm confident closing smile.",
+      "promptVideo": "DEMO moment — polished commercial-style cleansing: she squeezes a small pearl of cleanser onto wet fingertips, works it with a little water into a thick cloud of dense white lather, then massages the foam over her cheeks and forehead in gentle upward circular motions, every movement clean and unhurried, her face clearly visible and angled softly toward the camera, eyes closing lightly for a beat as she enjoys the fresh cooling feel, foam sitting evenly on her skin like soft whipped cream, the tube held elegantly in her other hand near her face so her expression, the lather and the product read in the same frame.",
+      "negative": "",
+      "negativeStill": "foam turning grey, yellow or discolored\nlather melting into flat watery liquid on the skin\noversized foam mountain covering the eyes or entire face\nfoam or soap getting into the eyes, red irritated eyes\nbubbles floating off the face into the air\nfoam texture flickering or changing density between frames\nwater splashing chaotically or soaking the hair and clothes\nskin turning red, blotchy or irritated during cleansing\nmascara or makeup smearing into dark streaks\ntube squeezing out endless foam like an overflow\n\nfoam or lather on the face during the closing shot, product being squeezed or dispen"
+    },
+    "_": {
+      "key": "_",
+      "label": "ลิปสติก💄",
+      "prompt": "DEMO moment — close-up lipstick still, framed tightly on the lips and chin, single frozen frame: the lips fully coated with a rich even band of color, freshly applied and smooth, relaxing into a soft smile. The lipstick bullet is held beside the finished lips with the shade and label clearly visible. The smooth color payoff is told entirely through the lips and hands. Soft even beauty lighting, natural lip texture.",
+      "promptStill": "DEMO moment — close-up lipstick still, framed tightly on the lips and chin, single frozen frame: the lips fully coated with a rich even band of color, freshly applied and smooth, relaxing into a soft smile. The lipstick bullet is held beside the finished lips with the shade and label clearly visible. The smooth color payoff is told entirely through the lips and hands. Soft even beauty lighting, natural lip texture.",
+      "promptVideo": "DEMO moment — close-up lipstick application, framed tightly on the lips and chin: fingers uncap the lipstick with a soft click and twist the bullet up, the tip glides across the lips in slow steady strokes leaving a rich even band of color, lips pressing together once to blend, then relaxing into a soft smile — the bullet held beside the finished lips with the shade and label clearly visible, the smooth color payoff told entirely through the lips and hands.",
+      "negative": ""
+    },
+    "______________": {
+      "key": "______________",
+      "label": "ที่เขียนคิ้ว✏️",
+      "prompt": "DEMO moment — close-up brow still, framed tightly on the eye and brow area, single frozen frame: the brow fully defined with clean natural shape, filled with thin feathery hair-like strokes that look like real brow hairs, the arch neat and precise. The brow pencil tip rests beside the finished brow with the label readable. The precise natural result is told entirely through the finished brow. Soft even beauty lighting, natural skin and brow texture.",
+      "promptStill": "DEMO moment — close-up brow still, framed tightly on the eye and brow area, single frozen frame: the brow fully defined with clean natural shape, filled with thin feathery hair-like strokes that look like real brow hairs, the arch neat and precise. The brow pencil tip rests beside the finished brow with the label readable. The precise natural result is told entirely through the finished brow. Soft even beauty lighting, natural skin and brow texture.",
+      "promptVideo": "DEMO moment — close-up brow application, framed tightly on the eye and brow area: fingers twist the fine tip up and draw short feathery hair-like strokes along the brow, each stroke thin and precise like real brow hairs, the arch gradually gaining clean natural definition, the spoolie end brushing through to soften the color, the pencil tip resting beside the finished brow with the label readable — the precise natural result told entirely through the brow taking shape.",
+      "negative": "thick solid painted-on block brows\nharsh dark outline or marker-like lines\nuneven or asymmetric brows between left and right\nbrow shape or arch changing between frames\nstrokes smearing or smudging outside the brow\npencil tip breaking, bending or melting\npencil drawing on the eyelid or forehead\nbrow color turning blue, green or unnatural tone\neyebrows disappearing or doubling mid-clip\neye poked or watering during application"
+    },
+    "________": {
+      "key": "________",
+      "label": "มา์คหน้า😶‍🌫️",
+      "prompt": "DEMO moment — polished commercial-style sheet mask still, single frozen frame: the essence-soaked sheet mask already smoothed flat and fitted over her face, sitting snug around her eyes and mouth with a visible glossy sheen of essence on the mask. She leans back slightly with eyes closed in calm relaxed bliss, hands resting down, a serene pampered expression. The empty sachet with its label visible rests beside her so her masked face and the product read in the same frame. Soft even beauty lighting, dewy glowing skin.",
+      "promptStill": "DEMO moment — polished commercial-style sheet mask still, single frozen frame: the essence-soaked sheet mask already smoothed flat and fitted over her face, sitting snug around her eyes and mouth with a visible glossy sheen of essence on the mask. She leans back slightly with eyes closed in calm relaxed bliss, hands resting down, a serene pampered expression. The empty sachet with its label visible rests beside her so her masked face and the product read in the same frame. Soft even beauty lighting, dewy glowing skin.",
+      "promptVideo": "DEMO moment — polished commercial-style sheet mask application: she tears the sachet open with a soft satisfying rip, unfolds the glossy essence-soaked sheet with both hands, and smooths it onto her face starting from the forehead down over the cheeks and chin, fingertips pressing gently outward so the sheet sits flat and fitted around her eyes and mouth, a visible sheen of essence on the mask, then she leans back slightly with eyes closing in calm relaxed bliss, hands resting down, letting the serene pampered moment breathe — the empty sachet with its label visible resting beside her so her masked face and the product read in the same frame.",
+      "negative": "mask sheet floating, peeling or sliding off the face\nmask covering the eyes, nostrils or mouth completely\neye and mouth holes misaligned with the face\nsheet wrinkled, bunched or folded messily on the skin\nmask merging or melting into the skin\nmask changing color or turning opaque mid-clip\nessence dripping down the neck or soaking the clothes\nface shape distorting under the mask between frames\nmask turning into a horror or ghost-like appearance\nsecond mask appearing or the sheet duplicating"
+    },
+    "__": {
+      "key": "__",
+      "label": "ยาสีฟัน",
+      "prompt": "DEMO — single frozen frame in a bright clean modern bathroom, soft neutral-warm daylight from one side: a moderate pool of thick creamy pearlescent shampoo already resting in her open left palm, glossy with realistic viscosity. The bottle is held naturally in her right hand, tilted just enough for dispensing, the original front label facing the camera as visible as possible. The exact shampoo bottle from the attached reference is the only bottle in frame — label, logo, typography, colors, proportions, cap and material visually identical to the reference. Soft even lighting, true-to-life colors.",
+      "promptStill": "DEMO — single frozen frame in a bright clean modern bathroom, soft neutral-warm daylight from one side: a moderate pool of thick creamy pearlescent shampoo already resting in her open left palm, glossy with realistic viscosity. The bottle is held naturally in her right hand, tilted just enough for dispensing, the original front label facing the camera as visible as possible. The exact shampoo bottle from the attached reference is the only bottle in frame — label, logo, typography, colors, proportions, cap and material visually identical to the reference. Soft even lighting, true-to-life colors.",
+      "promptVideo": "DEMO MOMENT — SINGLE CONTINUOUS SHOT\n\nOne uninterrupted, continuous shower-fresh demonstration in a bright, clean modern bathroom with soft neutral-warm daylight entering consistently from one side. The lighting, exposure, white balance and camera framing remain constant throughout the entire shot.\n\nThe exact shampoo bottle from the attached reference image is the only bottle that appears in the video. Treat the attached reference as the immutable ground truth. The bottle, label, logo, typography, colors, proportions, cap, material and packaging design must remain visually identical throughout the entire clip.\n\nThe bottle is already held naturally in her hands at the first frame, tilted just enough for dispensing while keeping the original front label as visible to the camera as physically possible. The bottle never changes shape, color, size, material or label artwork.\n\nWith one gentle squeeze from her right hand, a single smooth continuous ribbon of pearlescent shampoo slowly dispenses into her open left palm. The shampoo appears thick, creamy and glossy with realistic viscosity, forming one clean continuous strand before naturally separating. The amount is moderate, suitable for",
+      "negative": "DEMO moment — one continuous close commercial-style beat: her hand squeezes a neat even ribbon of toothpaste onto the bristles in a single controlled press, the paste texture and stripe colors crisp and clean, then the loaded brush rises straight to her front teeth and works in small gentle circles, her expression relaxed and quietly delighted by the cool minty freshness — eyebrows lifting slightly, eyes brightening — only a hint of fresh light foam at the corner of her mouth and never more, lips and teeth staying clean and natural, the toothpaste tube standing upright beside the sink with its"
+    },
+    "_____": {
+      "key": "_____",
+      "label": "ยาสระผม🧴",
+      "prompt": "DEMO — single frozen frame in a bright, clean modern bathroom with soft neutral-warm daylight entering from one side: a moderate pool of thick, creamy, pearlescent shampoo already resting in her open left palm, glossy with realistic viscosity. The shampoo bottle is held naturally in her right hand, tilted just enough for dispensing, keeping the original front label facing the camera as visible as physically possible.\n\nThe exact shampoo bottle from the attached reference image is the only bottle in frame. Treat the attached reference as the immutable ground truth — the bottle, label, logo, typography, colors, proportions, cap, material and packaging design are visually identical to the reference, never redesigned or relabeled.\n\nSoft even lighting, consistent exposure and white balance, true-to-life colors.",
+      "promptStill": "DEMO — single frozen frame in a bright, clean modern bathroom with soft neutral-warm daylight entering from one side: a moderate pool of thick, creamy, pearlescent shampoo already resting in her open left palm, glossy with realistic viscosity. The shampoo bottle is held naturally in her right hand, tilted just enough for dispensing, keeping the original front label facing the camera as visible as physically possible.\n\nThe exact shampoo bottle from the attached reference image is the only bottle in frame. Treat the attached reference as the immutable ground truth — the bottle, label, logo, typography, colors, proportions, cap, material and packaging design are visually identical to the reference, never redesigned or relabeled.\n\nSoft even lighting, consistent exposure and white balance, true-to-life colors.",
+      "promptVideo": "DEMO MOMENT — SINGLE CONTINUOUS SHOT\n\nOne uninterrupted, continuous shower-fresh demonstration in a bright, clean modern bathroom with soft neutral-warm daylight entering consistently from one side. The lighting, exposure, white balance and camera framing remain constant throughout the entire shot.\n\nThe exact shampoo bottle from the attached reference image is the only bottle that appears in the video. Treat the attached reference as the immutable ground truth. The bottle, label, logo, typography, colors, proportions, cap, material and packaging design must remain visually identical throughout the entire clip.\n\nThe bottle is already held naturally in her hands at the first frame, tilted just enough for dispensing while keeping the original front label as visible to the camera as physically possible. The bottle never changes shape, color, size, material or label artwork.\n\nWith one gentle squeeze from her right hand, a single smooth continuous ribbon of pearlescent shampoo slowly dispenses into her open left palm. The shampoo appears thick, creamy and glossy with realistic viscosity, forming one clean continuous strand before naturally separating. The amount is moderate, suitable for",
+      "negative": "",
+      "negativeStill": "extra fingers, fused fingers, deformed hands, wrong number of hands, third hand, invented lettering, altered label text, redrawn logo, translated label, misspelled brand name, extra bottle, duplicate bottle, generic unlabeled bottle, redesigned packaging, wrong cap color, watery runny liquid, soap suds overflowing, foam covering the palm, shampoo dripping onto the floor, over-smoothed plastic skin, mannequin hands, harsh flash lighting, oversaturated HDR colors, blown-out highlights, studio backdrop, watermark, caption text, UI overlay, blurry, out of focus, CGI look, storyboard layout, multi-",
+      "negativeVideo": "label morphing or warping over time, label text flickering or changing between frames, logo drifting or redrawing itself, bottle changing shape size or color mid-clip, bottle teleporting between hands, extra bottle appearing, fingers merging or multiplying during motion, hand passing through the bottle, shampoo texture turning watery or foamy mid-pour, liquid flowing upward, endless pour that never stops, palm contents disappearing between frames, scene cut, camera cut, jump cut, transition effect, speed ramp, frame jitter, ghosting trails, face or identity shifting between frames, extra perso"
+    },
+    "asdd": {
+      "key": "asdd",
+      "label": "แป้งกระป๋อง",
+      "prompt": "PRODUCT DEMO — single frozen beauty frame.\n\nPRODUCT IDENTITY LOCK: use the attached product image as the single, exact and immutable source of truth. The exact same powder container from the reference is the only product in frame — container shape, proportions, rotating lid mechanism, dispensing opening, packaging, label artwork, logo, typography, colors, materials and finish all visually identical to the reference. Never redesigned, recreated, simplified or relabeled.\n\nSCENE: a bright, clean vanity or bathroom with soft neutral daylight from one side. The powder container is held elegantly in her hand near her face, the rotating lid open and the dispensing opening facing the camera, a light dusting of loose powder visible on the puff. Her face is softly visible and angled toward the camera with a calm composed expression, so her expression and the product read in the same frame.\n\nSoft even beauty lighting, consistent exposure and white balance, true-to-life product colors, medium close-up framing.",
+      "promptStill": "PRODUCT DEMO — single frozen beauty frame.\n\nPRODUCT IDENTITY LOCK: use the attached product image as the single, exact and immutable source of truth. The exact same powder container from the reference is the only product in frame — container shape, proportions, rotating lid mechanism, dispensing opening, packaging, label artwork, logo, typography, colors, materials and finish all visually identical to the reference. Never redesigned, recreated, simplified or relabeled.\n\nSCENE: a bright, clean vanity or bathroom with soft neutral daylight from one side. The powder container is held elegantly in her hand near her face, the rotating lid open and the dispensing opening facing the camera, a light dusting of loose powder visible on the puff. Her face is softly visible and angled toward the camera with a calm composed expression, so her expression and the product read in the same frame.\n\nSoft even beauty lighting, consistent exposure and white balance, true-to-life product colors, medium close-up framing.",
+      "promptVideo": "PRODUCT DEMO — SINGLE CONTINUOUS BEAUTY SHOT\n\nPRODUCT IDENTITY LOCK\n\nUse the attached product image as the single, exact and immutable source of truth for the product in every frame.\n\nThe exact same powder container from the attached reference image must remain visually identical throughout the entire video. Preserve the exact container shape, proportions, rotating lid mechanism, dispensing opening, packaging design, label artwork, logo, typography, colors, materials, finish, printed graphics and visible manufacturing details.\n\nTreat the complete packaging and label artwork as immutable. Do not redesign, recreate, reinterpret, simplify, enhance or beautify any part of the product.\n\nSCENE AND LIGHTING\n\nOne uninterrupted beauty-product demonstration in a bright, clean vanity or bathroom with soft neutral daylight entering consistently from one side.\n\nThe lighting, exposure, white balance and true product colors remain constant throughout the entire shot. Lighting may create soft natural highlights and shadows but must never tint, recolor, oversaturate or obscure the product.\n\nCAMERA\n\nMedium close-up framing filmed slightly above chest level with a smooth premium beauty-commercial fee",
+      "negative": "PRODUCT IDENTITY:\nproduct looking different from the reference image, generic lookalike product, different product, product replacement, product switching between frames, different product instance, redesigned product, recreated product, reimagined product, restyled product, beautified product, simplified product, fictional product\n\nPACKAGING:\ndifferent packaging, different container, wrong dimensions, wrong proportions, stretched product, compressed product, distorted geometry, incorrect silhouette, incorrect rim shape, incorrect base shape, incorrect manufacturing details, invented packaging"
+    },
+    "cream_jar": {
+      "key": "cream_jar",
+      "label": "ครีมกระปุก",
+      "prompt": "Product form: cream in a jar. Twist the lid open with one hand while holding the jar in the other; scoop a small amount with a clean fingertip or spatula showing a soft peak of cream, then apply with gentle circular strokes. Cream surface inside the jar looks smooth and untouched at first reveal.",
+      "promptVideo": "Product form: cream in a jar. Twist the lid open with one hand while holding the jar in the other; scoop a small amount with a clean fingertip or spatula showing a soft peak of cream, then apply with gentle circular strokes. Cream surface inside the jar looks smooth and untouched at first reveal.",
+      "negative": "digging deep holes in cream, dirty fingernails, lid opening like a hinge, cream dripping liquid-thin"
+    },
+    "fashion_tryon": {
+      "key": "fashion_tryon",
+      "label": "เสื้อผ้า/แฟชั่น (ลองใส่)",
+      "prompt": "Product form: fashion item worn on body. Show the garment on a hanger or held up first, then worn — fit, drape and fabric movement visible while turning or walking a few steps. Fabric texture (knit, satin sheen, denim weave) reads clearly in close-ups. Same garment, same color in every scene.",
+      "promptVideo": "Product form: fashion item worn on body. Show the garment on a hanger or held up first, then worn — fit, drape and fabric movement visible while turning or walking a few steps. Fabric texture (knit, satin sheen, denim weave) reads clearly in close-ups. Same garment, same color in every scene.",
+      "negative": "garment morphing between scenes, distorted body proportions, floating clothes with no body, wrinkled dirty fabric presented as new"
+    }
+  },
+  "ugc.recipes.overrides": {
+    "product/beauty": {
+      "key": "product/beauty",
+      "label": "บิวตี้/สกินแคร์ — เนื้อสัมผัส/วิธีใช้/ฟีลหลังใช้",
+      "sceneFlow": [
+        {
+          "name": "เปิดหัวปัญหาผิว",
+          "note": "ตั้งปัญหาที่กลุ่มเป้าหมายเจอจริง"
+        },
+        {
+          "name": "โชว์แพ็กเกจ",
+          "note": "แบรนด์/ฉลากชัด"
+        },
+        {
+          "name": "เนื้อสัมผัส",
+          "note": "texture close-up — เนื้อครีม/เซรั่มบนหลังมือ"
+        },
+        {
+          "name": "วิธีใช้",
+          "note": "ขั้นตอนการทา/ใช้จริง"
+        },
+        {
+          "name": "ฟีลหลังใช้",
+          "note": "ความรู้สึกหลังใช้ — ห้ามเคลมผลลัพธ์ทางการแพทย์"
+        },
+        {
+          "name": "ปิดขาย CTA"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [
+        "smooth confident natural movement",
+        "she delivers the full spoken line within the first 3 seconds",
+        "every action fully completed by the 4 second mark, calm still hold at the end"
+      ],
+      "negativeStill": [
+        "product looking different from the reference image",
+        "product redesigned, restyled or reimagined by the AI",
+        "label text rewritten, misspelled or replaced with gibberish",
+        "logo or font changing style, position or size",
+        "product colors shifted, oversaturated or tinted by the lighting",
+        "cap, lid or packaging parts shaped differently from the reference",
+        "product proportions stretched, shrunken or distorted",
+        "texture or material changing from the reference — matte turning glossy, cream turning liquid",
+        "generic lookalike product replacing the real one",
+        "fictional extra details, patterns or decorations added onto the packaging",
+        "more than two hands visible at any moment",
+        "a third hand appearing during motion",
+        "someone else's hands reaching into the frame",
+        "disembodied hands or arms entering from the frame edge"
+      ],
+      "negativeVideo": [
+        "AVOID: label text changing or melting mid-clip, product warping, stretching or duplicating while moving, product changing shape, color, size or design mid-clip, product being swapped for a different item, product cap, lid or parts opening or moving on its own, liquid or contents changing color or level inside the container, extra fingers appearing during motion, more than two hands visible at any moment, a third hand appearing during motion, someone else's hands reaching into the frame, disembodied hands or arms entering from the frame edge, hard cuts or camera angle changes mid-clip, scene switching or jump cuts to a different shot, flash frames, white flashes or strobing between frames, montage editing, multiple scenes stitched together, camera suddenly repositioning or snapping to a new angle, background or room changing to a different location mid-clip, walls, furniture or lighting shifting into a different environment, time of day or weather changing mid-clip, morphing faces or objects between frames, flickering, frame jitter, ghosting trails, character's face changing into a different person mid-clip, hairstyle, outfit or makeup changing between frames, character being replaced or a second person appearing from nowhere, spoken words differing from the scripted line, improvised, paraphrased or reworded dialogue, the voice continuing to talk after the scripted line ends, extra words or sentences added after the scripted line, the line being repeated, looped or said twice, the voice stretching or dragging the line to fill the whole clip, mumbling or trailing off instead of a clean stop, speaking in a language other than Thai, changing the scripted line into different words, adding filler sounds like \"อืม\", \"เอ่อ\" or laughter, counting, humming or making sounds after the line, lip-sync drifting from the audio, silent clip with no audio track at all, the clip starting silent before the voice comes in, audio dropping out or going mute partway through, dead-quiet playback with no room ambience, ambient sound cutting out after the voice ends, the voice present but room tone completely absent, background music or a music bed replacing the spoken voice, robotic, muffled or distorted voice that is hard to hear, watermark, subtitles burned into the video."
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/baftertest": {
+      "key": "product/baftertest",
+      "label": "ก่อน/หลัง (Before-After) — เล่าจากผลจริง",
+      "sceneFlow": [
+        {
+          "name": "เล่าปัญหาในอดีต",
+          "note": "hook — testimonial จริงใจ เล่าด้วยปาก ไม่ render สภาพแย่บนตัว"
+        },
+        {
+          "name": "จุดเปลี่ยน — เจอตัวนี้",
+          "note": "เผยสินค้า + เหตุผลที่ลอง"
+        },
+        {
+          "name": "ผลลัพธ์ปัจจุบันที่เห็นได้",
+          "note": "โชว์สภาพตอนนี้ believable ไม่ CGI-perfect"
+        },
+        {
+          "name": "สรุปความเปลี่ยนแปลง + ชวนลอง",
+          "note": "ความรู้สึก + CTA"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [
+        "smooth confident natural movement",
+        "she delivers the full spoken line within the first 3 seconds",
+        "every action fully completed by the 4 second mark, calm still hold at the end"
+      ],
+      "negativeStill": [
+        "distorted or invented label text, misspelled text, warped logo",
+        "extra fingers, deformed hands",
+        "warped or duplicated product, melted shapes",
+        "over-smoothed plastic skin",
+        "studio backdrop, ring-light reflection",
+        "watermark, caption text, UI overlay",
+        "oversaturated HDR colors",
+        "blurry, out of focus, CGI look"
+      ],
+      "negativeVideo": [
+        "AVOID: label text changing or melting mid-clip, product warping, stretching or duplicating while moving, product changing shape, color, size or design mid-clip, product being swapped for a different item, product cap, lid or parts opening or moving on its own, liquid or contents changing color or level inside the container, extra fingers appearing during motion, more than two hands visible at any moment, a third hand appearing during motion, someone else's hands reaching into the frame, disembodied hands or arms entering from the frame edge, hard cuts or camera angle changes mid-clip, scene switching or jump cuts to a different shot, flash frames, white flashes or strobing between frames, montage editing, multiple scenes stitched together, camera suddenly repositioning or snapping to a new angle, background or room changing to a different location mid-clip, walls, furniture or lighting shifting into a different environment, time of day or weather changing mid-clip, morphing faces or objects between frames, flickering, frame jitter, ghosting trails, character's face changing into a different person mid-clip, hairstyle, outfit or makeup changing between frames, character being replaced or a second person appearing from nowhere, spoken words differing from the scripted line, improvised, paraphrased or reworded dialogue, the voice continuing to talk after the scripted line ends, extra words or sentences added after the scripted line, the line being repeated, looped or said twice, the voice stretching or dragging the line to fill the whole clip, mumbling or trailing off instead of a clean stop, speaking in a language other than Thai, changing the scripted line into different words, adding filler sounds like \"อืม\", \"เอ่อ\" or laughter, counting, humming or making sounds after the line, lip-sync drifting from the audio, silent clip with no audio track at all, the clip starting silent before the voice comes in, audio dropping out or going mute partway through, dead-quiet playback with no room ambience, ambient sound cutting out after the voice ends, the voice present but room tone completely absent, background music or a music bed replacing the spoken voice, robotic, muffled or distorted voice that is hard to hear, watermark, subtitles burned into the video."
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/unbox": {
+      "key": "product/unbox",
+      "label": "เปิดกล่อง (Unbox) — ประสบการณ์แกะครั้งแรก",
+      "sceneFlow": [
+        {
+          "name": "กล่องมาส่งถึงมือ",
+          "note": "hook — ความตื่นเต้นของแรกเจอ พัสดุ/กล่องแบรนด์เต็มเฟรม"
+        },
+        {
+          "name": "แกะกล่องชั้นแรก",
+          "note": "เปิดฝา ดึงกันกระแทก — first reaction จริง ไม่เหมือนซ้อมมา"
+        },
+        {
+          "name": "เจอตัวสินค้า + สำรวจรอบตัว",
+          "note": "ยกออกมา หมุนดูรอบด้าน ดีเทลผิว/ฉลาก/อุปกรณ์ที่แถม"
+        },
+        {
+          "name": "ลองใช้ครั้งแรก + ปิดการขาย",
+          "note": "ทดลองสั้น ๆ + ความรู้สึกแรก + CTA"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [],
+      "negativeStill": [
+        "distorted or invented label text, misspelled text, warped logo",
+        "extra fingers, deformed hands",
+        "warped or duplicated product, melted shapes",
+        "over-smoothed plastic skin",
+        "studio backdrop, ring-light reflection",
+        "watermark, caption text, UI overlay",
+        "oversaturated HDR colors",
+        "blurry, out of focus, CGI look",
+        "more than two hands in the frame",
+        "a second pair of hands, a third hand",
+        "someone else's hands entering the frame",
+        "disembodied hands or arms"
+      ],
+      "negativeVideo": [
+        "morphing faces or objects between frames",
+        "flickering, frame jitter, ghosting trails",
+        "label text changing or melting mid-clip",
+        "extra fingers appearing during motion",
+        "more than two hands visible at any moment",
+        "a third hand appearing during motion, extra pair of hands",
+        "someone else's hands reaching into the frame",
+        "disembodied hands or arms entering from the frame edge",
+        "product warping, stretching or duplicating while moving",
+        "sudden teleporting cuts, unnatural sliding motion",
+        "lip-sync drifting from the audio",
+        "watermark, subtitles burned into the video"
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/asmr": {
+      "key": "product/asmr",
+      "label": "ASMR — เสียงคือพระเอก",
+      "sceneFlow": [
+        {
+          "name": "เสียงแรกสะกดหู",
+          "note": "hook — เสียงแกะ/เคาะ/บีบชัด ๆ ก่อนเห็นอะไรเต็มตัว"
+        },
+        {
+          "name": "สัมผัสพื้นผิว",
+          "note": "macro เนื้อสัมผัส + เสียงเสียดสี/กด/หมุนฝา"
+        },
+        {
+          "name": "ใช้งานช้า ๆ เต็มกลไก",
+          "note": "pump/บีบ/สเปรย์ตามกลไกจริง เสียง mechanism เด่น"
+        },
+        {
+          "name": "ผลลัพธ์เนียนตา + ปิดเบา ๆ",
+          "note": "ภาพผลลัพธ์ satisfying + CTA กระซิบสั้น"
+        }
+      ],
+      "promptEmphasis": [
+        "A vertical 9:16 ASMR product still — extreme macro, shallow depth of field, texture-rich. [PRODUCT] rests on [SURFACE] in soft warm light from one side. Exactly two hands, both hers, [ACTION — เช่น กำลังบิดฝา/สัมผัสพื้นผิว/แกะซีล], caught mid-motion. Intimate close-up framing, satisfying and calm, real customer feel, not studio-perfect.",
+        "Product ground truth from the reference photo: copy [PRODUCT] exactly — identical shape, proportions, colors, cap, logo and Thai label text. Matte stays matte, glossy stays glossy. Never redesign, relabel, restyle or swap it for a lookalike."
+      ],
+      "promptEmphasisVideo": [
+        "A 4-second vertical 9:16 ASMR product video WITH FULL AUDIO — rich immersive close-mic sound design with a calm Thai female voiceover narration over the visuals — filmed like a real customer clip, one continuous macro take.",
+        "Scene: extreme macro on [PRODUCT], resting on [SURFACE] in soft warm light. Exactly two hands, both hers, slowly [ACTION — เช่น แกะ/บิดฝา/กด/สัมผัสพื้นผิว] with deliberate, satisfying motion. No face, no one speaking on camera — hands and product only.",
+        "Product ground truth from the reference photo: copy [PRODUCT] exactly — identical shape, proportions, colors, cap, logo and Thai label text. Matte stays matte, glossy stays glossy. Never redesign, relabel, restyle or swap it for a lookalike.",
+        "Camera: one continuous macro shot, shallow depth of field, soft warm light, no cuts (long take).",
+        "Audio: rich immersive ASMR soundscape — a heavy, present room tone with audible gentle background hiss and soft ambient noise filling the whole clip, close-mic and prominent. Layered on top: [เสียงเด่น เช่น seal-peel crackle / cap twist click / fingertip friction], crisp and detailed. No music. A calm Thai female voiceover, spoken off-screen over the visuals, sits softly above the ambience and says exactly at a natural pace: \"[บทพูด ~7-10 พยางค์]\". This is narration only — no one on camera speaks, no mouth movement, no lip-sync."
+      ],
+      "negativeStill": [
+        "product looking different from the reference image, product redesigned or relabeled, generic lookalike product replacing the real one, label text turning to gibberish, misspelled or invented text, logo changing style or position, product colors shifted, oversaturated or tinted by the lighting, cap or lid shaped differently from the reference, product proportions stretched, shrunken or distorted, texture or material changing from the reference — matte turning glossy, more than two hands in the frame, a second pair of hands, a third hand, someone else's hands entering the frame, disembodied hands or arms, extra fingers, deformed hands, over-smoothed plastic skin, studio backdrop, ring-light reflection, oversaturated HDR colors, blurry, out of focus, CGI look, watermark, caption text, UI overlay"
+      ],
+      "negativeVideo": [
+        "AVOID: product looking different from the reference image, product redesigned or relabeled, generic lookalike product replacing the real one, label text turning to gibberish, logo changing style or position, product colors shifted by the lighting, texture or material changing from the reference, more than two hands visible at any moment, a third hand appearing during motion, someone else's hands reaching in, disembodied hands or arms, a person's mouth moving or talking on camera, lip-sync animation, a face appearing and speaking, on-screen dialogue, hard cuts or camera jumps mid-clip, scene switching, morphing or warping between frames, flicker or ghosting trails, silent or muted background, dead-quiet room with no ambience, ambient sound cut out or missing, silent clip with no audio, background music, watermark or burned-in subtitles."
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/gadget": {
+      "key": "product/gadget",
+      "label": "แกดเจ็ต — ฟังก์ชัน/ใช้จริง",
+      "sceneFlow": [
+        {
+          "name": "เปิดหัวฟีเจอร์เด็ด",
+          "note": "ชูจุดขายเดียวที่ว้าวสุด"
+        },
+        {
+          "name": "แกะกล่อง/อุปกรณ์ในชุด"
+        },
+        {
+          "name": "ฟังก์ชันหลัก",
+          "note": "กดใช้ให้เห็นจริงทีละฟังก์ชัน"
+        },
+        {
+          "name": "ใช้จริงในชีวิตประจำวัน",
+          "note": "สถานการณ์จริงที่คนดูเห็นภาพ"
+        },
+        {
+          "name": "สรุปคุ้มไหม"
+        },
+        {
+          "name": "ปิดขาย CTA"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [],
+      "negativeStill": [
+        "distorted or invented label text, misspelled text, warped logo",
+        "extra fingers, deformed hands",
+        "warped or duplicated product, melted shapes",
+        "over-smoothed plastic skin",
+        "studio backdrop, ring-light reflection",
+        "watermark, caption text, UI overlay",
+        "oversaturated HDR colors",
+        "blurry, out of focus, CGI look",
+        "more than two hands in the frame",
+        "a second pair of hands, a third hand",
+        "someone else's hands entering the frame",
+        "disembodied hands or arms"
+      ],
+      "negativeVideo": [
+        "morphing faces or objects between frames",
+        "flickering, frame jitter, ghosting trails",
+        "label text changing or melting mid-clip",
+        "extra fingers appearing during motion",
+        "more than two hands visible at any moment",
+        "a third hand appearing during motion, extra pair of hands",
+        "someone else's hands reaching into the frame",
+        "disembodied hands or arms entering from the frame edge",
+        "product warping, stretching or duplicating while moving",
+        "sudden teleporting cuts, unnatural sliding motion",
+        "lip-sync drifting from the audio",
+        "watermark, subtitles burned into the video"
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/general": {
+      "key": "product/general",
+      "label": "สินค้าทั่วไป — แกะกล่องถึงผลลัพธ์",
+      "sceneFlow": [
+        {
+          "name": "เปิดหัวดึงคนดู",
+          "note": "hook 3 วิแรก หยุดนิ้วคนเลื่อน"
+        },
+        {
+          "name": "แกะกล่อง",
+          "note": "เห็นของจริงครบ ในกล่องมีอะไรบ้าง"
+        },
+        {
+          "name": "โชว์ตัวสินค้า",
+          "note": "ดีไซน์/ป้ายฉลากชัด สินค้าเป็นพระเอก"
+        },
+        {
+          "name": "ใช้งานจริง",
+          "note": "สาธิตการใช้แบบคนใช้จริง ไม่ใช่โฆษณา"
+        },
+        {
+          "name": "ผลลัพธ์",
+          "note": "ผลที่จับต้องได้ ไม่เคลมเกินจริง"
+        },
+        {
+          "name": "ปิดขาย CTA",
+          "note": "ชวนกดชัดเจน ไม่กำกวม"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [
+        "smooth confident natural movement",
+        "she delivers the full spoken line within the first 3 seconds",
+        "every action fully completed by the 4 second mark, calm still hold at the end"
+      ],
+      "negativeStill": [
+        "product looking different from the reference image",
+        "product redesigned, restyled or reimagined by the AI",
+        "label text rewritten, misspelled or replaced with gibberish",
+        "logo or font changing style, position or size",
+        "product colors shifted, oversaturated or tinted by the lighting",
+        "cap, lid or packaging parts shaped differently from the reference",
+        "product proportions stretched, shrunken or distorted",
+        "texture or material changing from the reference — matte turning glossy, cream turning liquid",
+        "generic lookalike product replacing the real one",
+        "fictional extra details, patterns or decorations added onto the packaging",
+        "more than two hands visible at any moment",
+        "a third hand appearing during motion",
+        "someone else's hands reaching into the frame",
+        "disembodied hands or arms entering from the frame edge"
+      ],
+      "negativeVideo": [
+        "AVOID: label text changing or melting mid-clip, product warping, stretching or duplicating while moving, product changing shape, color, size or design mid-clip, product being swapped for a different item, product cap, lid or parts opening or moving on its own, liquid or contents changing color or level inside the container, extra fingers appearing during motion, more than two hands visible at any moment, a third hand appearing during motion, someone else's hands reaching into the frame, disembodied hands or arms entering from the frame edge, hard cuts or camera angle changes mid-clip, scene switching or jump cuts to a different shot, flash frames, white flashes or strobing between frames, montage editing, multiple scenes stitched together, camera suddenly repositioning or snapping to a new angle, background or room changing to a different location mid-clip, walls, furniture or lighting shifting into a different environment, time of day or weather changing mid-clip, morphing faces or objects between frames, flickering, frame jitter, ghosting trails, character's face changing into a different person mid-clip, hairstyle, outfit or makeup changing between frames, character being replaced or a second person appearing from nowhere, spoken words differing from the scripted line, improvised, paraphrased or reworded dialogue, the voice continuing to talk after the scripted line ends, extra words or sentences added after the scripted line, the line being repeated, looped or said twice, the voice stretching or dragging the line to fill the whole clip, mumbling or trailing off instead of a clean stop, speaking in a language other than Thai, changing the scripted line into different words, adding filler sounds like \"อืม\", \"เอ่อ\" or laughter, counting, humming or making sounds after the line, lip-sync drifting from the audio, silent clip with no audio track at all, the clip starting silent before the voice comes in, audio dropping out or going mute partway through, dead-quiet playback with no room ambience, ambient sound cutting out after the voice ends, the voice present but room tone completely absent, background music or a music bed replacing the spoken voice, robotic, muffled or distorted voice that is hard to hear, watermark, subtitles burned into the video."
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/live": {
+      "key": "product/live",
+      "label": "ไลฟ์ขาย (Live-sell) — พลังแม่ค้าไลฟ์",
+      "sceneFlow": [
+        {
+          "name": "ทักคนดูดึงเข้าไลฟ์",
+          "note": "hook — พลังสูง \"ทุกคนนน ตัวนี้ต้องดู\""
+        },
+        {
+          "name": "โชว์สินค้าติดมือ",
+          "note": "ยกของชูเข้ากล้อง ชี้จุดเด่นเร็ว ๆ"
+        },
+        {
+          "name": "สาธิตสด + ตอบข้อสงสัยยอดฮิต",
+          "note": "ลองให้ดูจริง + เคลียร์คำถามที่คนถามบ่อย"
+        },
+        {
+          "name": "ปิดดีลด้วยโปร",
+          "note": "ย้ำราคา/โปร + CTA เร่งตัดสินใจแบบไม่กดดันเกิน"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [],
+      "negativeStill": [
+        "distorted or invented label text, misspelled text, warped logo",
+        "extra fingers, deformed hands",
+        "warped or duplicated product, melted shapes",
+        "over-smoothed plastic skin",
+        "studio backdrop, ring-light reflection",
+        "watermark, caption text, UI overlay",
+        "oversaturated HDR colors",
+        "blurry, out of focus, CGI look",
+        "more than two hands in the frame",
+        "a second pair of hands, a third hand",
+        "someone else's hands entering the frame",
+        "disembodied hands or arms"
+      ],
+      "negativeVideo": [
+        "morphing faces or objects between frames",
+        "flickering, frame jitter, ghosting trails",
+        "label text changing or melting mid-clip",
+        "extra fingers appearing during motion",
+        "more than two hands visible at any moment",
+        "a third hand appearing during motion, extra pair of hands",
+        "someone else's hands reaching into the frame",
+        "disembodied hands or arms entering from the frame edge",
+        "product warping, stretching or duplicating while moving",
+        "sudden teleporting cuts, unnatural sliding motion",
+        "lip-sync drifting from the audio",
+        "watermark, subtitles burned into the video"
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/toothpaste": {
+      "key": "product/toothpaste",
+      "label": "🪥 ขายยาสีฟัน — ปากสะอาด ยิ้มมั่นใจ",
+      "sceneFlow": [
+        {
+          "name": "เปิดหัวปัญหาปาก",
+          "note": "hook ความไม่มั่นใจที่คนเจอจริง — กลิ่นปาก/คราบชา-กาแฟ/ไม่กล้ายิ้ม ท่าเอามือป้องปาก สีหน้าอ่านง่าย"
+        },
+        {
+          "name": "โชว์หลอด",
+          "note": "หลอดปิดสนิท ฉลาก+แถบสีหันกล้องชัด สินค้าเป็นพระเอก"
+        },
+        {
+          "name": "บีบเนื้อยา",
+          "note": "ซิกเนเจอร์ของหมวด: บีบเป็นแถบเรียบบนขนแปรง เห็นเนื้อ/แถบสีโคลสอัป"
+        },
+        {
+          "name": "แปรงจริง",
+          "note": "แปรงฟันหน้าวนเบาๆ ฟองนิดเดียวดูสดชื่น สีหน้าผ่อนคลาย ไม่ใช่โฆษณาเวอร์"
+        },
+        {
+          "name": "ยิ้มมั่นใจ",
+          "note": "ผลที่จับต้องได้: ยิ้มกว้างฟันดูสะอาด ลมหายใจสดชื่นมั่นใจ — ห้ามเคลมผลทางการแพทย์/ฟันขาวขึ้นกี่เฉด"
+        },
+        {
+          "name": "ปิดขาย CTA",
+          "note": "ถือหลอดระดับอกฉลากหันกล้อง อีกมือชี้ตะกร้า ยิ้มสดใส"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [
+        "a neat even ribbon of toothpaste squeezed onto the bristles",
+        "a hint of fresh light foam, never excessive",
+        "bright confident smile showing clean natural teeth"
+      ],
+      "negativeStill": [
+        "excessive foam covering the mouth or chin",
+        "foam turning grey, yellow or dirty looking",
+        "toothpaste ribbon melting or sliding off the brush",
+        "toothpaste changing color or stripe pattern",
+        "teeth looking yellow, stained, crooked or damaged",
+        "distorted mouth or extra teeth",
+        "label text misspelled or rewritten",
+        "toothbrush bending or melting",
+        "messy paste smeared on the face",
+        "watermark, text overlay"
+      ],
+      "negativeVideo": [
+        "morphing faces or objects between frames",
+        "flickering, frame jitter, ghosting trails",
+        "extra fingers appearing during motion",
+        "lip-sync drifting from the audio",
+        "watermark, subtitles burned into the video",
+        "hard cuts or camera angle changes mid-clip",
+        "scene switching or jump cuts to a different shot",
+        "flash frames, white flashes or strobing between frames",
+        "montage editing, multiple scenes stitched together",
+        "camera suddenly repositioning or snapping to a new angle",
+        "label text changing or melting mid-clip",
+        "product changing shape, color, size or design mid-clip",
+        "toothpaste changing color or stripe pattern mid-clip",
+        "tube squeezing out endless paste like an overflow",
+        "paste ribbon melting, drooping or sliding off the brush",
+        "product being swapped for a different item",
+        "excessive foam filling the mouth or dripping down the chin",
+        "foam turning grey, yellow or dirty looking",
+        "toothbrush bending, melting or changing shape",
+        "teeth looking yellow, stained or damaged",
+        "mouth or teeth deforming while brushing",
+        "character's face changing into a different person mid-clip",
+        "spoken words differing from the scripted line",
+        "improvised, paraphrased or reworded dialogue"
+      ],
+      "ctaDefault": "basket"
+    },
+    "product/tutorial": {
+      "key": "product/tutorial",
+      "label": "สอนใช้งาน (How-to) — เซฟไว้ทำตาม",
+      "sceneFlow": [
+        {
+          "name": "ปัญหาที่หลายคนทำผิด",
+          "note": "hook — \"ใช้แบบนี้อยู่หรือเปล่า\" ชวนเอ๊ะ"
+        },
+        {
+          "name": "แนะนำตัวช่วย + ภาพรวมขั้นตอน",
+          "note": "เผยสินค้า + บอกว่ามีกี่ step"
+        },
+        {
+          "name": "ทำตามทีละขั้นชัด ๆ",
+          "note": "demonstration เห็นมือ+ของชัด ไม่รีบ"
+        },
+        {
+          "name": "ผลลัพธ์ + ชวนเซฟ/ซื้อ",
+          "note": "before-after สั้น + CTA"
+        }
+      ],
+      "promptEmphasis": [
+        "PRODUCT IDENTITY LOCK — EXACT REFERENCE MATCH",
+        "Use the attached product image as the single, exact and immutable source of truth for the product in every shot and every frame.",
+        "The generated product must be the exact same physical product instance shown in the reference image — not a similar product, not a recreated version and not a generic lookalike.",
+        "Preserve the product exactly as photographed, including:",
+        "- exact silhouette, dimensions and proportions",
+        "- exact tube, bottle, box, cap, lid, nozzle and opening geometry",
+        "- exact packaging structure and construction",
+        "- exact colors, color balance and color placement",
+        "- exact surface finish, material, gloss, roughness and texture",
+        "- exact logo, label artwork, typography and printed graphics",
+        "- exact font style, font weight, font size and letter spacing",
+        "- exact text content, spelling, line breaks and alignment",
+        "- exact margins, spacing, icon placement and graphic placement",
+        "- exact manufacturing details, folds, seams, reflections and imperfections visible in the reference",
+        "Treat the complete packaging design and label artwork as immutable.",
+        "Do not redraw, regenerate, redesign, reinterpret, modernize, simplify, improve, beautify or replace any part of the product.",
+        "Preserve the original label artwork directly from the reference. Do not generate replacement text or reconstruct the logo. Keep all visible wording and graphics optically unchanged. The label should face the camera whenever required by the shot, while retaining its original proportions, layout and appearance.",
+        "The only permitted changes are:",
+        "1. the explicitly requested product state or action",
+        "2. the product’s position or orientation in the scene",
+        "3. the camera viewpoint and framing",
+        "4. the surrounding environment",
+        "5. soft, neutral lighting that does not alter the product’s appearance",
+        "When changing the product state, modify only the physically necessary part.",
+        "For example, when opening the product, only remove or reposition the original cap or lid. Do not change the container, label, proportions, colors, nozzle, packaging design or material.",
+        "Maintain exact product identity throughout every frame.",
+        "The product must remain temporally consistent with:",
+        "- no morphing",
+        "- no shape drift",
+        "- no label drift",
+        "- no logo drift",
+        "- no text changes",
+        "- no color flicker",
+        "- no cap or packaging deformation",
+        "- no frame-to-frame redesign",
+        "- no unexplained changes in scale or proportions",
+        "Maintain true-to-life product colors under soft neutral beauty lighting. Lighting may create natural highlights and shadows, but must never tint, recolor, oversaturate, bleach or obscure the packaging.",
+        "Preserve all visible product textures and materials exactly as shown in the reference. Any cream, gel, paste, liquid, powder, fabric, plastic, glass, metal or printed surface must retain its real consistency, finish and physical appearance.",
+        "If a product detail is not clearly visible in the supplied reference image, do not invent, redesign or decorate it. Keep that area neutral, concealed or consistent with the visible reference.",
+        "If any instruction conflicts with the attached reference image, the reference image always takes priority.",
+        "REQUESTED PRODUCT STATE OR ACTION:",
+        "[INSERT THE REQUIRED STATE OR ACTION HERE]"
+      ],
+      "promptEmphasisVideo": [],
+      "negativeStill": [
+        "distorted or invented label text, misspelled text, warped logo",
+        "extra fingers, deformed hands",
+        "warped or duplicated product, melted shapes",
+        "over-smoothed plastic skin",
+        "studio backdrop, ring-light reflection",
+        "watermark, caption text, UI overlay",
+        "oversaturated HDR colors",
+        "blurry, out of focus, CGI look",
+        "more than two hands in the frame",
+        "a second pair of hands, a third hand",
+        "someone else's hands entering the frame",
+        "disembodied hands or arms"
+      ],
+      "negativeVideo": [
+        "morphing faces or objects between frames",
+        "flickering, frame jitter, ghosting trails",
+        "label text changing or melting mid-clip",
+        "extra fingers appearing during motion",
+        "more than two hands visible at any moment",
+        "a third hand appearing during motion, extra pair of hands",
+        "someone else's hands reaching into the frame",
+        "disembodied hands or arms entering from the frame edge",
+        "product warping, stretching or duplicating while moving",
+        "sudden teleporting cuts, unnatural sliding motion",
+        "lip-sync drifting from the audio",
+        "watermark, subtitles burned into the video"
+      ],
+      "ctaDefault": "basket"
+    }
+  },
+  "ugc.sceneblocks.overrides": {
+    "presenter": {
+      "rule": "Character faces the camera (front or 3/4 view). Never turned away from the camera. No products, bottles, jars or branded items other than the referenced product ever appear anywhere in the frame — not in the background, not on shelves, not in her hands.",
+      "negative": "extra fingers, deformed hands, distorted label, unreadable text, watermark, extra products or bottles appearing in the scene, unrelated branded items or cosmetic props, a second copy of the product",
+      "ruleHidden": "Character faces the camera directly, front or 3/4 view, holding eye contact with the lens the whole time. Both hands stay relaxed and empty, moving with light natural talking gestures — open palms, small expressive motions at chest level.",
+      "negativeHidden": "extra fingers, deformed hands, watermark, any handheld object",
+      "showProduct": true
+    },
+    "hands": {
+      "rule": "Hands only — no face visible, no body visible. No products, bottles, jars or branded items other than the referenced product ever appear anywhere in the frame — not on the table, not in the background, not in the other hand.",
+      "negative": "extra fingers, deformed hand, face visible, distorted label, unreadable text, watermark, extra products or bottles appearing in the scene, unrelated branded items or cosmetic props, a second copy of the product",
+      "ruleHidden": "Hands only — no face visible, no body visible. The hands do a casual everyday action, not holding any product or package.",
+      "negativeHidden": "extra fingers, deformed hand, face visible, watermark, any handheld product",
+      "showProduct": true
+    },
+    "product_only": {
+      "rule": "No people, no hands, no human shadows. The subject is the hero, full frame. No products, bottles, jars or branded items other than the referenced product ever appear anywhere in the frame — no props, no decor items with labels, nothing else on the surface.",
+      "negative": "people, hands, human shadows, distorted label, unreadable text, watermark, extra products or bottles appearing in the scene, unrelated branded items or cosmetic props, a second copy of the product",
+      "ruleHidden": "",
+      "negativeHidden": "",
+      "showProduct": true
+    },
+    "productHiddenLine": "Do NOT show the product in this shot — no product, no packaging, no brand label anywhere in frame. Focus on the person/scene only.",
+    "productHiddenNegative": "product bottle, product packaging, brand label, product box"
+  },
+  "ugc.sectionprompts.overrides": {
+    "hook": {
+      "prompt": "HOOK energy — the first 2 seconds must stop the scroll: a big readable emotion on the face reacting to a real everyday problem, expressive eyes, slight lean toward the camera.",
+      "promptHidden": "HOOK energy — the first 2 seconds must stop the scroll: she vents a real everyday problem straight to the camera with a big readable stressed expression — furrowed brows, tight lips, expressive eyes, slight lean toward the lens. It is just her and her story — both hands free, moving with the frustration, an everyday lived-in home softly blurred behind her.",
+      "showProduct": false
+    },
+    "reveal": {
+      "prompt": "REVEAL moment — the product makes its first satisfying appearance: framed from the chest down, the jar still closed with its lid sealed on and the packaging pristine and intact, lifted slowly with both hands toward the camera until it fills the frame, label facing the lens, fingers adjusting it gently to sit perfectly straight, a small deliberate pause holding it still — quiet \"this is it\" energy told entirely through the hands, the texture inside saved for later.",
+      "promptHidden": ""
+    },
+    "interaction": {
+      "prompt": "INTERACTION moment — natural closeness with the product, framed from the chest down: fingers tracing the surface, turning it slowly to catch the light on every side, tilting it near the camera for a closer look, relaxed unhurried handling — curiosity told entirely through the hands.",
+      "promptHidden": ""
+    },
+    "demonstration": {
+      "prompt": "DEMO moment — polished commercial-style application on her face: she smooths the cream onto her cheek with graceful upward strokes of her fingertips, every movement clean and intentional, her face clearly visible and angled softly toward the camera with a bright composed smile, eyes closing lightly for a beat as she enjoys the feel, then opening toward the lens with polished on-screen presenter energy, the jar held elegantly in her other hand near her face so both her expression and the product read in the same frame.",
+      "promptHidden": ""
+    },
+    "result": {
+      "prompt": "RESULT payoff — the visible outcome on display: her skin looks clear, luminous and even-toned with a soft healthy glow across her cheeks, fresh and dewy as if lit from within, fingertips lightly grazing her cheek to show how smooth it feels, a satisfied relaxed expression, calm confident energy — the bright clear-skin result easy to see at a glance.",
+      "promptHidden": ""
+    },
+    "cta": {
+      "prompt": "CTA closing — single frozen frame: warm direct address to the camera while holding the product up at chest level in ONE hand, label facing the lens, the product simply presented and shown — not opened, not used, not demonstrated. Her OTHER hand giving a light gesture toward the lower part of the frame (basket area). Exactly two hands total, both hers. A friendly closing smile, the product held steady.",
+      "promptHidden": ""
+    }
+  }
+}
