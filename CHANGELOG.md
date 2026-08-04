@@ -7,6 +7,37 @@
 
 ---
 
+## 🆚 เทียบกับของเดิม (baseline 21 ก.ค. 2026)
+
+ของเดิมคือ **AISTAR Talent OS — Phase 1**: Auth/RBAC 14 roles, Character CRUD, Asset Gallery, Prompt Library/Hub, Export Package (ZIP), QC review, MCP server
+สิ่งที่ **เพิ่มเข้ามาใหม่** ช่วง 30 ก.ค.–4 ส.ค. คือชั้น "โรงงานผลิตคลิป" (AI Clip Factory) — รวม **43 ไฟล์ที่ถูกแตะ**
+
+### ✅ เพิ่มใหม่ทั้งระบบ (ของเดิมไม่มี)
+
+| ระบบใหม่ | ไฟล์หลัก |
+|----------|----------|
+| **UGC Clip Engine** — ประกอบพรอมป์คลิปรีวิว | `apps/api/src/affiliate-clips/` ทั้งโมดูล (`flow-policy.ts`, `packaging-prompts.ts`, `review-recipes.ts`, `ugc.schemas.ts`, controller/service/module/dto) |
+| **Flow Policy Guard** — ตรวจ+auto-fix ให้ผ่าน content filter | `affiliate-clips/flow-policy.ts` |
+| **Product Sheet AI** — อ่านสเปกสินค้าจากภาพ (vision) | `apps/api/src/products/product-sheet-ai.service.ts` |
+| **Character Vision** — วิเคราะห์ตัวละครจากภาพ | `characters/character-vision.*`, `characters/capture-merge.ts`, `ai/ai-character-capture.service.ts`, web `components/character/AnalyzeFromImageButton.tsx` |
+| **Clip Jobs UI** — หน้าจัดการงานคลิป | web `app/clip-jobs/` (`recipes/`, `scene-prompts/`, `packaging-prompts/`, `[id]/`) |
+| **Image Prompt export** | `apps/api/src/exports/image-prompt.ts` |
+| **DB migration ใหม่ 2 ตัว** | `20260730150000_shot_show_product`, `20260730160000_product_packaging_type` |
+| **libs ฝั่ง web** | `lib/catalog.ts`, `lib/clip-jobs.ts` |
+
+### 🔧 ต่อยอด/แก้ของเดิม (มีอยู่แล้ว → เพิ่มความสามารถ)
+
+- `apps/api/src/app.module.ts` — ลงทะเบียนโมดูลใหม่
+- `prisma/schema.prisma` + `prisma/seed.ts` — เพิ่มฟิลด์/ข้อมูล (packagingType, shot show product ฯลฯ)
+- `ai/ai.controller.ts`, `ai/ai.service.ts`, `ai/ai-claude.service.ts`, `ai/ai-affiliate.service.ts` — ต่อ endpoint AI
+- `products/products.controller.ts`, `products/products.module.ts`, `products/dto/create-product.dto.ts` — รองรับ packaging type + product sheet
+- `settings/setting-keys.ts`, `prisma/prisma.service.ts` — คีย์ตั้งค่า/DB helper
+- web: `components/AppShell.tsx` (เมนูใหม่), `app/characters/[id]/page.tsx`, `app/products/page.tsx`, `app/products/[id]/page.tsx`
+
+> วิธีเทียบ: ไฟล์ที่ mtime ใหม่กว่า baseline 21 ก.ค. (ไม่นับ `node_modules` / `_backup-*`)
+
+---
+
 ## 🗓️ 30 ก.ค. — วางโครงคลิป UGC + สูตรรีวิว
 
 ตั้งฐานระบบผลิตคลิปรีวิวสินค้า UGC และหน้าเว็บหลัก
