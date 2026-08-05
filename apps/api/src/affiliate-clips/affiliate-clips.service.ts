@@ -52,6 +52,7 @@ import {
 } from './review-recipes';
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
+import { countThaiSyllables, checkSpeechFit } from './speech-timing';
 import {
   UGC_CONCEPTS_SCHEMA,
   UGC_PLAN_SCHEMA,
@@ -1243,9 +1244,7 @@ export class AffiliateClipsService {
   private static thaiSyllableEstimate(s: string): number {
     const t = (s ?? '').trim();
     if (!t) return 0;
-    const vowels = t.match(/[\u0e30\u0e31\u0e32\u0e33\u0e34\u0e35\u0e36\u0e37\u0e38\u0e39\u0e40\u0e41\u0e42\u0e43\u0e44]/g)?.length ?? 0;
-    const latinWords = t.match(/[a-zA-Z0-9]+/g)?.length ?? 0;
-    return Math.max(1, vowels + latinWords);
+    return countThaiSyllables(t);
   }
 
   // 🔬 Deep QC — AI วิเคราะห์ prompt คู่ (ภาพ+วิดีโอ) เทียบชนิดสินค้า: แอ็กชันเดโม่ตรงการใช้จริง / เฟรมแรกเป็นการใช้งานแล้ว / ชุดกันพูดมั่วครบ
@@ -1969,12 +1968,15 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
         }
       }
 
-      // งบพยางค์ — recompose ช่วยไม่ได้ ต้องตัดบทเอง
+      // งบเวลาพูด — คิดทั้งพยางค์และเวลาหยุด (comma/จุด/เว้นวรรค) ไม่ใช่แค่จำนวนพยางค์
+      //  จับบทที่ "อ่านทันแต่พูดไม่ทันเฟรม" เพราะมีจังหวะหยุดเยอะ — recompose ช่วยไม่ได้ ต้องตัดบทเอง
       const syl = AffiliateClipsService.thaiSyllableEstimate(dialogue);
-      const sylBudget = Math.round(speechSec * 3.5);
-      const syllableOk = dialogue ? syl <= sylBudget + 4 : true;
-      if (!syllableOk) {
-        issues.push(`บทยาวเกินงบ (~${syl} พยางค์ / งบ ~${sylBudget}) — ต้องตัดบทเองแล้วค่อย recompose`);
+      const speechFit = dialogue ? checkSpeechFit(dialogue, speechSec) : null;
+      const syllableOk = speechFit ? speechFit.fits : true;
+      if (speechFit && !speechFit.fits) {
+        issues.push(
+          `บทพูดเกินเฟรม ~${speechFit.estimatedSec} วิ (หน้าต่าง ${speechSec} วิ · เกิน ~${speechFit.overBySec} วิ รวมเวลาหยุด) — ตัดบทเหลือ ≤ ${speechFit.maxSyllables} พยางค์ (ตอนนี้ ~${syl}) แล้วค่อย recompose`,
+        );
       }
 
       const pass = issues.length === 0;
@@ -1989,7 +1991,7 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
               { label: 'บทใน prompt ตรงกับบทปัจจุบัน', ok: checks.dialogueSync },
               { label: 'ล็อกพูดตามสคริปต์ (saying exactly)', ok: checks.exactLock },
               { label: 'ค่าหน้าต่างพูด {sec} ตรงระบบ', ok: checks.speechSecLine },
-              { label: `บทในงบ (~${syl}/${sylBudget} พยางค์)`, ok: syllableOk },
+              { label: `บทพอดีเฟรม (~${speechFit?.estimatedSec ?? 0}/${speechSec} วิ · ${syl} พยางค์)`, ok: syllableOk },
             ]
           : []),
         { label: 'สัญญาจังหวะพูด/ไม่พูดครบ', ok: checks.contract },
@@ -2030,7 +2032,11 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
         capSec: Math.max(2, Math.floor(dur - 1)), // เพดานถูกถอด — หน้าต่าง = ความยาวฉาก-1 ล้วนๆ
         dialogue,
         dialogueSyllables: syl,
-        syllableBudget: sylBudget,
+        syllableBudget: Math.round(speechSec * 3.5),
+        // ⏱ ประเมินเวลาพูดจริง (พยางค์ + เวลาหยุด) เทียบหน้าต่างเฟรม
+        estimatedSpeechSec: speechFit?.estimatedSec ?? 0,
+        speechOverBySec: speechFit?.overBySec ?? 0,
+        maxSyllablesFit: speechFit?.maxSyllables ?? Math.round(speechSec * 3.5),
       };
     };
 
