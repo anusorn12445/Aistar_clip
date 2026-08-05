@@ -57,6 +57,7 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
       { href: "/products", label: "สินค้า", icon: ShoppingBag, perm: "product" },
       { href: "/clip-jobs", label: "งานคลิป", icon: Film, perm: "product" },
       { href: "/clip-jobs/recipes", label: "สูตรคลิป", icon: BookOpen, perm: "product" },
+      { href: "/clip-jobs/opening-methods", label: "คลังวิธีเปิด", icon: Package, perm: "product" },
       { href: "/affiliate", label: "คอนเทนต์แอฟฟิลิเอต", icon: Zap, perm: "product" },
     ],
   },

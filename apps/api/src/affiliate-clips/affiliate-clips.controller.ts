@@ -118,6 +118,13 @@ export class AffiliateClipsController {
     return this.clips.resetSceneBlocks(user);
   }
 
+  // ═══ Opening Methods (วิธีเปิดบรรจุภัณฑ์) ═══
+  @Get('opening-methods')
+  @RequirePermission('product', 'V')
+  listOpeningMethods() {
+    return this.clips.listOpeningMethods();
+  }
+
   // ═══ Prompt ประเภทสินค้า (Packaging Prompts) ═══
   @Get('packaging-prompts')
   @RequirePermission('product', 'V')

@@ -123,23 +123,127 @@ export const OPENING_METHODS: Record<string, OpeningMethod> = {
     tamperEvident: false, reclosable: true, clipSec: 1, cameraHint: '45° angle on cap',
     sfxTag: 'click', motionEn: 'fingers set the cap back on and twist it closed with a final click',
   }),
+
+  // ── prep เพิ่ม (ตามข้อเสนอผู้ใช้ A) ──
+  OPEN_PEEL_LABEL_SEAL: m({
+    code: 'OPEN_PEEL_LABEL_SEAL', labelTh: 'ลอกสติกเกอร์ซีลคร่อมฝา', labelEn: 'peel label seal over cap',
+    phase: 'prep', group: 'PEEL', motionAxis: 'pull_lateral', hands: 1, toolRequired: 'none',
+    tamperEvident: true, reclosable: false, clipSec: 2, cameraHint: 'macro across cap seam',
+    sfxTag: 'peel', motionEn: 'a fingertip peels the tamper sticker that bridges the cap and body, lifting it away',
+  }),
+  OPEN_SPIKE_CAP: m({
+    code: 'OPEN_SPIKE_CAP', labelTh: 'เจาะฟอยล์ปากหลอดด้วยปลายฝา', labelEn: 'spike foil with cap tip',
+    phase: 'prep', group: 'PIERCE', motionAxis: 'press_down', hands: 1, toolRequired: 'none',
+    tamperEvident: true, reclosable: true, clipSec: 2, cameraHint: 'macro on tube mouth',
+    sfxTag: 'pop', motionEn: 'the cap is flipped and its spike is pressed down to pierce the foil membrane on the tube mouth',
+  }),
+  OPEN_INNER_DISC: m({
+    code: 'OPEN_INNER_DISC', labelTh: 'แงะแผ่นรองในกระปุกออก', labelEn: 'pry inner disc out',
+    phase: 'prep', group: 'PRY', motionAxis: 'lever_up', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: false, clipSec: 2, cameraHint: 'top-down on jar',
+    sfxTag: 'none', motionEn: 'a fingernail lifts the edge of the inner protective disc and pries it out of the jar',
+  }),
+  OPEN_STOPPER_REMOVE: m({
+    code: 'OPEN_STOPPER_REMOVE', labelTh: 'ดึงจุกลดปริมาณออก', labelEn: 'pull reducer stopper',
+    phase: 'prep', group: 'PULL', motionAxis: 'pull_up', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 2, cameraHint: 'macro on bottle mouth',
+    sfxTag: 'pop', motionEn: 'fingers pull the small flow-reducer stopper straight up out of the bottle neck with a soft pop',
+  }),
+  OPEN_DUAL_CHAMBER_PRESS: m({
+    code: 'OPEN_DUAL_CHAMBER_PRESS', labelTh: 'กดผสมเนื้อสองช่อง', labelEn: 'press dual chamber to mix',
+    phase: 'prep', group: 'PUSH', motionAxis: 'press_down', hands: 2, toolRequired: 'none',
+    tamperEvident: true, reclosable: false, clipSec: 2, cameraHint: 'macro, both chambers in frame',
+    sfxTag: 'none', motionEn: 'both hands press the two-part pack so the middle seal bursts and the two contents blend together',
+  }),
+  OPEN_STANDUP_INVERT: m({
+    code: 'OPEN_STANDUP_INVERT', labelTh: 'พลิกหลอดที่ตั้งบนฝากลับด้าน', labelEn: 'invert stand-up tube',
+    phase: 'prep', group: 'LIFT', motionAxis: 'lift_up', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 1, cameraHint: 'medium macro on tube',
+    sfxTag: 'none', motionEn: 'the hand flips the stand-on-cap tube upright so the nozzle points up before opening',
+  }),
+  // ── open เพิ่ม: หมุน (ผู้ใช้ B) ──
+  OPEN_TUBE_SCREW: m({
+    code: 'OPEN_TUBE_SCREW', labelTh: 'หมุนฝาหลอดออก', labelEn: 'unscrew tube cap',
+    phase: 'open', group: 'TWIST', motionAxis: 'rotate_cw', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 2, cameraHint: '45° on tube nozzle',
+    sfxTag: 'click', motionEn: 'fingers unscrew the small tube cap and lift it off the nozzle',
+  }),
+  OPEN_BAYONET_CAP: m({
+    code: 'OPEN_BAYONET_CAP', labelTh: 'หมุนล็อก-ปลดล็อกแบบเขี้ยว', labelEn: 'unlock bayonet cap',
+    phase: 'open', group: 'TWIST', motionAxis: 'rotate_cw', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 2, cameraHint: 'macro on cap lugs',
+    sfxTag: 'click', motionEn: 'fingers give the bayonet cap a short quarter-turn to unlock the lugs, then lift it off',
+  }),
+  OPEN_TWIST_NOZZLE: m({
+    code: 'OPEN_TWIST_NOZZLE', labelTh: 'หมุนหัวจ่ายให้รูเปิด', labelEn: 'twist nozzle open',
+    phase: 'open', group: 'TWIST', motionAxis: 'rotate_cw', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 1, cameraHint: 'macro on nozzle tip',
+    sfxTag: 'none', motionEn: 'fingers twist the nozzle collar until the dispensing hole lines up and opens',
+  }),
+  // ── open เพิ่ม: กด/ยก/เลื่อน (ผู้ใช้ C) ──
+  OPEN_DISC_TOP: m({
+    code: 'OPEN_DISC_TOP', labelTh: 'กดขอบฝาดิสก์ให้กระดก', labelEn: 'press disc-top edge',
+    phase: 'open', group: 'PUSH', motionAxis: 'press_down', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 1, cameraHint: 'side macro on disc cap',
+    sfxTag: 'click', motionEn: 'a thumb presses the edge of the disc-top cap so the opposite side tips up and opens',
+  }),
+  OPEN_LIFT_LID: m({
+    code: 'OPEN_LIFT_LID', labelTh: 'ยกฝาครอบออก', labelEn: 'lift off lid',
+    phase: 'open', group: 'LIFT', motionAxis: 'lift_up', hands: 1, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 1, cameraHint: 'slight high angle',
+    sfxTag: 'none', motionEn: 'the hand lifts the friction-fit lid straight up and off to reveal the contents',
+  }),
+  OPEN_SLIDE_BOX: m({
+    code: 'OPEN_SLIDE_BOX', labelTh: 'เลื่อนกล่องสไลด์ออก', labelEn: 'slide inner box out',
+    phase: 'open', group: 'SLIDE', motionAxis: 'slide_h', hands: 2, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 2, cameraHint: 'medium, box horizontal',
+    sfxTag: 'none', motionEn: 'one hand holds the sleeve while the other slides the inner tray out sideways',
+  }),
+  // ── open เพิ่ม: ตัด/เจาะ/ลอกฝาฟิล์ม/ซิป ──
+  OPEN_CUT_WRAP: m({
+    code: 'OPEN_CUT_WRAP', labelTh: 'ตัดฟิล์มห่อด้วยกรรไกร', labelEn: 'cut wrap with scissors',
+    phase: 'prep', group: 'CUT', motionAxis: 'slide_h', hands: 2, toolRequired: 'scissors',
+    tamperEvident: true, reclosable: false, clipSec: 2, cameraHint: 'macro on wrap edge',
+    sfxTag: 'none', motionEn: 'scissors snip along the plastic wrap and it falls open away from the product',
+  }),
+  OPEN_PIERCE_STRAW: m({
+    code: 'OPEN_PIERCE_STRAW', labelTh: 'เสียบหลอดทะลุฟอยล์', labelEn: 'pierce foil with straw',
+    phase: 'open', group: 'PIERCE', motionAxis: 'press_down', hands: 2, toolRequired: 'none',
+    tamperEvident: true, reclosable: false, clipSec: 2, cameraHint: 'macro on foil dot',
+    sfxTag: 'pop', motionEn: 'the pointed straw is pushed down through the foil dot on the carton with a soft pop',
+  }),
+  OPEN_PEEL_LID_FILM: m({
+    code: 'OPEN_PEEL_LID_FILM', labelTh: 'ลอกฝาฟิล์มถ้วย', labelEn: 'peel cup lid film',
+    phase: 'open', group: 'PEEL', motionAxis: 'pull_up', hands: 2, toolRequired: 'none',
+    tamperEvident: true, reclosable: false, clipSec: 2, cameraHint: 'top-down on cup lid',
+    sfxTag: 'peel', motionEn: 'one hand holds the cup while the other peels the sealed film lid back from the tab',
+  }),
+  OPEN_ZIP_PULL: m({
+    code: 'OPEN_ZIP_PULL', labelTh: 'รูดซิปล็อกถุง', labelEn: 'pull resealable zipper',
+    phase: 'open', group: 'PULL', motionAxis: 'slide_h', hands: 2, toolRequired: 'none',
+    tamperEvident: false, reclosable: true, clipSec: 2, cameraHint: 'macro on zip track',
+    sfxTag: 'none', motionEn: 'both hands pull the resealable zip-lock apart along the top of the pouch',
+  }),
 };
 
 // ลำดับการเปิดเริ่มต้นต่อชนิดแพ็กเกจ (packagingType → codes เรียงลำดับ prep→open→dispense)
 export const DEFAULT_OPENING_SEQUENCE: Record<string, string[]> = {
-  pump_bottle: ['OPEN_PUMP_CLIP_REMOVE', 'OPEN_PUMP_PRESS'],
+  pump_bottle: ['OPEN_SHRINK_BAND', 'OPEN_PUMP_CLIP_REMOVE', 'OPEN_PUMP_PRESS'],
   dropper: ['OPEN_TWIST_CAP'],
-  spray: ['OPEN_TWIST_CAP', 'OPEN_PUMP_PRESS'],
-  cream_jar: ['OPEN_PEEL_SEAL', 'OPEN_JAR_LID'],
-  squeeze_tube: ['OPEN_TWIST_CAP', 'OPEN_SQUEEZE_TUBE'],
+  spray: ['OPEN_TWIST_CAP', 'OPEN_TWIST_NOZZLE', 'OPEN_PUMP_PRESS'],
+  cream_jar: ['OPEN_PEEL_LABEL_SEAL', 'OPEN_JAR_LID', 'OPEN_INNER_DISC'],
+  squeeze_tube: ['OPEN_TUBE_SCREW', 'OPEN_SPIKE_CAP', 'OPEN_SQUEEZE_TUBE'],
   toothpaste: ['OPEN_TWIST_CAP', 'OPEN_SQUEEZE_TUBE'],
   flip_top: ['OPEN_PUSH_FLIP'],
-  ready_drink: ['OPEN_SHRINK_BAND', 'OPEN_TWIST_CAP'],
+  ready_drink: ['OPEN_SHRINK_BAND', 'OPEN_TWIST_OFF'],
   jelly_stick_sachet: ['OPEN_TEAR_NOTCH'],
   powder_mix: ['OPEN_TEAR_NOTCH'],
   pill_capsule: ['OPEN_TWIST_CAP'],
-  gummy: ['OPEN_TWIST_CAP'],
-  unbox_item: ['OPEN_TUCK_FLAP'],
+  gummy: ['OPEN_ZIP_PULL'],
+  unbox_item: ['OPEN_CUT_WRAP', 'OPEN_TUCK_FLAP', 'OPEN_LIFT_LID'],
+  cup_yogurt: ['OPEN_PEEL_LID_FILM'],
+  juice_box: ['OPEN_PIERCE_STRAW'],
+  slide_box: ['OPEN_SLIDE_BOX'],
 };
 
 export function getOpeningMethod(code: string): OpeningMethod | null {

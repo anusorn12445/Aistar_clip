@@ -53,7 +53,7 @@ import {
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
 import { countThaiSyllables, checkSpeechFit } from './speech-timing';
-import { openingSequenceGuide } from './opening-methods';
+import { openingSequenceGuide, OPENING_METHODS, DEFAULT_OPENING_SEQUENCE } from './opening-methods';
 import {
   UGC_CONCEPTS_SCHEMA,
   UGC_PLAN_SCHEMA,
@@ -2448,6 +2448,15 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
   }
 
   /** GET /clip-jobs/packaging-prompts */
+  // ═══ Opening Methods (วิธีเปิดบรรจุภัณฑ์) — master data code-level (เฟส 1) ═══
+  listOpeningMethods() {
+    const items = Object.values(OPENING_METHODS).sort(
+      (a, b) => a.phase.localeCompare(b.phase) || a.group.localeCompare(b.group) || a.code.localeCompare(b.code),
+    );
+    const sequences = Object.entries(DEFAULT_OPENING_SEQUENCE).map(([packagingType, codes]) => ({ packagingType, codes }));
+    return { items, sequences, total: items.length };
+  }
+
   async listPackagingPrompts() {
     const [merged, overrides] = await Promise.all([
       this.getMergedPackagingPrompts(),
