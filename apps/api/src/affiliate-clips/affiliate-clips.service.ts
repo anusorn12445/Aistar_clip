@@ -53,6 +53,7 @@ import {
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
 import { countThaiSyllables, checkSpeechFit } from './speech-timing';
+import { openingSequenceGuide } from './opening-methods';
 import {
   UGC_CONCEPTS_SCHEMA,
   UGC_PLAN_SCHEMA,
@@ -2925,6 +2926,8 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
       '',
       'Resource จากระบบ:',
       ...railLines,
+      // 📦 ลำดับการเปิดตามแพ็กเกจ (opening methods) — จัดฉากแกะ/สาธิตให้มือ/ทิศ/เสียงแม่นตามชนิดแพ็ก
+      ...(job.subjectType === 'product' ? openingSequenceGuide(product?.packagingType) : []),
       '',
       `แตก storyboard ${guide.min}-${guide.max} ฉากตามสคีมา (scenes + headline + script + caption + hashtags)`,
     ].join('\n');
