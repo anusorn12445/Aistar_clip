@@ -80,6 +80,7 @@ export class CreateClipJobDto {
   @IsOptional() @IsIn(CLIP_MODES) mode?: string;
   @IsOptional() @IsIn(CLIP_OUTPUT_TYPES) outputType?: string;
   // Resource Rail — default ไม่เลือกทุกช่อง (null = AI จัดให้)
+  @IsOptional() @IsString() openingSequence?: string; // CSV รหัสวิธีเปิด (opening-methods) — ว่าง = auto จาก packagingType
   @IsOptional() @IsUUID() handId?: string;
   @IsOptional() @IsUUID() characterId?: string;
   @IsOptional() @IsUUID() wardrobeId?: string; // ต้องเป็นชุดของ characterId
@@ -98,6 +99,7 @@ export class UpdateClipJobDto {
   @IsOptional() @IsIn(CTA_TYPES) ctaType?: string;
   @IsOptional() @IsUUID() clientId?: string;
   @IsOptional() @IsIn(CLIP_OUTPUT_TYPES) outputType?: string;
+  @IsOptional() @IsString() openingSequence?: string;
   @IsOptional() @IsUUID() handId?: string;
   @IsOptional() @IsUUID() characterId?: string;
   @IsOptional() @IsUUID() wardrobeId?: string;

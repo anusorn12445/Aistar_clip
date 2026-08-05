@@ -285,6 +285,37 @@ export function openingSequenceFor(packagingType: string | null | undefined): Op
   return codes.map((c) => OPENING_METHODS[c]).filter((x): x is OpeningMethod => Boolean(x));
 }
 
+/** resolve CSV รหัสวิธีเปิดที่ผู้ใช้เลือกเอง → ลำดับ OpeningMethod (เรียงตามที่เลือก, unique) */
+export function openingMethodsFromCodes(csv: string | null | undefined): OpeningMethod[] {
+  const codes = (csv ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  const seen = new Set<string>();
+  const out: OpeningMethod[] = [];
+  for (const c of codes) {
+    if (seen.has(c)) continue;
+    const mth = OPENING_METHODS[c];
+    if (mth) { out.push(mth); seen.add(c); }
+  }
+  return out;
+}
+
+/** สร้าง guide lines จากลำดับ OpeningMethod (แกนกลาง ใช้ทั้ง packaging และ codes) */
+function buildOpeningGuideLines(seq: OpeningMethod[]): string[] {
+  if (seq.length === 0) return [];
+  const phaseTh: Record<OpeningPhase, string> = { prep: 'เตรียม/ซีล', open: 'เปิด', dispense: 'จ่ายเนื้อ', reclose: 'ปิดกลับ' };
+  const lines = seq.map((mth, i) => {
+    const hand = mth.hands === 1 ? '1 มือ' : '2 มือ';
+    const sfx = mth.sfxTag !== 'none' ? ` · เสียง ${mth.sfxTag}` : '';
+    const tool = mth.toolRequired !== 'none' ? ` · ใช้ ${mth.toolRequired}` : '';
+    return `  ${i + 1}. [${phaseTh[mth.phase]}] ${mth.labelTh} — ${hand}${tool}${sfx} · มุม ${mth.cameraHint} (~${mth.clipSec} วิ)`;
+  });
+  return ['- วิธีเปิดสินค้าตามแพ็กเกจ (จัดฉากแกะ/สาธิตให้มือ ทิศการเคลื่อนไหว และเสียงถูกต้องตามนี้):', ...lines];
+}
+
+/** guide จากรหัสที่ผู้ใช้เลือกเอง (หน้าสร้าง clip job) */
+export function openingGuideFromCodes(csv: string | null | undefined): string[] {
+  return buildOpeningGuideLines(openingMethodsFromCodes(csv));
+}
+
 /** guide ภาษาไทยสำหรับ plan prompt — ให้ AI จัดฉากแกะ/สาธิตด้วยมือ/ทิศ/เสียงที่ถูกต้อง */
 export function openingSequenceGuide(packagingType: string | null | undefined): string[] {
   const seq = openingSequenceFor(packagingType);

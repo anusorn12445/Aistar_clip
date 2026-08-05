@@ -53,7 +53,7 @@ import {
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
 import { countThaiSyllables, checkSpeechFit } from './speech-timing';
-import { openingSequenceGuide, OPENING_METHODS, DEFAULT_OPENING_SEQUENCE } from './opening-methods';
+import { openingSequenceGuide, openingGuideFromCodes, OPENING_METHODS, DEFAULT_OPENING_SEQUENCE } from './opening-methods';
 import {
   UGC_CONCEPTS_SCHEMA,
   UGC_PLAN_SCHEMA,
@@ -435,6 +435,7 @@ export class AffiliateClipsService {
             clientId: dto.clientId ?? null,
             outputType: dto.outputType ?? 'video',
             mode: dto.mode ?? 'hand',
+            openingSequence: dto.openingSequence?.trim() || null,
             handId: dto.handId ?? null,
             characterId: dto.characterId ?? null,
             wardrobeId: dto.wardrobeId ?? null,
@@ -2936,7 +2937,11 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
       'Resource จากระบบ:',
       ...railLines,
       // 📦 ลำดับการเปิดตามแพ็กเกจ (opening methods) — จัดฉากแกะ/สาธิตให้มือ/ทิศ/เสียงแม่นตามชนิดแพ็ก
-      ...(job.subjectType === 'product' ? openingSequenceGuide(product?.packagingType) : []),
+      ...(job.subjectType === 'product'
+        ? (job.openingSequence
+            ? openingGuideFromCodes(job.openingSequence) // ผู้ใช้เลือกเองในหน้าสร้าง clip job
+            : openingSequenceGuide(product?.packagingType)) // ไม่เลือก = auto จาก packagingType
+        : []),
       '',
       `แตก storyboard ${guide.min}-${guide.max} ฉากตามสคีมา (scenes + headline + script + caption + hashtags)`,
     ].join('\n');
