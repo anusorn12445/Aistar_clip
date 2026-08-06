@@ -269,7 +269,7 @@ export interface SystemPrompts {
 export const SYSTEM_PROMPT_DEFAULTS: SystemPrompts = {
   speechMaxSec: 7, // (ถูกถอดจากสูตรแล้ว — เก็บไว้เพื่อ type/ค่าเก่าใน DB เท่านั้น) หน้าต่างพูด = ความยาวฉาก-1 เสมอ
   speechContract:
-    'She begins the scripted line from the very first frame and completes it naturally within the first {sec} seconds — the line delivered word for word exactly as written, nothing changed, nothing added. As the line lands she settles into a soft closed-mouth smile and keeps her hands busy with the scene: a calm final touch of the product, a gentle hold toward the camera, small natural movements carrying the rest of the clip without any narration. Soft real-world ambience — room tone and the quiet sounds of her movements — fills the audio from the first frame to the last so the clip is never muted. Her voice is clear and unhurried, the sentence always finished in full.',
+    'She delivers the scripted line naturally in her own live voice, word for word exactly as written — nothing changed, nothing added, no greeting and no extra Thai polite particles. She keeps moving naturally with the scene as she speaks; soft real-world ambience — room tone and the quiet sounds of her movements — fills the audio from the first frame to the last so the clip is never muted. Her voice is clear and natural.',
   spokenLinePresenter:
     'She speaks in Thai, lip-synced, saying exactly: "{dialogue}" — this is the only spoken line in the whole clip, word for word, with nothing added before or after it: no greeting, no extra Thai polite particles (ค่ะ/นะคะ/จ้า) beyond the written script, no closing words; after the line, her lips rest in a soft closed-mouth smile.',
   spokenLineVo:
@@ -1868,11 +1868,6 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
           'ไม่มีคำสั่งล็อกพูดตามสคริปต์ (saying exactly)',
           true,
         ),
-        speechSecLine: push(
-          dialogue ? motion.includes(`within the first ${speechSec} seconds`) : true,
-          `เพดานพูดใน prompt ไม่ใช่ ${speechSec} วิตามสเปคปัจจุบัน`,
-          true,
-        ),
         contract: push(
           dialogue ? motion.includes(contractLine) : motion.includes(sys.noDialogueLine),
           dialogue
@@ -1992,7 +1987,6 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
           ? [
               { label: 'บทใน prompt ตรงกับบทปัจจุบัน', ok: checks.dialogueSync },
               { label: 'ล็อกพูดตามสคริปต์ (saying exactly)', ok: checks.exactLock },
-              { label: 'ค่าหน้าต่างพูด {sec} ตรงระบบ', ok: checks.speechSecLine },
               { label: `บทพอดีเฟรม (~${speechFit?.estimatedSec ?? 0}/${speechSec} วิ · ${syl} พยางค์)`, ok: syllableOk },
             ]
           : []),
@@ -2580,75 +2574,9 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
     return { current: value, defaults: SECTION_PROMPT_DEFAULTS };
   }
 
-  // ── ⚙️ พรอมระบบ (System Prompts) ──
-  private static readonly SYSTEM_PROMPT_SETTING_KEY = 'ugc_system_prompts';
-  private systemPromptsCache: { value: SystemPrompts; at: number } | null = null;
-
+  // ── ⚙️ พรอมระบบถูกถอดออก (ไม่มี UI/DB override แล้ว) — บรรทัดที่ฝังใน motion prompt เป็นค่าตายตัวในโค้ด (สไตล์ HTML) ──
   private async getMergedSystemPrompts(): Promise<SystemPrompts> {
-    const now = Date.now();
-    if (this.systemPromptsCache && now - this.systemPromptsCache.at < 30_000)
-      return this.systemPromptsCache.value;
-    const row = await this.prisma.systemSetting.findUnique({
-      where: { key: AffiliateClipsService.SYSTEM_PROMPT_SETTING_KEY },
-    });
-    let merged: SystemPrompts = { ...SYSTEM_PROMPT_DEFAULTS };
-    if (row?.value) {
-      try {
-        const parsed = JSON.parse(row.value) as Partial<SystemPrompts>;
-        const num = Number(parsed.speechMaxSec);
-        merged = {
-          speechMaxSec: Number.isFinite(num) ? Math.min(10, Math.max(2, Math.round(num))) : SYSTEM_PROMPT_DEFAULTS.speechMaxSec,
-          speechContract: typeof parsed.speechContract === 'string' && parsed.speechContract.trim() ? parsed.speechContract : SYSTEM_PROMPT_DEFAULTS.speechContract,
-          spokenLinePresenter: typeof parsed.spokenLinePresenter === 'string' && parsed.spokenLinePresenter.trim() ? parsed.spokenLinePresenter : SYSTEM_PROMPT_DEFAULTS.spokenLinePresenter,
-          spokenLineVo: typeof parsed.spokenLineVo === 'string' && parsed.spokenLineVo.trim() ? parsed.spokenLineVo : SYSTEM_PROMPT_DEFAULTS.spokenLineVo,
-          noDialogueLine: typeof parsed.noDialogueLine === 'string' && parsed.noDialogueLine.trim() ? parsed.noDialogueLine : SYSTEM_PROMPT_DEFAULTS.noDialogueLine,
-          cameraWorkLine: typeof parsed.cameraWorkLine === 'string' ? parsed.cameraWorkLine : SYSTEM_PROMPT_DEFAULTS.cameraWorkLine,
-        };
-      } catch {
-        /* ใช้ default */
-      }
-    }
-    this.systemPromptsCache = { value: merged, at: now };
-    return merged;
-  }
-
-  /** GET /clip-jobs/system-prompts */
-  async getSystemPrompts() {
-    return { current: await this.getMergedSystemPrompts(), defaults: SYSTEM_PROMPT_DEFAULTS };
-  }
-
-  /** PUT /clip-jobs/system-prompts */
-  async saveSystemPrompts(dto: Partial<SystemPrompts>, user: AuthUser) {
-    const cleanLine = (s: unknown, d: string) =>
-      typeof s === 'string' && s.replace(/\s+/g, ' ').trim() ? s.replace(/\s+/g, ' ').trim().slice(0, 700) : d;
-    const num = Number(dto.speechMaxSec);
-    const value: SystemPrompts = {
-      speechMaxSec: Number.isFinite(num) ? Math.min(10, Math.max(2, Math.round(num))) : SYSTEM_PROMPT_DEFAULTS.speechMaxSec,
-      speechContract: cleanLine(dto.speechContract, SYSTEM_PROMPT_DEFAULTS.speechContract),
-      spokenLinePresenter: cleanLine(dto.spokenLinePresenter, SYSTEM_PROMPT_DEFAULTS.spokenLinePresenter),
-      spokenLineVo: cleanLine(dto.spokenLineVo, SYSTEM_PROMPT_DEFAULTS.spokenLineVo),
-      noDialogueLine: cleanLine(dto.noDialogueLine, SYSTEM_PROMPT_DEFAULTS.noDialogueLine),
-      // 🎥 งานกล้อง: ตั้งใจลบว่างได้ = ปิดการใส่บรรทัดนี้
-      cameraWorkLine: typeof dto.cameraWorkLine === 'string' ? dto.cameraWorkLine.replace(/\s+/g, ' ').trim().slice(0, 700) : SYSTEM_PROMPT_DEFAULTS.cameraWorkLine,
-    };
-    await this.prisma.systemSetting.upsert({
-      where: { key: AffiliateClipsService.SYSTEM_PROMPT_SETTING_KEY },
-      update: { value: JSON.stringify(value), updatedBy: user.id },
-      create: { key: AffiliateClipsService.SYSTEM_PROMPT_SETTING_KEY, value: JSON.stringify(value), updatedBy: user.id },
-    });
-    this.systemPromptsCache = null;
-    await this.audit(user, 'update', user.id, { entity: 'ugc_system_prompts' });
-    return { current: value, defaults: SYSTEM_PROMPT_DEFAULTS };
-  }
-
-  /** DELETE /clip-jobs/system-prompts — คืนค่าเริ่มต้น */
-  async resetSystemPrompts(user: AuthUser) {
-    await this.prisma.systemSetting.deleteMany({
-      where: { key: AffiliateClipsService.SYSTEM_PROMPT_SETTING_KEY },
-    });
-    this.systemPromptsCache = null;
-    await this.audit(user, 'update', user.id, { entity: 'ugc_system_prompts', reset: true });
-    return { current: SYSTEM_PROMPT_DEFAULTS, defaults: SYSTEM_PROMPT_DEFAULTS };
+    return SYSTEM_PROMPT_DEFAULTS;
   }
 
   /** DELETE /clip-jobs/section-prompts — คืนค่าเริ่มต้น */

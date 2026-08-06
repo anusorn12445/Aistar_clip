@@ -167,24 +167,7 @@ export class AffiliateClipsController {
     return this.clips.resetSectionPrompts(user);
   }
 
-  // ⚙️ พรอมระบบ (System Prompts: สัญญาจังหวะพูด/เสียง)
-  @Get('system-prompts')
-  @RequirePermission('product', 'V')
-  getSystemPrompts() {
-    return this.clips.getSystemPrompts();
-  }
-
-  @Put('system-prompts')
-  @RequirePermission('setting', 'C')
-  saveSystemPrompts(@Body() dto: Record<string, unknown>, @CurrentUser() user: AuthUser) {
-    return this.clips.saveSystemPrompts(dto as never, user);
-  }
-
-  @Delete('system-prompts')
-  @RequirePermission('setting', 'C')
-  resetSystemPrompts(@CurrentUser() user: AuthUser) {
-    return this.clips.resetSystemPrompts(user);
-  }
+  // ⚙️ พรอมระบบถูกถอดออก — บรรทัดฝังใน motion prompt เป็นค่าตายตัวในโค้ด (ไม่มี endpoint ให้แก้แล้ว)
 
   @Get(':id')
   @RequirePermission('product', 'V')

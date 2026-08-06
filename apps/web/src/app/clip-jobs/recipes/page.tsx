@@ -6,7 +6,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Clapperboard, Cog, Package, Plus, RotateCcw, Save,
+import { BookOpen, Clapperboard, Package, Plus, RotateCcw, Save,
   Target,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
@@ -23,51 +23,14 @@ function errMsg(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback;
 }
 
-type TabKey = "recipes" | "packaging" | "scene" | "domain" | "system";
+type TabKey = "recipes" | "packaging" | "scene" | "domain";
 const TABS: { key: TabKey; label: string; icon: typeof BookOpen }[] = [
   { key: "recipes", label: "สูตรคลิป", icon: BookOpen },
   { key: "packaging", label: "Prompt ประเภทสินค้า", icon: Package },
   { key: "scene", label: "Prompt ประเภทฉาก", icon: Clapperboard },
   { key: "domain", label: "Domain Prompt", icon: Target },
-  { key: "system", label: "พรอมระบบ", icon: Cog },
 ];
-
-// ⚙️ พรอมระบบ — สัญญาจังหวะพูด/เสียงที่ฝังใน motion prompt ทุก shot ({sec} = เพดานวินาทีพูด, {dialogue} = บทพูด)
-interface SystemPrompts {
-  speechMaxSec: number;
-  speechContract: string;
-  spokenLinePresenter: string;
-  spokenLineVo: string;
-  noDialogueLine: string;
-  cameraWorkLine: string;
-}
-const SYSTEM_FIELD_META: { key: Exclude<keyof SystemPrompts, "speechMaxSec">; label: string; desc: string }[] = [
-  {
-    key: "speechContract",
-    label: "⏱ สัญญาจังหวะพูด (ปิดท้าย prompt วิดีโอทุก shot ที่มีบทพูด)",
-    desc: "ใช้ {sec} แทนจำนวนวินาที — บรรทัดนี้อยู่ท้ายสุดของ prompt น้ำหนักสูงสุด: พูดจบในกี่วิ + จบสคริปต์แล้วหยุดสนิท",
-  },
-  {
-    key: "spokenLinePresenter",
-    label: "🎤 คำสั่งพูด — ฉากเห็นหน้า (presenter)",
-    desc: "ใช้ {dialogue} แทนบทพูดของ shot — ล็อกให้พูดตามสคริปต์เป๊ะๆ ไม่เติมคำเอง",
-  },
-  {
-    key: "spokenLineVo",
-    label: "🎙 คำสั่งเสียงพากย์ (VO — ฉาก hands/product)",
-    desc: "ใช้ {dialogue} แทนบทพูด — ล็อก VO ให้อ่านตามสคริปต์เท่านั้น",
-  },
-  {
-    key: "noDialogueLine",
-    label: "🔇 ฉากไม่มีบทพูด",
-    desc: "บรรทัดเสียงของ shot ที่ไม่มี dialogue — ambient ธรรมชาติ ไม่มีเสียงพากย์",
-  },
-  {
-    key: "cameraWorkLine",
-    label: "🎥 งานกล้อง — Long Take (ฝังทุก shot ทุกโหมด)",
-    desc: "เข้า prompt วิดีโอทุก shot รวม shot ซ่อนสินค้า — เทคเดียวไม่คัตกล้อง · ลบว่าง = ปิดการใส่",
-  },
-];
+// ⚙️ พรอมระบบถูกถอดออก — บรรทัดจังหวะพูด/เสียง/งานกล้อง เป็นค่าตายตัวในโค้ด (สไตล์ HTML) ไม่มีแท็บให้แก้แล้ว
 
 // ── ① Base Prompt (สูตรเล่าเรื่อง) ──
 interface RecipeSection {
@@ -491,56 +454,6 @@ function PromptStudioInner() {
       setDpBusy(false);
     }
   }
-
-  // ── ⚙️ พรอมระบบ state ──
-  const [spBlocks, setSpBlocks] = useState<SystemPrompts | null>(null);
-  const [spBusy, setSpBusy] = useState(false);
-  const [spMsg, setSpMsg] = useState<string | null>(null);
-
-  const spLoad = useCallback(async () => {
-    try {
-      const res = await api<{ current: SystemPrompts }>("/clip-jobs/system-prompts");
-      setSpBlocks(res.current);
-    } catch (e) {
-      setSpMsg("⚠ " + errMsg(e, "โหลดไม่สำเร็จ"));
-    }
-  }, []);
-  useEffect(() => {
-    void spLoad();
-  }, [spLoad]);
-
-  async function spSave() {
-    if (!spBlocks) return;
-    setSpBusy(true);
-    setSpMsg(null);
-    try {
-      const res = await api<{ current: SystemPrompts }>("/clip-jobs/system-prompts", {
-        method: "PUT",
-        body: JSON.stringify(spBlocks),
-      });
-      setSpBlocks(res.current);
-      setSpMsg("บันทึกแล้ว — มีผลกับ shot ที่ recompose/แตก storyboard หลังจากนี้");
-    } catch (e) {
-      setSpMsg("⚠ " + errMsg(e, "บันทึกไม่สำเร็จ"));
-    } finally {
-      setSpBusy(false);
-    }
-  }
-
-  async function spReset() {
-    if (!confirm("คืนพรอมระบบทั้งหมดเป็นค่าเริ่มต้น?")) return;
-    setSpBusy(true);
-    try {
-      const res = await api<{ current: SystemPrompts }>("/clip-jobs/system-prompts", { method: "DELETE" });
-      setSpBlocks(res.current);
-      setSpMsg("คืนค่าเริ่มต้นแล้ว");
-    } catch (e) {
-      setSpMsg("⚠ " + errMsg(e, "ทำรายการไม่สำเร็จ"));
-    } finally {
-      setSpBusy(false);
-    }
-  }
-
 
   return (
     <AppShell title="สูตรคลิป (Prompt Studio)">
@@ -1154,47 +1067,6 @@ function PromptStudioInner() {
           </div>
         ))}
 
-      {tab === "system" &&
-        (!spBlocks ? (
-          <p className="text-sm text-zinc-500">กำลังโหลด...</p>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-sm text-zinc-400">
-                ⚙️ พรอมระบบ — สัญญาจังหวะพูด/เสียงที่ฝังใน prompt วิดีโอของทุก shot ทุกสูตร ·
-                ใช้ {"{sec}"} แทนเพดานวินาทีพูด และ {"{dialogue}"} แทนบทพูดของ shot ·
-                บันทึกแล้วมีผลกับ shot ที่ recompose/แตก storyboard ใหม่
-              </p>
-              <div className="flex shrink-0 gap-2">
-                <button className={btnGhost} onClick={spReset} disabled={spBusy}>
-                  <RotateCcw className="size-4" /> คืนค่าเริ่มต้น
-                </button>
-                <button className={btnPrimary} onClick={spSave} disabled={spBusy}>
-                  <Save className="size-4" /> บันทึก
-                </button>
-              </div>
-            </div>
-            {spMsg && <p className="text-sm text-emerald-400">{spMsg}</p>}
-
-            {/* 🗣 เพดานพูดถูกถอดออกแล้ว — หน้าต่างพูด = ความยาวฉาก - 1 วิ เสมอ (เลือกที่หน้าสร้าง job: 4/6/8 วิ/ฉาก) */}
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              {SYSTEM_FIELD_META.map((f) => (
-                <div key={f.key} className="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
-                  <div>
-                    <p className="text-sm font-semibold text-zinc-200">{f.label}</p>
-                    <p className="text-[11px] text-zinc-500">{f.desc}</p>
-                  </div>
-                  <textarea
-                    className={inputCls + " h-28 text-xs leading-relaxed"}
-                    value={spBlocks[f.key]}
-                    onChange={(e) => setSpBlocks({ ...spBlocks, [f.key]: e.target.value })}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
     </AppShell>
   );
 }
