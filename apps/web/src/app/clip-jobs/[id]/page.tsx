@@ -921,6 +921,13 @@ export default function ClipJobBoardPage() {
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [wardrobes, setWardrobes] = useState<WardrobeOption[]>([]);
   const [voices, setVoices] = useState<VoiceProfile[]>([]);
+  // 🎙 คลังเสียง Flow (native) — เลือกแล้วเติมลง voiceSpec
+  const [flowVoices, setFlowVoices] = useState<{ key: string; label: string; spec: string }[]>([]);
+  useEffect(() => {
+    api<{ items: { key: string; label: string; spec: string }[] }>("/clip-jobs/flow-voices")
+      .then((r) => setFlowVoices(r.items ?? []))
+      .catch(() => setFlowVoices([]));
+  }, []);
 
   // 🚫 Banned Words Compliance — คลังคำ (cache ต่อ session) + สถานะ AI ตรวจเนียน
   const [bannedWords, setBannedWords] = useState<BannedWord[]>([]);
@@ -1902,6 +1909,26 @@ export default function ClipJobBoardPage() {
                   </p>
                 )}
                 <div className={`grid grid-cols-1 gap-3 md:grid-cols-2 ${job.useVoice === false ? "opacity-40" : ""}`}>
+                  {/* 🎙 คลังเสียง Flow (native) — เลือกแล้วเติม Voice spec ให้ Veo สร้างเสียงแนวนั้น */}
+                  <div className="md:col-span-2">
+                    <label className="mb-1 block text-[10.5px] font-semibold uppercase tracking-wide text-zinc-500">
+                      🎙 คลังเสียง Flow (native) — เลือกแล้วเติม Voice spec ให้อัตโนมัติ
+                    </label>
+                    <FilterSelect
+                      value=""
+                      onChange={(v) => {
+                        const fv = flowVoices.find((x) => x.key === v);
+                        if (fv) void saveJob({ voiceSpec: fv.spec }, "เสียง Flow");
+                      }}
+                      disabled={busy || job.useVoice === false}
+                      options={[
+                        { value: "", label: "— เลือกเสียง native ของ Flow เพื่อเติม Voice spec —" },
+                        ...flowVoices.map((v) => ({ value: v.key, label: v.label })),
+                      ]}
+                      className="w-full"
+                    />
+                    <p className="mt-1 text-[11px] text-zinc-500">เสียงที่ Veo/Flow สร้างเองจากคำบรรยาย · เลือกแล้วแก้ Voice spec ต่อได้</p>
+                  </div>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-semibold uppercase tracking-wide text-zinc-500">
                       เลือกเสียงจากระบบ (Voice Profiles)

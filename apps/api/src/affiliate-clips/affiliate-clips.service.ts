@@ -53,6 +53,7 @@ import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, pac
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
 import { TEXTURE_PROMPTS, textureStill, textureVideo, TexturePrompt } from './texture-prompts';
 import { PRODUCT_TYPE_PROMPTS, productTypeStill, productTypeVideo, ProductTypePrompt } from './product-type-prompts';
+import { FLOW_VOICES } from './flow-voices';
 import { countThaiSyllables } from './speech-timing';
 import {
   UGC_CONCEPTS_SCHEMA,
@@ -2430,6 +2431,11 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
   }
 
   /** GET /clip-jobs/packaging-prompts */
+  // 🎙 คลังเสียง Flow (native) — เลือกแล้วเติมลง job.voiceSpec
+  listFlowVoices() {
+    return { items: FLOW_VOICES };
+  }
+
   // 🧼 พรอมประเภทสินค้า (code-level master data) — ผูกกับ Product.productType
   listProductTypePrompts() {
     const items = Object.values(PRODUCT_TYPE_PROMPTS).map((p) => ({ key: p.key, label: p.label, promptStill: p.promptStill, promptVideo: p.promptVideo, negative: p.negative }));

@@ -118,6 +118,13 @@ export class AffiliateClipsController {
     return this.clips.resetSceneBlocks(user);
   }
 
+  // ═══ คลังเสียง Flow (native) ═══
+  @Get('flow-voices')
+  @RequirePermission('product', 'V')
+  listFlowVoices() {
+    return this.clips.listFlowVoices();
+  }
+
   // ═══ พรอมประเภทสินค้า (Product Type Prompts) ═══
   @Get('product-type-prompts')
   @RequirePermission('product', 'V')
