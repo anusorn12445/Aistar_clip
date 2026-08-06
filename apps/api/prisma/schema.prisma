@@ -647,6 +647,7 @@ model Product {
   brandId        String?       @db.Uuid
   category       String? // fashion, beauty, food, supplement, home, gadget, other
   packagingType  String? // รูปแบบแพ็กเกจ (jelly_stick_sachet | pump_bottle | squeeze_tube | ...) → ดึง Prompt ประเภทสินค้าเข้า compose
+  textureType    String? // เนื้อสัมผัสตัวสินค้า (gel | cream | pill | foam | ...) → พรอมเนื้อสัมผัสต่อท้าย packaging (CSV)
   description    String?
   price          Decimal?      @db.Decimal(12, 2)
   salePrice      Decimal?      @db.Decimal(12, 2)

@@ -48,6 +48,11 @@ export class CreateProductDto {
   @IsString()
   packagingType?: string;
 
+  // 🧴 เนื้อสัมผัส — key จาก TEXTURE_PROMPTS (gel/cream/pill/foam ...) CSV
+  @IsOptional()
+  @IsString()
+  textureType?: string;
+
   @IsOptional()
   @IsString()
   description?: string;

@@ -6,7 +6,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Clapperboard, Package, Plus, RotateCcw, Save,
+import { BookOpen, Clapperboard, Droplet, Package, Plus, RotateCcw, Save,
   Target,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
@@ -23,10 +23,11 @@ function errMsg(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback;
 }
 
-type TabKey = "recipes" | "packaging" | "scene" | "domain";
+type TabKey = "recipes" | "packaging" | "texture" | "scene" | "domain";
 const TABS: { key: TabKey; label: string; icon: typeof BookOpen }[] = [
   { key: "recipes", label: "สูตรคลิป", icon: BookOpen },
   { key: "packaging", label: "Prompt ประเภทสินค้า", icon: Package },
+  { key: "texture", label: "เนื้อสัมผัส", icon: Droplet },
   { key: "scene", label: "Prompt ประเภทฉาก", icon: Clapperboard },
   { key: "domain", label: "Domain Prompt", icon: Target },
 ];
@@ -131,6 +132,14 @@ function PromptStudioInner() {
   const tab = (searchParams.get("tab") as TabKey) || "recipes";
   const setTab = (t: TabKey) =>
     router.replace(t === "recipes" ? "/clip-jobs/recipes" : `/clip-jobs/recipes?tab=${t}`);
+
+  // ═══ 🧴 เนื้อสัมผัส (อ่านอย่างเดียว) ═══
+  const [textures, setTextures] = useState<{ key: string; label: string; promptStill: string; promptVideo: string; negative: string }[]>([]);
+  useEffect(() => {
+    api<{ items: typeof textures }>("/clip-jobs/texture-prompts")
+      .then((res) => setTextures(res.items))
+      .catch(() => setTextures([]));
+  }, []);
 
   // ═══ ① Base Prompt state ═══
   const [items, setItems] = useState<Recipe[]>([]);
@@ -865,6 +874,34 @@ function PromptStudioInner() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ 🧴 เนื้อสัมผัส (อ่านอย่างเดียว) ═══ */}
+      {tab === "texture" && (
+        <div className="space-y-4">
+          <p className="text-sm text-zinc-400">
+            🧴 พรอมเนื้อสัมผัสของตัวสินค้า (เจล/ครีม/เม็ด/โฟม...) — เลือกที่สินค้า (field เนื้อสัมผัส) แล้วระบบ
+            ผนวกต่อท้าย Prompt ประเภทสินค้าเสมอ · ขวดฝาเกลียว/ขวดปั๊ม = วิธีใช้ที่ &quot;นำเข้า&quot; การโชว์เนื้อนี้
+          </p>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {textures.map((t) => (
+              <div key={t.key} className="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
+                <div className="flex items-center gap-2">
+                  <Droplet className="size-4 text-amber-300" />
+                  <span className="text-sm font-semibold text-zinc-100">{t.label}</span>
+                  <span className="font-mono text-[11px] text-zinc-500">{t.key}</span>
+                </div>
+                <div className="text-xs text-zinc-400">
+                  <span className="text-zinc-500">ภาพนิ่ง:</span> {t.promptStill}
+                </div>
+                <div className="text-xs text-zinc-400">
+                  <span className="text-zinc-500">วิดีโอ:</span> {t.promptVideo}
+                </div>
+                <div className="text-[11px] text-red-300/70">AVOID: {t.negative}</div>
+              </div>
+            ))}
           </div>
         </div>
       )}

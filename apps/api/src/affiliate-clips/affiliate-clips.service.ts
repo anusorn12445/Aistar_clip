@@ -52,6 +52,7 @@ import {
 } from './review-recipes';
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
+import { TEXTURE_PROMPTS, textureStill, textureVideo, TexturePrompt } from './texture-prompts';
 import { countThaiSyllables, checkSpeechFit } from './speech-timing';
 import {
   UGC_CONCEPTS_SCHEMA,
@@ -148,6 +149,7 @@ interface UgcJobContext {
   voiceSpec: string;
   useVoice: boolean; // 🔊 false = คลิปไม่มีบทพูด/เสียงพากย์ — Flow prompt เป็น ambient อย่างเดียว
   packagingBlock: PackagingPrompt | null; // Prompt ประเภทสินค้า — จาก Product.packagingType (แก้ได้ที่หน้า สูตรคลิป)
+  textureBlock: { label: string; promptStill: string; promptVideo: string; negative: string } | null; // 🧴 เนื้อสัมผัส — จาก Product.textureType
 }
 
 // ── input ต่อฉากของ composer — ใช้ทั้งตอน plan (จาก Claude scenes) และ recompose (จาก shot เดิม) ──
@@ -2443,6 +2445,12 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
   }
 
   /** GET /clip-jobs/packaging-prompts */
+  // 🧴 พรอมเนื้อสัมผัส (code-level master data) — ผูกกับ Product.textureType
+  listTexturePrompts() {
+    const items = Object.values(TEXTURE_PROMPTS).map((t) => ({ key: t.key, label: t.label, promptStill: t.promptStill, promptVideo: t.promptVideo, negative: t.negative }));
+    return { items };
+  }
+
   async listPackagingPrompts() {
     const [merged, overrides] = await Promise.all([
       this.getMergedPackagingPrompts(),
@@ -2915,6 +2923,23 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
             negative: dedupeCsv(packagingHits.map((b) => b.negative).filter(Boolean).join(', ')),
           }
         : null;
+    // 🧴 เนื้อสัมผัส (texture) — จาก product.textureType (CSV) → packaging (ฝาเกลียว/ปั๊ม) นำเข้าเนื้อนี้เสมอ
+    const textureKeys =
+      job.subjectType === 'product'
+        ? (product?.textureType ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+        : [];
+    const textureHits = textureKeys
+      .map((k) => TEXTURE_PROMPTS[k])
+      .filter((t): t is TexturePrompt => Boolean(t));
+    const textureBlock =
+      textureHits.length > 0
+        ? {
+            label: textureHits.map((t) => t.label).join(' + '),
+            promptStill: textureHits.map((t) => textureStill(t)).filter(Boolean).join(' '),
+            promptVideo: textureHits.map((t) => textureVideo(t)).filter(Boolean).join(' '),
+            negative: dedupeCsv(textureHits.map((t) => t.negative).filter(Boolean).join(', ')),
+          }
+        : null;
     const subjectRefLine =
       job.subjectType === 'product'
         ? 'Use the attached product image as the exact product reference — keep the product design, shape, color and details consistent.'
@@ -2978,6 +3003,7 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
       locationBlock,
       voiceSpec,
       packagingBlock,
+      textureBlock,
       sheetBinding: sheetBinding || undefined,
       sceneLenSec: ctxSceneLen,
     };
@@ -3281,6 +3307,10 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
         const pkgStill = packagingStill(ctx.packagingBlock);
         if (pkgStill) lines.push(pkgStill);
       }
+      // 🧴 เนื้อสัมผัส — ต่อท้าย packaging เสมอ (ฝาเกลียว/ขวดปั๊ม = วิธีใช้ที่นำเข้าการโชว์เนื้อ)
+      if (showProduct && ctx.textureBlock?.promptStill) {
+        lines.push(ctx.textureBlock.promptStill);
+      }
       lines.push(sceneLineStill + '.');
       lines.push(typeRule);
       // Domain Prompt ระบบ 2 ชุด: เห็นสินค้า → prompt, ซ่อน → promptHidden (ว่าง = fallback)
@@ -3422,6 +3452,8 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
               ...(ctx.packagingBlock && packagingVideo(ctx.packagingBlock)
                 ? [packagingVideo(ctx.packagingBlock)]
                 : []),
+              // 🧴 เนื้อสัมผัส (วิดีโอ) — ต่อจากวิธีใช้: เปิด/จ่ายแล้วโชว์เนื้อจริง
+              ...(ctx.textureBlock?.promptVideo ? [ctx.textureBlock.promptVideo] : []),
             ]
           : ['Do NOT show any product, packaging or brand label at any point in the clip.']),
         // 🔗 ความต่อเนื่องข้ามฉาก — คน/ชุด/ห้อง/แสงเดียวกันทั้งคลิป

@@ -65,6 +65,7 @@ export interface Product {
   brandId: string | null;
   category: string | null;
   packagingType?: string | null;
+  textureType?: string | null;
   description: string | null;
   price: string | number | null; // Prisma Decimal → serialize เป็น string
   salePrice: string | number | null;

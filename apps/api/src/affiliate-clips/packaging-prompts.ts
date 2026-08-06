@@ -84,6 +84,14 @@ export const PACKAGING_PROMPTS: Record<string, PackagingPrompt> = {
     negative:
       'product squirting far like a jet, pump pressed but nothing visible, cap-style twisting on a pump head, broken pump mechanism',
   },
+  screw_cap_bottle: {
+    key: 'screw_cap_bottle',
+    label: 'ขวดฝาเกลียว',
+    prompt:
+      'Product form: bottle with a twist/screw cap. Twist the screw cap off with the fingers and lift it away, then tip or pour a small controlled amount of the product onto the palm or fingertips. The cap is held in the same hand or set down nearby. Show the product being dispensed before use.',
+    negative:
+      'flip-top or pump mechanism on a screw-cap bottle, cap popping off by itself, product gushing out, bottle spilling',
+  },
   squeeze_tube: {
     key: 'squeeze_tube',
     label: 'หลอดบีบ',

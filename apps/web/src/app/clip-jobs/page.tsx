@@ -157,6 +157,34 @@ function ClipJobsInner() {
       setCPackagingSaving(false);
     }
   }
+  // 🧴 เนื้อสัมผัส (texture) — บันทึกติดสินค้า → พรอมเนื้อสัมผัสต่อท้าย packaging
+  const [cTexture, setCTexture] = useState("");
+  const [cTextureSaving, setCTextureSaving] = useState(false);
+  const [cTexOpen, setCTexOpen] = useState(false);
+  const [textureOptions, setTextureOptions] = useState<{ value: string; label: string }[]>([]);
+  useEffect(() => {
+    api<{ items: { key: string; label: string }[] }>("/clip-jobs/texture-prompts")
+      .then((res) => setTextureOptions(res.items.map((t) => ({ value: t.key, label: t.label }))))
+      .catch(() => setTextureOptions([]));
+  }, []);
+  useEffect(() => {
+    setCTexture((cProductFull as { textureType?: string } | null)?.textureType ?? "");
+  }, [cProductFull]);
+  async function saveTexture() {
+    if (!cProductFull) return;
+    setCTextureSaving(true);
+    try {
+      const updated = await api<Product>(`/products/${cProductFull.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ textureType: cTexture || null }),
+      });
+      setCProductFull(updated);
+    } catch {
+      /* เงียบ */
+    } finally {
+      setCTextureSaving(false);
+    }
+  }
   const [showBriefEditor, setShowBriefEditor] = useState(false);
   const [cAngle, setCAngle] = useState(""); // 🎬 มุมที่อยากตี
   const [cFormat, setCFormat] = useState(""); // รูปแบบคลิป (สูตร) — "" = อัตโนมัติตามหมวดสินค้า
@@ -557,6 +585,75 @@ function ClipJobsInner() {
                           <button
                             type="button"
                             onClick={() => setCPackaging(cProductFull.packagingType ?? "")}
+                            className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
+                          >
+                            ยกเลิก
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    {/* 🧴 เนื้อสัมผัส — ต่อท้าย packaging (ฝาเกลียว/ขวดปั๊ม จะนำเข้าการโชว์เนื้อนี้) */}
+                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-700/40 bg-amber-950/20 px-3 py-2">
+                      <div className="relative min-w-0 flex-1">
+                        <button
+                          type="button"
+                          onClick={() => setCTexOpen((v) => !v)}
+                          className="flex w-full items-center justify-between gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-left text-sm text-zinc-200 hover:border-amber-600"
+                        >
+                          <span className="truncate">
+                            {(() => {
+                              const sel = cTexture.split(",").map((s) => s.trim()).filter(Boolean);
+                              if (sel.length === 0) return "— เนื้อสัมผัส (เจล/ครีม/เม็ด/โฟม...) — เลือกได้หลายอัน";
+                              return sel.map((v) => textureOptions.find((o) => o.value === v)?.label ?? v).join(" + ");
+                            })()}
+                          </span>
+                          <ChevronDown className={`size-4 shrink-0 text-zinc-500 transition-transform ${cTexOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {cTexOpen && (
+                          <div className="absolute left-0 right-0 z-20 mt-1 max-h-64 overflow-auto rounded-xl border border-zinc-700 bg-zinc-900 p-1.5 shadow-xl">
+                            {textureOptions.map((o) => {
+                              const sel = cTexture.split(",").map((s) => s.trim()).filter(Boolean);
+                              const on = sel.includes(o.value);
+                              return (
+                                <button
+                                  key={o.value}
+                                  type="button"
+                                  onClick={() => {
+                                    const next = on ? sel.filter((v) => v !== o.value) : [...sel, o.value];
+                                    setCTexture(next.join(","));
+                                  }}
+                                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs ${on ? "bg-amber-500/15 text-amber-200" : "text-zinc-300 hover:bg-zinc-800"}`}
+                                >
+                                  <span className={`inline-flex size-4 shrink-0 items-center justify-center rounded border text-[10px] ${on ? "border-amber-400 bg-amber-500/30 text-amber-200" : "border-zinc-600"}`}>
+                                    {on ? "✓" : ""}
+                                  </span>
+                                  {o.label}
+                                </button>
+                              );
+                            })}
+                            <button
+                              type="button"
+                              onClick={() => setCTexOpen(false)}
+                              className="mt-1 w-full rounded-lg border border-zinc-700 px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-800"
+                            >
+                              เสร็จแล้ว — ปิดเมนู
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      {cTexture !== ((cProductFull as { textureType?: string }).textureType ?? "") && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => void saveTexture()}
+                            disabled={cTextureSaving}
+                            className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-amber-400 disabled:opacity-50"
+                          >
+                            {cTextureSaving ? "กำลังบันทึก..." : "บันทึก"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCTexture((cProductFull as { textureType?: string }).textureType ?? "")}
                             className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
                           >
                             ยกเลิก
