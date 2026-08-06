@@ -43,7 +43,12 @@ export class CreateProductDto {
   @IsString()
   category?: string;
 
-  // รูปแบบแพ็กเกจ — key จาก PACKAGING_PROMPTS (เช่น pump_bottle) — validate หลวม (custom key ได้)
+  // 🧼 ประเภทสินค้า — key จาก PRODUCT_TYPE_PROMPTS (toothpaste/soap_bar/facial_cleanser ...) CSV
+  @IsOptional()
+  @IsString()
+  productType?: string;
+
+  // ประเภทบรรจุภัณฑ์ — key จาก PACKAGING_PROMPTS (เช่น pump_bottle) — validate หลวม (custom key ได้)
   @IsOptional()
   @IsString()
   packagingType?: string;

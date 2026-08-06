@@ -118,6 +118,13 @@ export class AffiliateClipsController {
     return this.clips.resetSceneBlocks(user);
   }
 
+  // ═══ พรอมประเภทสินค้า (Product Type Prompts) ═══
+  @Get('product-type-prompts')
+  @RequirePermission('product', 'V')
+  listProductTypePrompts() {
+    return this.clips.listProductTypePrompts();
+  }
+
   // ═══ พรอมเนื้อสัมผัส (Texture Prompts) ═══
   @Get('texture-prompts')
   @RequirePermission('product', 'V')

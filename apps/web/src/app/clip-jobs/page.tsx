@@ -185,6 +185,34 @@ function ClipJobsInner() {
       setCTextureSaving(false);
     }
   }
+  // 🧼 ประเภทสินค้า (product type) — บันทึกติดสินค้า → แอ็กชันใช้งานหลัก (ทำงานก่อน)
+  const [cProductType, setCProductType] = useState("");
+  const [cProductTypeSaving, setCProductTypeSaving] = useState(false);
+  const [cPtOpen, setCPtOpen] = useState(false);
+  const [productTypeOptions, setProductTypeOptions] = useState<{ value: string; label: string }[]>([]);
+  useEffect(() => {
+    api<{ items: { key: string; label: string }[] }>("/clip-jobs/product-type-prompts")
+      .then((res) => setProductTypeOptions(res.items.map((p) => ({ value: p.key, label: p.label }))))
+      .catch(() => setProductTypeOptions([]));
+  }, []);
+  useEffect(() => {
+    setCProductType((cProductFull as { productType?: string } | null)?.productType ?? "");
+  }, [cProductFull]);
+  async function saveProductType() {
+    if (!cProductFull) return;
+    setCProductTypeSaving(true);
+    try {
+      const updated = await api<Product>(`/products/${cProductFull.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ productType: cProductType || null }),
+      });
+      setCProductFull(updated);
+    } catch {
+      /* เงียบ */
+    } finally {
+      setCProductTypeSaving(false);
+    }
+  }
   const [showBriefEditor, setShowBriefEditor] = useState(false);
   const [cAngle, setCAngle] = useState(""); // 🎬 มุมที่อยากตี
   const [cFormat, setCFormat] = useState(""); // รูปแบบคลิป (สูตร) — "" = อัตโนมัติตามหมวดสินค้า
@@ -521,7 +549,76 @@ function ClipJobsInner() {
                 {/* 📋 Review Brief ของสินค้าที่เลือก — มีแล้วโชว์สรุปเขียว / ยังไม่มีเตือนเหลือง + กรอก inline */}
                 {cProductSel && cProductFull && (
                   <div className="md:col-span-2 space-y-2">
-                    {/* 🧴 รูปแบบสินค้า (แพ็กเกจ) — บันทึกติดตัวสินค้า → Prompt ประเภทสินค้าผนวกเข้าทุกฉากที่เห็นสินค้า */}
+                    {/* 🧼 ประเภทสินค้า — บนสุด ทำงานก่อน (ยาสีฟัน/สบู่/โฟมล้างหน้า...) */}
+                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-emerald-700/50 bg-emerald-950/25 px-3 py-2">
+                      <div className="relative min-w-0 flex-1">
+                        <button
+                          type="button"
+                          onClick={() => setCPtOpen((v) => !v)}
+                          className="flex w-full items-center justify-between gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-left text-sm text-zinc-200 hover:border-emerald-600"
+                        >
+                          <span className="truncate">
+                            {(() => {
+                              const sel = cProductType.split(",").map((s) => s.trim()).filter(Boolean);
+                              if (sel.length === 0) return "① ประเภทสินค้า (ยาสีฟัน/สบู่/โฟมล้างหน้า...) — เลือกก่อน";
+                              return sel.map((v) => productTypeOptions.find((o) => o.value === v)?.label ?? v).join(" + ");
+                            })()}
+                          </span>
+                          <ChevronDown className={`size-4 shrink-0 text-zinc-500 transition-transform ${cPtOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {cPtOpen && (
+                          <div className="absolute left-0 right-0 z-30 mt-1 max-h-64 overflow-auto rounded-xl border border-zinc-700 bg-zinc-900 p-1.5 shadow-xl">
+                            {productTypeOptions.map((o) => {
+                              const sel = cProductType.split(",").map((s) => s.trim()).filter(Boolean);
+                              const on = sel.includes(o.value);
+                              return (
+                                <button
+                                  key={o.value}
+                                  type="button"
+                                  onClick={() => {
+                                    const next = on ? sel.filter((v) => v !== o.value) : [...sel, o.value];
+                                    setCProductType(next.join(","));
+                                  }}
+                                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs ${on ? "bg-emerald-500/15 text-emerald-200" : "text-zinc-300 hover:bg-zinc-800"}`}
+                                >
+                                  <span className={`inline-flex size-4 shrink-0 items-center justify-center rounded border text-[10px] ${on ? "border-emerald-400 bg-emerald-500/30 text-emerald-200" : "border-zinc-600"}`}>
+                                    {on ? "✓" : ""}
+                                  </span>
+                                  {o.label}
+                                </button>
+                              );
+                            })}
+                            <button
+                              type="button"
+                              onClick={() => setCPtOpen(false)}
+                              className="mt-1 w-full rounded-lg border border-zinc-700 px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-800"
+                            >
+                              เสร็จแล้ว — ปิดเมนู
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      {cProductType !== ((cProductFull as { productType?: string }).productType ?? "") && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => void saveProductType()}
+                            disabled={cProductTypeSaving}
+                            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-emerald-400 disabled:opacity-50"
+                          >
+                            {cProductTypeSaving ? "กำลังบันทึก..." : "บันทึก"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCProductType((cProductFull as { productType?: string }).productType ?? "")}
+                            className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
+                          >
+                            ยกเลิก
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    {/* 📦 ประเภทบรรจุภัณฑ์ (ภาชนะ/ฝา) — บันทึกติดตัวสินค้า */}
                     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-sky-700/50 bg-sky-950/30 px-3 py-2">
 {/* 🧴 เมนูสไลด์แพ็กเกจ — กดเปิดแล้วติ๊กได้หลายอัน (เก็บ CSV ติดสินค้า) */}
                       <div className="relative min-w-0 flex-1">
@@ -533,7 +630,7 @@ function ClipJobsInner() {
                           <span className="truncate">
                             {(() => {
                               const sel = cPackaging.split(",").map((s) => s.trim()).filter(Boolean);
-                              if (sel.length === 0) return "— รูปแบบสินค้า (แพ็กเกจ) — เลือกได้หลายอัน";
+                              if (sel.length === 0) return "② ประเภทบรรจุภัณฑ์ (ขวด/ฝา/หลอด/ซอง...) — เลือกได้หลายอัน";
                               const labels = sel.map((v) => packagingOptions.find((o) => o.value === v)?.label ?? v);
                               return labels.join(" + ");
                             })()}
@@ -619,7 +716,7 @@ function ClipJobsInner() {
                           <span className="truncate">
                             {(() => {
                               const sel = cTexture.split(",").map((s) => s.trim()).filter(Boolean);
-                              if (sel.length === 0) return "— เนื้อสัมผัส (เจล/ครีม/เม็ด/โฟม...) — เลือกได้หลายอัน";
+                              if (sel.length === 0) return "③ เนื้อสัมผัส (เจล/ครีม/เม็ด/โฟม...) — เลือกได้หลายอัน";
                               return sel.map((v) => textureOptions.find((o) => o.value === v)?.label ?? v).join(" + ");
                             })()}
                           </span>

@@ -7,7 +7,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BookOpen, Clapperboard, Droplet, Package, Plus, RotateCcw, Save,
-  Target,
+  Target, Tag,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
@@ -23,10 +23,11 @@ function errMsg(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback;
 }
 
-type TabKey = "recipes" | "packaging" | "texture" | "scene" | "domain";
+type TabKey = "recipes" | "producttype" | "packaging" | "texture" | "scene" | "domain";
 const TABS: { key: TabKey; label: string; icon: typeof BookOpen }[] = [
   { key: "recipes", label: "สูตรคลิป", icon: BookOpen },
-  { key: "packaging", label: "Prompt ประเภทสินค้า", icon: Package },
+  { key: "producttype", label: "ประเภทสินค้า", icon: Tag },
+  { key: "packaging", label: "ประเภทบรรจุภัณฑ์", icon: Package },
   { key: "texture", label: "เนื้อสัมผัส", icon: Droplet },
   { key: "scene", label: "Prompt ประเภทฉาก", icon: Clapperboard },
   { key: "domain", label: "Domain Prompt", icon: Target },
@@ -132,6 +133,14 @@ function PromptStudioInner() {
   const tab = (searchParams.get("tab") as TabKey) || "recipes";
   const setTab = (t: TabKey) =>
     router.replace(t === "recipes" ? "/clip-jobs/recipes" : `/clip-jobs/recipes?tab=${t}`);
+
+  // ═══ 🧼 ประเภทสินค้า (อ่านอย่างเดียว) ═══
+  const [productTypes, setProductTypes] = useState<{ key: string; label: string; promptStill: string; promptVideo: string; negative: string }[]>([]);
+  useEffect(() => {
+    api<{ items: typeof productTypes }>("/clip-jobs/product-type-prompts")
+      .then((res) => setProductTypes(res.items))
+      .catch(() => setProductTypes([]));
+  }, []);
 
   // ═══ 🧴 เนื้อสัมผัส (อ่านอย่างเดียว) ═══
   const [textures, setTextures] = useState<{ key: string; label: string; promptStill: string; promptVideo: string; negative: string }[]>([]);
@@ -874,6 +883,30 @@ function PromptStudioInner() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ 🧼 ประเภทสินค้า (อ่านอย่างเดียว) ═══ */}
+      {tab === "producttype" && (
+        <div className="space-y-4">
+          <p className="text-sm text-zinc-400">
+            🧼 ประเภทสินค้า (ยาสีฟัน/สบู่/โฟมล้างหน้า...) — แอ็กชันใช้งานหลักของสินค้า · เลือกที่สินค้า
+            แล้วระบบฉีด <b>ก่อน</b> ประเภทบรรจุภัณฑ์และเนื้อสัมผัส (ทำงานก่อน)
+          </p>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {productTypes.map((t) => (
+              <div key={t.key} className="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
+                <div className="flex items-center gap-2">
+                  <Tag className="size-4 text-emerald-300" />
+                  <span className="text-sm font-semibold text-zinc-100">{t.label}</span>
+                  <span className="font-mono text-[11px] text-zinc-500">{t.key}</span>
+                </div>
+                <div className="text-xs text-zinc-400"><span className="text-zinc-500">ภาพนิ่ง:</span> {t.promptStill}</div>
+                <div className="text-xs text-zinc-400"><span className="text-zinc-500">วิดีโอ:</span> {t.promptVideo}</div>
+                <div className="text-[11px] text-red-300/70">AVOID: {t.negative}</div>
+              </div>
+            ))}
           </div>
         </div>
       )}

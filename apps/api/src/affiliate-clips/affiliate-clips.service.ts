@@ -53,6 +53,7 @@ import {
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
 import { TEXTURE_PROMPTS, textureStill, textureVideo, TexturePrompt } from './texture-prompts';
+import { PRODUCT_TYPE_PROMPTS, productTypeStill, productTypeVideo, ProductTypePrompt } from './product-type-prompts';
 import { countThaiSyllables } from './speech-timing';
 import {
   UGC_CONCEPTS_SCHEMA,
@@ -148,7 +149,8 @@ interface UgcJobContext {
   locationBlock: string | null;
   voiceSpec: string;
   useVoice: boolean; // 🔊 false = คลิปไม่มีบทพูด/เสียงพากย์ — Flow prompt เป็น ambient อย่างเดียว
-  packagingBlock: PackagingPrompt | null; // Prompt ประเภทสินค้า — จาก Product.packagingType (แก้ได้ที่หน้า สูตรคลิป)
+  productTypeBlock: { label: string; promptStill: string; promptVideo: string; negative: string } | null; // 🧼 ประเภทสินค้า — จาก Product.productType
+  packagingBlock: PackagingPrompt | null; // ประเภทบรรจุภัณฑ์ — จาก Product.packagingType (แก้ได้ที่หน้า สูตรคลิป)
   textureBlock: { label: string; promptStill: string; promptVideo: string; negative: string } | null; // 🧴 เนื้อสัมผัส — จาก Product.textureType
 }
 
@@ -2429,6 +2431,12 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
   }
 
   /** GET /clip-jobs/packaging-prompts */
+  // 🧼 พรอมประเภทสินค้า (code-level master data) — ผูกกับ Product.productType
+  listProductTypePrompts() {
+    const items = Object.values(PRODUCT_TYPE_PROMPTS).map((p) => ({ key: p.key, label: p.label, promptStill: p.promptStill, promptVideo: p.promptVideo, negative: p.negative }));
+    return { items };
+  }
+
   // 🧴 พรอมเนื้อสัมผัส (code-level master data) — ผูกกับ Product.textureType
   listTexturePrompts() {
     const items = Object.values(TEXTURE_PROMPTS).map((t) => ({ key: t.key, label: t.label, promptStill: t.promptStill, promptVideo: t.promptVideo, negative: t.negative }));
@@ -2907,6 +2915,23 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
             negative: dedupeCsv(packagingHits.map((b) => b.negative).filter(Boolean).join(', ')),
           }
         : null;
+    // 🧼 ประเภทสินค้า (product type) — แอ็กชันใช้งานหลัก ทำงานก่อน packaging+texture
+    const productTypeKeys =
+      job.subjectType === 'product'
+        ? (product?.productType ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+        : [];
+    const productTypeHits = productTypeKeys
+      .map((k) => PRODUCT_TYPE_PROMPTS[k])
+      .filter((p): p is ProductTypePrompt => Boolean(p));
+    const productTypeBlock =
+      productTypeHits.length > 0
+        ? {
+            label: productTypeHits.map((p) => p.label).join(' + '),
+            promptStill: productTypeHits.map((p) => productTypeStill(p)).filter(Boolean).join(' '),
+            promptVideo: productTypeHits.map((p) => productTypeVideo(p)).filter(Boolean).join(' '),
+            negative: dedupeCsv(productTypeHits.map((p) => p.negative).filter(Boolean).join(', ')),
+          }
+        : null;
     // 🧴 เนื้อสัมผัส (texture) — จาก product.textureType (CSV) → packaging (ฝาเกลียว/ปั๊ม) นำเข้าเนื้อนี้เสมอ
     const textureKeys =
       job.subjectType === 'product'
@@ -2986,6 +3011,7 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
       handDescriptor,
       locationBlock,
       voiceSpec,
+      productTypeBlock,
       packagingBlock,
       textureBlock,
       sheetBinding: sheetBinding || undefined,
@@ -3287,6 +3313,10 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
           'Natural home context: soft daylight, a cozy lived-in corner, everyday objects (a mug, a cushion, a small plant) softly blurred in the background.',
         );
       }
+      // 🧼 ประเภทสินค้า — บริบทการใช้งานหลัก มาก่อน packaging+texture (ทำงานก่อน)
+      if (showProduct && ctx.productTypeBlock?.promptStill) {
+        lines.push(ctx.productTypeBlock.promptStill);
+      }
       if (showProduct && ctx.packagingBlock) {
         const pkgStill = packagingStill(ctx.packagingBlock);
         if (pkgStill) lines.push(pkgStill);
@@ -3432,6 +3462,8 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
               ...(ctx.sheetBinding
                 ? [`Product ground truth from the reference photos: ${ctx.sheetBinding}`]
                 : []),
+              // 🧼 ประเภทสินค้า (วิดีโอ) — แอ็กชันใช้งานหลัก มาก่อน packaging/texture
+              ...(ctx.productTypeBlock?.promptVideo ? [ctx.productTypeBlock.promptVideo] : []),
               // 📦 ฟิสิกส์/การเคลื่อนไหวของแพ็กเกจ — เฉพาะวิดีโอ (promptVideo) — ไม่เข้าภาพนิ่ง
               ...(ctx.packagingBlock && packagingVideo(ctx.packagingBlock)
                 ? [packagingVideo(ctx.packagingBlock)]

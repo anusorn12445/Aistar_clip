@@ -64,6 +64,7 @@ export interface Product {
   name: string;
   brandId: string | null;
   category: string | null;
+  productType?: string | null;
   packagingType?: string | null;
   textureType?: string | null;
   description: string | null;
