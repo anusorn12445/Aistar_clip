@@ -53,7 +53,6 @@ import {
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
 import { countThaiSyllables, checkSpeechFit } from './speech-timing';
-import { openingSequenceGuide, openingGuideFromCodes, OPENING_METHODS, DEFAULT_OPENING_SEQUENCE } from './opening-methods';
 import {
   UGC_CONCEPTS_SCHEMA,
   UGC_PLAN_SCHEMA,
@@ -435,7 +434,6 @@ export class AffiliateClipsService {
             clientId: dto.clientId ?? null,
             outputType: dto.outputType ?? 'video',
             mode: dto.mode ?? 'hand',
-            openingSequence: dto.openingSequence?.trim() || null,
             handId: dto.handId ?? null,
             characterId: dto.characterId ?? null,
             wardrobeId: dto.wardrobeId ?? null,
@@ -2443,15 +2441,6 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
   }
 
   /** GET /clip-jobs/packaging-prompts */
-  // ═══ Opening Methods (วิธีเปิดบรรจุภัณฑ์) — master data code-level (เฟส 1) ═══
-  listOpeningMethods() {
-    const items = Object.values(OPENING_METHODS).sort(
-      (a, b) => a.phase.localeCompare(b.phase) || a.group.localeCompare(b.group) || a.code.localeCompare(b.code),
-    );
-    const sequences = Object.entries(DEFAULT_OPENING_SEQUENCE).map(([packagingType, codes]) => ({ packagingType, codes }));
-    return { items, sequences, total: items.length };
-  }
-
   async listPackagingPrompts() {
     const [merged, overrides] = await Promise.all([
       this.getMergedPackagingPrompts(),
@@ -2864,12 +2853,6 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
       '',
       'Resource จากระบบ:',
       ...railLines,
-      // 📦 ลำดับการเปิดตามแพ็กเกจ (opening methods) — จัดฉากแกะ/สาธิตให้มือ/ทิศ/เสียงแม่นตามชนิดแพ็ก
-      ...(job.subjectType === 'product'
-        ? (job.openingSequence
-            ? openingGuideFromCodes(job.openingSequence) // ผู้ใช้เลือกเองในหน้าสร้าง clip job
-            : openingSequenceGuide(product?.packagingType)) // ไม่เลือก = auto จาก packagingType
-        : []),
       '',
       `แตก storyboard ${guide.min}-${guide.max} ฉากตามสคีมา (scenes + headline + script + caption + hashtags)`,
     ].join('\n');

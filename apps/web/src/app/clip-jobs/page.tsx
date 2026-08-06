@@ -139,27 +139,6 @@ function ClipJobsInner() {
       .then((res) => setPackagingOptions(res.items.map((p) => ({ value: p.key, label: p.label }))))
       .catch(() => setPackagingOptions([]));
   }, []);
-  // 📦 วิธีเปิดบรรจุภัณฑ์ (opening-methods) — เลือกเองได้ ว่าง = auto จาก packagingType
-  const [openingOptions, setOpeningOptions] = useState<{ code: string; labelTh: string; phase: string }[]>([]);
-  const [openingSequences, setOpeningSequences] = useState<Record<string, string[]>>({});
-  const [cOpening, setCOpening] = useState<string[]>([]);
-  const [cOpenMethodsOpen, setCOpenMethodsOpen] = useState(false);
-  useEffect(() => {
-    api<{ items: { code: string; labelTh: string; phase: string }[]; sequences: { packagingType: string; codes: string[] }[] }>(
-      "/clip-jobs/opening-methods",
-    )
-      .then((res) => {
-        setOpeningOptions(res.items.map((m) => ({ code: m.code, labelTh: m.labelTh, phase: m.phase })));
-        setOpeningSequences(Object.fromEntries(res.sequences.map((s) => [s.packagingType, s.codes])));
-      })
-      .catch(() => setOpeningOptions([]));
-  }, []);
-  // แนะนำลำดับ default จาก packaging (แสดงเป็นตัวช่วย — ผู้ใช้กดใช้ได้)
-  const suggestedOpening = (cPackaging || "")
-    .split(",")
-    .map((k) => k.trim())
-    .flatMap((k) => openingSequences[k] ?? [])
-    .filter((v, i, a) => v && a.indexOf(v) === i);
   useEffect(() => {
     setCPackaging(cProductFull?.packagingType ?? "");
   }, [cProductFull]);
@@ -362,7 +341,6 @@ function ClipJobsInner() {
         platform: cPlatform,
         targetDurationSec: cDuration,
         sceneLenSec: cSceneLen, // ⏱
-        ...(cSubjectType === "product" && cOpening.length > 0 ? { openingSequence: cOpening.join(",") } : {}),
       });
       router.push(`/clip-jobs/${job.id}`);
     } catch (e) {
@@ -582,87 +560,6 @@ function ClipJobsInner() {
                             ยกเลิก
                           </button>
                         </>
-                      )}
-                    </div>
-                    {/* 📦 วิธีเปิดบรรจุภัณฑ์ — เลือกเอง (ว่าง = auto จาก packaging) */}
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs font-medium text-zinc-300">📦 วิธีเปิด (จัดฉากแกะ/สาธิต)</span>
-                        <button
-                          type="button"
-                          onClick={() => setCOpenMethodsOpen((v) => !v)}
-                          className="rounded-lg border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-800"
-                        >
-                          {cOpening.length > 0 ? `เลือกไว้ ${cOpening.length} วิธี` : "เลือกวิธีเปิด"}
-                        </button>
-                        {suggestedOpening.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setCOpening(suggestedOpening)}
-                            className="rounded-lg border border-amber-400/40 px-2 py-1 text-xs text-amber-300 hover:bg-amber-400/10"
-                          >
-                            ใช้ลำดับแนะนำ ({suggestedOpening.length})
-                          </button>
-                        )}
-                        {cOpening.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setCOpening([])}
-                            className="rounded-lg border border-zinc-700 px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-800"
-                          >
-                            ล้าง (ใช้ auto)
-                          </button>
-                        )}
-                      </div>
-                      {cOpening.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {cOpening.map((code, i) => {
-                            const mth = openingOptions.find((o) => o.code === code);
-                            return (
-                              <span key={code} className="rounded-full bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-200">
-                                {i + 1}. {mth?.labelTh ?? code}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      )}
-                      {cOpenMethodsOpen && (
-                        <div className="mt-2 max-h-56 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900 p-2">
-                          {(["prep", "open", "dispense", "reclose"] as const).map((ph) => {
-                            const phLabel: Record<string, string> = { prep: "เตรียม/ซีล", open: "เปิด", dispense: "จ่ายเนื้อ", reclose: "ปิดกลับ" };
-                            const items = openingOptions.filter((o) => o.phase === ph);
-                            if (items.length === 0) return null;
-                            return (
-                              <div key={ph} className="mb-2">
-                                <div className="mb-1 text-[11px] font-semibold uppercase text-zinc-500">{phLabel[ph]}</div>
-                                <div className="flex flex-wrap gap-1">
-                                  {items.map((o) => {
-                                    const on = cOpening.includes(o.code);
-                                    return (
-                                      <button
-                                        key={o.code}
-                                        type="button"
-                                        onClick={() =>
-                                          setCOpening((cur) => (on ? cur.filter((c) => c !== o.code) : [...cur, o.code]))
-                                        }
-                                        className={`rounded-lg border px-2 py-1 text-[11px] ${
-                                          on
-                                            ? "border-amber-400 bg-amber-400/10 text-amber-300"
-                                            : "border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-                                        }`}
-                                      >
-                                        {o.labelTh}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })}
-                          <p className="mt-1 text-[11px] text-zinc-500">
-                            เลือกตามลำดับที่กด · ว่างไว้ = ระบบใช้ลำดับ auto จากชนิดแพ็กเกจ
-                          </p>
-                        </div>
                       )}
                     </div>
                     {hasReviewBrief(cProductFull.reviewBrief) ? (
