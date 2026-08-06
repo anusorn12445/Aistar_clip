@@ -44,7 +44,6 @@ import {
   PLACE_CATEGORIES,
   ReviewRecipe,
   resolveRecipe,
-  sceneCountGuidance,
   REVIEW_RECIPES,
   PRODUCT_FORMAT_KEYS,
   UGC_NEGATIVE_STILL_DEFAULT,
@@ -708,7 +707,7 @@ export class AffiliateClipsService {
 
     const data: Prisma.AffiliateClipJobUpdateInput = {};
     const scalar: (keyof UpdateClipJobDto)[] = [
-      'name', 'ctaType', 'clientId', 'outputType', 'handId', 'characterId', 'wardrobeId',
+      'name', 'ctaType', 'clientId', 'outputType', 'useVoice', 'handId', 'characterId', 'wardrobeId',
       'locationId', 'voiceProfileId', 'voiceSpec', 'headline', 'platform', 'aspectRatio',
       'targetDurationSec', 'script', 'caption', 'hashtags', 'affiliateLink',
       'finalVideoUrl', 'finalNote', 'status',
@@ -844,16 +843,18 @@ export class AffiliateClipsService {
       if (scenes.length === 0) {
         throw new ServiceUnavailableException('AI ไม่คืนฉาก — ลองแตก storyboard ใหม่อีกครั้ง');
       }
-      // 🔒 ด่านเหล็กจำนวนฉาก — ต้อง = ความยาว÷4 เป๊ะๆ (ไม่เชื่อ AI): เกิน = ตัดกลางเก็บฉากจบ (CTA), ขาด = ให้กดใหม่
-      const planSceneLen = await this.getJobSceneLen(job.id); // ⏱ ใช้ทั้งด่านจำนวนฉากและ clamp ราย shot
+      // 🔒 ด่านเหล็กจำนวนฉาก — ต้อง = จำนวนช่วงใน "ลำดับการเล่า (sceneFlow)" ของสูตร (ไม่ใช่ เวลา÷ความยาวฉาก)
+      const expectedScenes = Math.max(2, recipe.sceneFlow.length);
+      // ⏱ ต่อฉาก = ความยาวคลิป ÷ จำนวน shot — เก็บไว้ให้ compose/QC ใช้ (แทนค่า 4/6/8 เดิม)
+      const planSceneLen = Math.max(3, Math.round((job.targetDurationSec ?? expectedScenes * 6) / expectedScenes));
+      await this.setJobSceneLen(job.id, planSceneLen, user.id);
       if (job.subjectType !== 'software') {
-        const expectedScenes = sceneCountGuidance(job.targetDurationSec, planSceneLen).max;
         if (scenes.length > expectedScenes) {
           scenes = [...scenes.slice(0, expectedScenes - 1), scenes[scenes.length - 1]];
           this.logger.warn(`Clip Job ${job.displayCode}: AI คืนฉากเกิน — ตัดเหลือ ${expectedScenes} ฉาก (เก็บฉากจบไว้)`);
         } else if (scenes.length < expectedScenes) {
           throw new ServiceUnavailableException(
-            `AI คืนมา ${scenes.length} ฉาก แต่คลิป ${job.targetDurationSec ?? 16} วิต้องได้ ${expectedScenes} ฉาก (ฉากละ ${planSceneLen} วิ) — กดแตก storyboard ใหม่อีกครั้ง`,
+            `AI คืนมา ${scenes.length} ฉาก แต่สูตรกำหนด ${expectedScenes} ช่วง (ลำดับการเล่า) — กดแตก storyboard ใหม่อีกครั้ง`,
           );
         }
       }
@@ -2751,8 +2752,9 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
     concept: UgcConcept,
     voiceSpec: string,
   ): Promise<UgcPlanResult> {
-    const sceneLen = await this.getJobSceneLen(job.id); // ⏱
-    const guide = sceneCountGuidance(job.targetDurationSec, sceneLen);
+    // 🎬 จำนวน shot มาจาก "ลำดับการเล่า (sceneFlow)" ของสูตร — ผู้ใช้เลือกแค่ความยาวคลิปรวม
+    const shotCount = Math.max(2, recipe.sceneFlow.length);
+    const sceneLen = Math.max(3, Math.round((job.targetDurationSec ?? shotCount * 6) / shotCount)); // ⏱ ต่อฉาก = ความยาวคลิป ÷ จำนวน shot
     const ctaClosing = CTA_CLOSING[job.ctaType] ?? CTA_CLOSING.basket;
     const bannedBlock = await this.buildBannedBlock(job.platform);
 
@@ -2808,7 +2810,7 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
     const system = [
       'คุณคือ UGC Review Director ประจำ AISTAR Studio — แตกคอนเซปต์ที่เลือกเป็น storyboard คลิปรีวิวแนวตั้ง',
       'กติกา (บังคับทุกข้อ):',
-      `- จำนวนฉาก = ${guide.max} ฉากเป๊ะๆ (เป้าคลิป ${job.targetDurationSec ?? 16} วิ ÷ ฉากละ ${sceneLen} วิตายตัว, durationSec = ${sceneLen} ทุกฉาก) — สคริปต์ต้องเล่าครบจบสมบูรณ์ใน ${guide.max} ฉากนี้พอดี: ฉากสุดท้ายคือ CTA ปิดการขาย ไม่มีเรื่องค้าง`,
+      `- จำนวนฉาก = ${shotCount} ฉากเป๊ะๆ ตาม "ลำดับการเล่า" ด้านล่าง (1 ช่วง = 1 ฉาก ตามลำดับ) — เป้าคลิป ${job.targetDurationSec ?? shotCount * 6} วิ, ทุกฉาก durationSec = ${sceneLen} — สคริปต์ต้องเล่าครบจบใน ${shotCount} ฉากนี้พอดี: ฉากสุดท้ายคือ CTA ปิดการขาย ไม่มีเรื่องค้าง`,
       '- ฉากแรก section=hook, ฉากสุดท้าย section=cta, ระหว่างทางใช้ reveal/interaction/demonstration/result ตามหน้าที่ฉาก',
       `- เดินเรื่องตามสูตรรีวิว "${recipe.label}":`,
       ...flowLines,
@@ -2860,7 +2862,7 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
       'Resource จากระบบ:',
       ...railLines,
       '',
-      `แตก storyboard ${guide.min}-${guide.max} ฉากตามสคีมา (scenes + headline + script + caption + hashtags)`,
+      `แตก storyboard ${shotCount} ฉากเป๊ะๆ (1 ฉากต่อ 1 ช่วงในลำดับการเล่า) ตามสคีมา (scenes + headline + script + caption + hashtags)`,
     ].join('\n');
 
     const call = await this.claude.callClaude<UgcPlanResult>({

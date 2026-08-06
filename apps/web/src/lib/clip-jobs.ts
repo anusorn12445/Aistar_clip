@@ -203,6 +203,7 @@ export interface ClipJob {
   locationId: string | null;
   voiceProfileId: string | null;
   voiceSpec: string | null;
+  useVoice?: boolean;
   headline: string | null;
   conceptsJson: ClipConceptsJson | null;
   selectedConceptIndex: number | null;

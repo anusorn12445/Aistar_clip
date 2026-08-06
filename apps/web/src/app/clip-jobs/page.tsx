@@ -50,7 +50,6 @@ import {
   ClipJob,
   PLACE_CATEGORY_LABEL,
   SubjectBrief,
-  clipSceneHint,
   createClipJob,
   fetchClipJobs,
 } from "@/lib/clip-jobs";
@@ -240,7 +239,6 @@ function ClipJobsInner() {
   const [cUseVoice, setCUseVoice] = useState(true); // 🔊 ใช้เสียงพูดไหม (false = คลิปไม่มีบทพูด)
   const [cPlatform, setCPlatform] = useState("tiktok");
   const [cDuration, setCDuration] = useState<number>(CLIP_DURATION_DEFAULT);
-  const [cSceneLen, setCSceneLen] = useState<number>(8); // ⏱ ความยาวต่อฉาก 4/6/8 วิ — หน้าต่างพูดสเกลตาม (ฉาก-1 วิ)
 
   const reload = useCallback(() => {
     fetchClipJobs({
@@ -398,7 +396,6 @@ function ClipJobsInner() {
         useVoice: cUseVoice,
         platform: cPlatform,
         targetDurationSec: cDuration,
-        sceneLenSec: cSceneLen, // ⏱
       });
       router.push(`/clip-jobs/${job.id}`);
     } catch (e) {
@@ -1027,43 +1024,19 @@ function ClipJobsInner() {
                 />
               </div>
               <div className="col-span-2 md:col-span-4">
-                {/* ⏱ ความยาวต่อฉาก — หน้าต่างพูดสเกลตาม (ฉาก-1 วิ) ไม่มีเดดแอร์ยาว */}
+                {/* ⏱ ความยาวคลิปรวม — จำนวนฉากกำหนดโดย "ลำดับการเล่า" ในสูตรคลิป (เวลาต่อฉาก = รวม ÷ จำนวนฉาก) */}
                 <label className="mb-1 block text-xs font-semibold text-zinc-400">
-                  ความยาวต่อฉาก{" "}
+                  ความยาวคลิป (รวม){" "}
                   <span className="font-normal text-zinc-500">
-                    (พูดได้ ~{cSceneLen - 1} วิ/ฉาก ≈ {Math.round((cSceneLen - 1) * 3.5)} พยางค์ — เหลือหางแอ็กชัน ~1 วิ ไม่มีเดดแอร์)
+                    จำนวนฉากกำหนดโดย “ลำดับการเล่า” ในสูตรคลิป · เวลาต่อฉากหารเฉลี่ยอัตโนมัติ
                   </span>
-                </label>
-                <div className="mb-2 flex gap-1.5">
-                  {[4, 6, 8].map((len) => (
-                    <button
-                      key={len}
-                      type="button"
-                      onClick={() => {
-                        setCSceneLen(len);
-                        const scenes = Math.max(2, Math.round(cDuration / cSceneLen));
-                        setCDuration(len * scenes);
-                      }}
-                      className={
-                        cSceneLen === len
-                          ? "rounded-full border border-amber-400 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-300"
-                          : "rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400 hover:border-amber-500"
-                      }
-                    >
-                      {len} วิ/ฉาก
-                    </button>
-                  ))}
-                </div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-400">
-                  ความยาวเป้าหมายทั้งคลิป{" "}
-                  <span className="font-normal text-zinc-500">({Math.max(1, Math.round(cDuration / cSceneLen))} ฉาก × {cSceneLen} วิ)</span>
                 </label>
                 <FilterSelect
                   value={String(cDuration)}
                   onChange={(v) => setCDuration(Number(v))}
-                  options={Array.from({ length: 10 }, (_, i) => (i + 1) * cSceneLen).map((d) => ({
+                  options={[20, 25, 30, 35, 40, 45, 50, 60, 75, 90].map((d) => ({
                     value: String(d),
-                    label: `${d} วิ (${Math.round(d / cSceneLen)} ฉาก × ${cSceneLen} วิ)`,
+                    label: `${d} วินาที`,
                   }))}
                   className="w-full md:w-64"
                 />

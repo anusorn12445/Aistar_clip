@@ -99,6 +99,7 @@ export class UpdateClipJobDto {
   @IsOptional() @IsIn(CTA_TYPES) ctaType?: string;
   @IsOptional() @IsUUID() clientId?: string;
   @IsOptional() @IsIn(CLIP_OUTPUT_TYPES) outputType?: string;
+  @IsOptional() @IsBoolean() useVoice?: boolean; // 🔊 ใช้เสียงพูดไหม — false = คลิปไม่มีบทพูด
   @IsOptional() @IsUUID() handId?: string;
   @IsOptional() @IsUUID() characterId?: string;
   @IsOptional() @IsUUID() wardrobeId?: string;

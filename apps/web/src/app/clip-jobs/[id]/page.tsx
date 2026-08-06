@@ -1871,7 +1871,37 @@ export default function ClipJobBoardPage() {
               {/* Voice */}
               <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
                 <h3 className="mb-2 text-sm font-semibold text-zinc-200"><Mic className="inline size-4" /> เสียงพากย์ของคลิปนี้</h3>
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {/* 🔊 ใช้เสียง / ไม่ใช้ — ปิด = prompt วิดีโอเป็น ambient ไม่มีบทพูด/พากย์ */}
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-zinc-400">ใช้เสียงพูดในคลิปนี้:</span>
+                  {[
+                    { on: true, label: "มีเสียงพูด" },
+                    { on: false, label: "ไม่ใช้เสียง (ambient)" },
+                  ].map((o) => {
+                    const active = (job.useVoice !== false) === o.on;
+                    return (
+                      <button
+                        key={String(o.on)}
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void saveJob({ useVoice: o.on }, "เสียงพูด")}
+                        className={
+                          active
+                            ? "rounded-full border border-amber-400 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-300"
+                            : "rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400 hover:border-amber-500"
+                        }
+                      >
+                        {o.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {job.useVoice === false && (
+                  <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-1.5 text-[11px] text-amber-300">
+                    🔇 คลิปนี้ไม่มีบทพูด — prompt วิดีโอทุกฉากเป็นเสียงบรรยากาศ (ambient) อย่างเดียว · ค่าเสียงด้านล่างจะไม่ถูกใช้
+                  </p>
+                )}
+                <div className={`grid grid-cols-1 gap-3 md:grid-cols-2 ${job.useVoice === false ? "opacity-40" : ""}`}>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-semibold uppercase tracking-wide text-zinc-500">
                       เลือกเสียงจากระบบ (Voice Profiles)
