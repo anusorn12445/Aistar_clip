@@ -2560,7 +2560,7 @@ export default function ClipJobBoardPage() {
                                   <p className="text-rose-300">⚠ {qcResults[s.id].error}</p>
                                 ) : qcResults[s.id].pass ? (
                                   <p className="font-semibold text-emerald-300">
-                                    ✅ พรอมป์ผ่านทุกข้อ{qcResults[s.id].fixed ? " (ปรับอัตโนมัติแล้ว)" : ""} · คลิป {qcResults[s.id].durationSec} วิ · พูดจบใน {qcResults[s.id].speechSec} วิ · บท ~{qcResults[s.id].dialogueSyllables}/{qcResults[s.id].syllableBudget} พยางค์
+                                    ✅ พรอมป์ผ่านทุกข้อ{qcResults[s.id].fixed ? " (ปรับอัตโนมัติแล้ว)" : ""} · คลิป {qcResults[s.id].durationSec} วิ{qcResults[s.id].dialogueSyllables ? ` · บท ~${qcResults[s.id].dialogueSyllables} พยางค์` : ""}
                                   </p>
                                 ) : (
                                   <>

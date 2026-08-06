@@ -542,26 +542,42 @@ function ClipJobsInner() {
                         </button>
                         {cPackOpen && (
                           <div className="absolute left-0 right-0 z-20 mt-1 max-h-64 overflow-auto rounded-xl border border-zinc-700 bg-zinc-900 p-1.5 shadow-xl">
-                            {packagingOptions.map((o) => {
+                            {(() => {
                               const sel = cPackaging.split(",").map((s) => s.trim()).filter(Boolean);
-                              const on = sel.includes(o.value);
-                              return (
-                                <button
-                                  key={o.value}
-                                  type="button"
-                                  onClick={() => {
-                                    const next = on ? sel.filter((v) => v !== o.value) : [...sel, o.value];
-                                    setCPackaging(next.join(","));
-                                  }}
-                                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs ${on ? "bg-sky-500/15 text-sky-200" : "text-zinc-300 hover:bg-zinc-800"}`}
-                                >
-                                  <span className={`inline-flex size-4 shrink-0 items-center justify-center rounded border text-[10px] ${on ? "border-sky-400 bg-sky-500/30 text-sky-200" : "border-zinc-600"}`}>
-                                    {on ? "✓" : ""}
-                                  </span>
-                                  {o.label}
-                                </button>
+                              const BOTTLE_KEYS = ["screw_cap_bottle", "pump_bottle"];
+                              const optBtn = (o: { value: string; label: string }) => {
+                                const on = sel.includes(o.value);
+                                return (
+                                  <button
+                                    key={o.value}
+                                    type="button"
+                                    onClick={() => {
+                                      const next = on ? sel.filter((v) => v !== o.value) : [...sel, o.value];
+                                      setCPackaging(next.join(","));
+                                    }}
+                                    className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs ${on ? "bg-sky-500/15 text-sky-200" : "text-zinc-300 hover:bg-zinc-800"}`}
+                                  >
+                                    <span className={`inline-flex size-4 shrink-0 items-center justify-center rounded border text-[10px] ${on ? "border-sky-400 bg-sky-500/30 text-sky-200" : "border-zinc-600"}`}>
+                                      {on ? "✓" : ""}
+                                    </span>
+                                    {o.label}
+                                  </button>
+                                );
+                              };
+                              const bottles = packagingOptions.filter((o) => BOTTLE_KEYS.includes(o.value));
+                              const others = packagingOptions.filter((o) => !BOTTLE_KEYS.includes(o.value));
+                              const header = (t: string) => (
+                                <div key={"h-" + t} className="px-2 pb-0.5 pt-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">{t}</div>
                               );
-                            })}
+                              return (
+                                <>
+                                  {bottles.length > 0 && header("ขวดแบบไหน")}
+                                  {bottles.map(optBtn)}
+                                  {others.length > 0 && header("แบบอื่น")}
+                                  {others.map(optBtn)}
+                                </>
+                              );
+                            })()}
                             <button
                               type="button"
                               onClick={() => setCPackOpen(false)}

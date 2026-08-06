@@ -53,7 +53,7 @@ import {
 import { PACKAGING_PROMPTS, PackagingPrompt, packagingStill, packagingVideo, packagingNegStill, packagingNegVideo } from './packaging-prompts';
 import { checkFlowPolicy, autoFixFlowPolicy } from './flow-policy';
 import { TEXTURE_PROMPTS, textureStill, textureVideo, TexturePrompt } from './texture-prompts';
-import { countThaiSyllables, checkSpeechFit } from './speech-timing';
+import { countThaiSyllables } from './speech-timing';
 import {
   UGC_CONCEPTS_SCHEMA,
   UGC_PLAN_SCHEMA,
@@ -1967,16 +1967,8 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
         }
       }
 
-      // งบเวลาพูด — คิดทั้งพยางค์และเวลาหยุด (comma/จุด/เว้นวรรค) ไม่ใช่แค่จำนวนพยางค์
-      //  จับบทที่ "อ่านทันแต่พูดไม่ทันเฟรม" เพราะมีจังหวะหยุดเยอะ — recompose ช่วยไม่ได้ ต้องตัดบทเอง
-      const syl = AffiliateClipsService.thaiSyllableEstimate(dialogue);
-      const speechFit = dialogue ? checkSpeechFit(dialogue, speechSec) : null;
-      const syllableOk = speechFit ? speechFit.fits : true;
-      if (speechFit && !speechFit.fits) {
-        issues.push(
-          `บทพูดเกินเฟรม ~${speechFit.estimatedSec} วิ (หน้าต่าง ${speechSec} วิ · เกิน ~${speechFit.overBySec} วิ รวมเวลาหยุด) — ตัดบทเหลือ ≤ ${speechFit.maxSyllables} พยางค์ (ตอนนี้ ~${syl}) แล้วค่อย recompose`,
-        );
-      }
+      // 🗣 ถอดงบเวลาพูดออกแล้ว — HTML ไม่บังคับ "พูดจบในเวลา" → ไม่มีเกณฑ์ตัดบทตามเวลาใน QC อีก
+      const syl = AffiliateClipsService.thaiSyllableEstimate(dialogue); // เก็บไว้โชว์เป็นข้อมูลเฉยๆ
 
       const pass = issues.length === 0;
       // 📋 checklist เต็ม — โชว์ทุกข้อที่ตรวจพร้อมผล ✓/✗ (ข้อที่ไม่เกี่ยวกับ shot นี้จะไม่โผล่)
@@ -1989,7 +1981,6 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
           ? [
               { label: 'บทใน prompt ตรงกับบทปัจจุบัน', ok: checks.dialogueSync },
               { label: 'ล็อกพูดตามสคริปต์ (saying exactly)', ok: checks.exactLock },
-              { label: `บทพอดีเฟรม (~${speechFit?.estimatedSec ?? 0}/${speechSec} วิ · ${syl} พยางค์)`, ok: syllableOk },
             ]
           : []),
         { label: 'สัญญาจังหวะพูด/ไม่พูดครบ', ok: checks.contract },
@@ -2022,19 +2013,12 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
         checklist,
         fixable, // ลิสต์ข้อที่ recompose/ขัดเศษแก้ได้ — ใช้แยก "ต้องทำเอง" ใน smart loop
         fixableCount: fixable.length,
-        needManualScriptTrim: !syllableOk,
+        needManualScriptTrim: false, // ถอดงบเวลาพูดแล้ว — ไม่มีการบังคับตัดบทตามเวลา
         needManualDataFix: strayTime || strayStop,
-        checks: { ...checks, syllableOk, dataTimeClean: !strayTime, dataStopClean: !strayStop },
+        checks: { ...checks, dataTimeClean: !strayTime, dataStopClean: !strayStop },
         durationSec: dur,
-        speechSec,
-        capSec: Math.max(2, Math.floor(dur - 1)), // เพดานถูกถอด — หน้าต่าง = ความยาวฉาก-1 ล้วนๆ
         dialogue,
-        dialogueSyllables: syl,
-        syllableBudget: Math.round(speechSec * 3.5),
-        // ⏱ ประเมินเวลาพูดจริง (พยางค์ + เวลาหยุด) เทียบหน้าต่างเฟรม
-        estimatedSpeechSec: speechFit?.estimatedSec ?? 0,
-        speechOverBySec: speechFit?.overBySec ?? 0,
-        maxSyllablesFit: speechFit?.maxSyllables ?? Math.round(speechSec * 3.5),
+        dialogueSyllables: syl, // โชว์เป็นข้อมูลเฉยๆ ไม่ใช่เกณฑ์ผ่าน/ไม่ผ่าน
       };
     };
 
