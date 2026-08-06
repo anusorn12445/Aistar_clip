@@ -146,6 +146,7 @@ interface UgcJobContext {
   handDescriptor: string | null;
   locationBlock: string | null;
   voiceSpec: string;
+  useVoice: boolean; // 🔊 false = คลิปไม่มีบทพูด/เสียงพากย์ — Flow prompt เป็น ambient อย่างเดียว
   packagingBlock: PackagingPrompt | null; // Prompt ประเภทสินค้า — จาก Product.packagingType (แก้ได้ที่หน้า สูตรคลิป)
 }
 
@@ -434,6 +435,7 @@ export class AffiliateClipsService {
             clientId: dto.clientId ?? null,
             outputType: dto.outputType ?? 'video',
             mode: dto.mode ?? 'hand',
+            useVoice: dto.useVoice ?? true,
             handId: dto.handId ?? null,
             characterId: dto.characterId ?? null,
             wardrobeId: dto.wardrobeId ?? null,
@@ -2826,8 +2828,12 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
           ]
         : []),
       '- ฟิลด์ capturePage/captureAction/captureZoom/captureExpect/captureEditNote ใช้เฉพาะฉาก screen — ฉากอื่นใส่ค่าว่าง ""',
-      '- dialogue ภาษาไทย โทนจริงใจแบบคนรีวิวจริง ไม่โฆษณาแข็ง',
-      `- กติกาเหล็ก: ทุกฉากยาว ${sceneLen} วิ (durationSec = ${sceneLen}) — พูดจบสนิทใน ${sceneLen - 1} วิแรก งบ dialogue = ${Math.round((sceneLen - 1) * 3.5 * 0.7)}-${Math.round((sceneLen - 1) * 3.5)} พยางค์ต่อฉาก (3.5 พยางค์/วิ) — เขียนให้เต็มอิ่มใกล้เพดานบน: สั้นกว่างบมาก = เดดแอร์ยาว เกินงบ = โดนตัด`,
+      ...(job.useVoice === false
+        ? ['- 🔇 คลิปนี้ไม่มีเสียงพูด: dialogue ทุกฉากต้องเป็น string ว่าง "" (script/caption/hashtags/onScreenText ยังเขียนได้ตามปกติ) — เล่าเรื่องด้วยภาพ/แอ็กชันล้วน']
+        : [
+            '- dialogue ภาษาไทย โทนจริงใจแบบคนรีวิวจริง ไม่โฆษณาแข็ง',
+            `- ทุกฉากยาว ${sceneLen} วิ (durationSec = ${sceneLen}) — เขียนบทพอดีจังหวะฉาก โทนคนรีวิวจริง`,
+          ]),
       '- ประโยคสำคัญ (CTA) ต้องสั้นเป็นพิเศษ ไม่เกิน 10 พยางค์',
       '- onScreenText 1-4 คำ ภาษาไทย (ข้อความขึ้นจอ ใส่ตอนตัดต่อ)',
       `- ประโยคปิดของ script และ dialogue ฉากสุดท้ายต้องปิดด้วย CTA แบบ "${ctaClosing}"`,
@@ -2965,6 +2971,7 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
       subjectRefLine,
       recipe,
       aspect: job.aspectRatio ?? '9:16',
+      useVoice: job.useVoice !== false,
       masterBase,
       wardrobeLock,
       handDescriptor,
@@ -3348,7 +3355,8 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
           ? 'Use BOTH attached references: (1) the character reference — the exact same person; (2) the subject reference. ' +
             ctx.subjectRefLine
           : ctx.subjectRefLine;
-      const dialogueLine = (scene.dialogue ?? '').trim();
+      // 🔊 useVoice=false → คลิปไม่มีบทพูด: ตัด dialogue ออก → เข้าสาขา ambient (ไม่มี spokenLine/พากย์)
+      const dialogueLine = ctx.useVoice ? (scene.dialogue ?? '').trim() : '';
       // 🗣 ห้ามมีคำสั่งพูดปลายเปิด ("talks to the camera") — ตัวการพูดแถมนอกสคริปต์: ผูกการพูดกับสคริปต์เท่านั้น
       const defaultAction =
         scene.sceneType === 'presenter'
@@ -3388,8 +3396,10 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
         ...(ctx.locationBlock ? [ctx.locationBlock] : []),
         ...(videoEmphasisLine ? [videoEmphasisLine + '.'] : []),
         '',
-        // เสียง — prose แบบ Veo: บรรยายน้ำเสียง + ประโยคพูด
-        `Audio: ${ctx.voiceSpec}. Casual, sincere, easy to understand, Thai language only. Clear audible sound throughout the entire clip.`,
+        // เสียง — prose แบบ Veo: บรรยายน้ำเสียง + ประโยคพูด (useVoice=false = ambient อย่างเดียว ไม่มีเสียงคน)
+        ctx.useVoice
+          ? `Audio: ${ctx.voiceSpec}. Casual, sincere, easy to understand, Thai language only. Clear audible sound throughout the entire clip.`
+          : 'Audio: natural in-scene sound only — quiet realistic room tone and the real sounds of the action, as if captured by a phone microphone. No spoken words, no voice-over, no narration, no background music. Clear audible sound throughout the entire clip.',
         ...(spokenLine ? [spokenLine] : []),
         '',
         AffiliateClipsService.FLOW_VIDEO_TAIL,

@@ -2009,7 +2009,8 @@ model AffiliateClipJob {
   outputType  String  @default("video") // video | stills
   mode        String  @default("hand") // ค่าตั้งต้นของฉาก (v2: sceneType ต่อ shot ทับได้) hand | presenter
   // Resource Rail — ทุกช่อง default ไม่เลือก (null = AI จัดให้เหมาะกับตัวถูกรีวิว)
-  openingSequence String? // CSV รหัสวิธีเปิด (opening-methods) ที่เลือกเอง — ว่าง = auto จาก packagingType
+  openingSequence String? // (dead) เก็บไว้กัน drift — ฟีเจอร์ opening-methods ถูกถอดแล้ว
+  useVoice    Boolean @default(true) // 🔊 ใช้เสียงพูดไหม — false = ไม่มีบทพูด/เสียงพากย์ (Flow prompt = ambient อย่างเดียว)
   handId      String? @db.Uuid // โปรไฟล์มือ (ฉากเห็นแค่มือ)
   characterId String? @db.Uuid // ตัวละคร (ฉากมีตัวละคร → Master Prompt เต็ม)
   wardrobeId  String? @db.Uuid // ชุดจากตู้เสื้อผ้าตัวละคร (ล็อคชุดเดียวทั้งคลิป)

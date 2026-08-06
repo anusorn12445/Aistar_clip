@@ -181,6 +181,7 @@ function ClipJobsInner() {
   const [cCtaType, setCCtaType] = useState(""); // "" = smart default ตามประเภท
   const [cClientId, setCClientId] = useState("");
   const [cOutput, setCOutput] = useState<"video" | "stills">("video");
+  const [cUseVoice, setCUseVoice] = useState(true); // 🔊 ใช้เสียงพูดไหม (false = คลิปไม่มีบทพูด)
   const [cPlatform, setCPlatform] = useState("tiktok");
   const [cDuration, setCDuration] = useState<number>(CLIP_DURATION_DEFAULT);
   const [cSceneLen, setCSceneLen] = useState<number>(8); // ⏱ ความยาวต่อฉาก 4/6/8 วิ — หน้าต่างพูดสเกลตาม (ฉาก-1 วิ)
@@ -338,6 +339,7 @@ function ClipJobsInner() {
         ...(cCtaType ? { ctaType: cCtaType } : {}),
         ...(cClientId ? { clientId: cClientId } : {}),
         outputType: cOutput,
+        useVoice: cUseVoice,
         platform: cPlatform,
         targetDurationSec: cDuration,
         sceneLenSec: cSceneLen, // ⏱
@@ -798,6 +800,18 @@ function ClipJobsInner() {
                   options={[
                     { value: "video", label: "วิดีโอ (ภาพนิ่ง → motion)" },
                     { value: "stills", label: "ชุดภาพนิ่งอย่างเดียว" },
+                  ]}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-zinc-400">🔊 เสียงพูด</label>
+                <FilterSelect
+                  value={cUseVoice ? "on" : "off"}
+                  onChange={(v) => setCUseVoice(v === "on")}
+                  options={[
+                    { value: "on", label: "มีบทพูด (พรีเซนเตอร์/พากย์)" },
+                    { value: "off", label: "ไม่มีเสียงพูด (ambient อย่างเดียว)" },
                   ]}
                   className="w-full"
                 />

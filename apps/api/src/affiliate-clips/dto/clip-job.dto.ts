@@ -78,6 +78,7 @@ export class CreateClipJobDto {
   @IsOptional() @IsUUID() clientId?: string;
   @IsOptional() @IsString() name?: string;
   @IsOptional() @IsIn(CLIP_MODES) mode?: string;
+  @IsOptional() @IsBoolean() useVoice?: boolean; // 🔊 ใช้เสียงพูดไหม (default true) — false = คลิปไม่มีบทพูด
   @IsOptional() @IsIn(CLIP_OUTPUT_TYPES) outputType?: string;
   // Resource Rail — default ไม่เลือกทุกช่อง (null = AI จัดให้)
   @IsOptional() @IsUUID() handId?: string;

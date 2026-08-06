@@ -380,6 +380,7 @@ export const createClipJob = (body: {
   name?: string;
   mode?: string;
   outputType?: string;
+  useVoice?: boolean;
   handId?: string;
   characterId?: string;
   wardrobeId?: string;
