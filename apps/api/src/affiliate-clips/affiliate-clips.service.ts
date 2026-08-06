@@ -845,9 +845,7 @@ export class AffiliateClipsService {
       }
       // 🔒 ด่านเหล็กจำนวนฉาก — ต้อง = จำนวนช่วงใน "ลำดับการเล่า (sceneFlow)" ของสูตร (ไม่ใช่ เวลา÷ความยาวฉาก)
       const expectedScenes = Math.max(2, recipe.sceneFlow.length);
-      // ⏱ ต่อฉาก = ความยาวคลิป ÷ จำนวน shot — เก็บไว้ให้ compose/QC ใช้ (แทนค่า 4/6/8 เดิม)
-      const planSceneLen = Math.max(3, Math.round((job.targetDurationSec ?? expectedScenes * 6) / expectedScenes));
-      await this.setJobSceneLen(job.id, planSceneLen, user.id);
+      const planSceneLen = await this.getJobSceneLen(job.id); // ⏱ ต่อฉาก 4/6/8 ที่ผู้ใช้เลือกตอนสร้าง
       if (job.subjectType !== 'software') {
         if (scenes.length > expectedScenes) {
           scenes = [...scenes.slice(0, expectedScenes - 1), scenes[scenes.length - 1]];
@@ -2752,9 +2750,9 @@ ${duties.map((d, i) => `${i + 1}. ${d}`).join('\n')}
     concept: UgcConcept,
     voiceSpec: string,
   ): Promise<UgcPlanResult> {
-    // 🎬 จำนวน shot มาจาก "ลำดับการเล่า (sceneFlow)" ของสูตร — ผู้ใช้เลือกแค่ความยาวคลิปรวม
+    // 🎬 จำนวน shot มาจาก "ลำดับการเล่า (sceneFlow)" ของสูตร · ความยาวต่อฉาก (4/6/8) ผู้ใช้เลือกตอนสร้าง
     const shotCount = Math.max(2, recipe.sceneFlow.length);
-    const sceneLen = Math.max(3, Math.round((job.targetDurationSec ?? shotCount * 6) / shotCount)); // ⏱ ต่อฉาก = ความยาวคลิป ÷ จำนวน shot
+    const sceneLen = await this.getJobSceneLen(job.id); // ⏱ 4/6/8 วิ/ฉาก
     const ctaClosing = CTA_CLOSING[job.ctaType] ?? CTA_CLOSING.basket;
     const bannedBlock = await this.buildBannedBlock(job.platform);
 

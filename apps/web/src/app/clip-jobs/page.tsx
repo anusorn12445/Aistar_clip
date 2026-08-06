@@ -41,8 +41,6 @@ import { api, getToken } from "@/lib/api";
 import { Paged } from "@/lib/interaction";
 import { Product, hasReviewBrief } from "@/lib/catalog";
 import {
-  CLIP_DURATION_DEFAULT,
-  CLIP_DURATION_OPTIONS,
   CLIP_JOB_STATUS_LABEL,
   CLIP_PLATFORMS,
   CLIP_SUBJECT_LABEL,
@@ -216,19 +214,26 @@ function ClipJobsInner() {
   const [cAngle, setCAngle] = useState(""); // 🎬 มุมที่อยากตี
   const [cFormat, setCFormat] = useState(""); // รูปแบบคลิป (สูตร) — "" = อัตโนมัติตามหมวดสินค้า
   const [formatOptions, setFormatOptions] = useState<{ value: string; label: string }[]>([]);
+  // 🎬 เก็บสูตรเต็ม (มี sceneFlow) เพื่อโชว์จำนวนฉาก/รายการช่วงตอนเลือกเวลา
+  const [recipesFull, setRecipesFull] = useState<{ key: string; label: string; sceneFlow: { name: string; note?: string }[] }[]>([]);
 
   useEffect(() => {
     // สูตรรูปแบบคลิป (product/*) จากระบบสูตรที่แก้ได้ — ใช้เป็นตัวเลือกต่อ job
-    api<{ items: { key: string; label: string }[] }>("/clip-jobs/recipes")
-      .then((res) =>
-        setFormatOptions(
-          res.items
-            .filter((r) => r.key.startsWith("product/"))
-            .map((r) => ({ value: r.key.split("/")[1], label: r.label })),
-        ),
-      )
-      .catch(() => setFormatOptions([]));
+    api<{ items: { key: string; label: string; sceneFlow: { name: string; note?: string }[] }[] }>("/clip-jobs/recipes")
+      .then((res) => {
+        const products = res.items.filter((r) => r.key.startsWith("product/"));
+        setFormatOptions(products.map((r) => ({ value: r.key.split("/")[1], label: r.label })));
+        setRecipesFull(products.map((r) => ({ key: r.key, label: r.label, sceneFlow: r.sceneFlow ?? [] })));
+      })
+      .catch(() => {
+        setFormatOptions([]);
+        setRecipesFull([]);
+      });
   }, []);
+  const [cSceneLen, setCSceneLen] = useState<number>(6); // ⏱ ความยาวต่อ shot (4/6/8) — คูณจำนวนช็อตจากสูตร = ความยาวคลิป
+  // สูตรที่เลือกอยู่ (ไม่เลือก = general) → จำนวน shot + รายการช่วง
+  const selectedRecipe = recipesFull.find((r) => r.key === `product/${cFormat}`) ?? recipesFull.find((r) => r.key === "product/general") ?? null;
+  const shotCount = Math.max(2, selectedRecipe?.sceneFlow.length ?? 6);
   const [cPromo, setCPromo] = useState(""); // 🏷️ โปร/ดีลช่วงนี้
   const [cJobNote, setCJobNote] = useState(""); // 🗒️ โน้ตถึง AI
   const [cReviews, setCReviews] = useState<string[]>([]); // 💬 เสียงลูกค้าที่ติ๊กเลือก (สูงสุด 5)
@@ -238,7 +243,6 @@ function ClipJobsInner() {
   const [cOutput, setCOutput] = useState<"video" | "stills">("video");
   const [cUseVoice, setCUseVoice] = useState(true); // 🔊 ใช้เสียงพูดไหม (false = คลิปไม่มีบทพูด)
   const [cPlatform, setCPlatform] = useState("tiktok");
-  const [cDuration, setCDuration] = useState<number>(CLIP_DURATION_DEFAULT);
 
   const reload = useCallback(() => {
     fetchClipJobs({
@@ -395,7 +399,9 @@ function ClipJobsInner() {
         outputType: cOutput,
         useVoice: cUseVoice,
         platform: cPlatform,
-        targetDurationSec: cDuration,
+        // ⏱ ความยาวต่อฉาก (4/6/8) × จำนวนช็อตจากสูตร = ความยาวคลิปรวม
+        sceneLenSec: cSceneLen,
+        targetDurationSec: cSceneLen * shotCount,
       });
       router.push(`/clip-jobs/${job.id}`);
     } catch (e) {
@@ -1024,22 +1030,50 @@ function ClipJobsInner() {
                 />
               </div>
               <div className="col-span-2 md:col-span-4">
-                {/* ⏱ ความยาวคลิปรวม — จำนวนฉากกำหนดโดย "ลำดับการเล่า" ในสูตรคลิป (เวลาต่อฉาก = รวม ÷ จำนวนฉาก) */}
+                {/* ⏱ ความยาวต่อ shot (4/6/8) × จำนวนช็อตจากสูตร = ความยาวคลิป */}
                 <label className="mb-1 block text-xs font-semibold text-zinc-400">
-                  ความยาวคลิป (รวม){" "}
+                  ⏱ ความยาวต่อฉาก{" "}
                   <span className="font-normal text-zinc-500">
-                    จำนวนฉากกำหนดโดย “ลำดับการเล่า” ในสูตรคลิป · เวลาต่อฉากหารเฉลี่ยอัตโนมัติ
+                    เลือกวินาทีต่อฉาก — จำนวนฉากมาจาก “ลำดับการเล่า” ของสูตร
                   </span>
                 </label>
-                <FilterSelect
-                  value={String(cDuration)}
-                  onChange={(v) => setCDuration(Number(v))}
-                  options={[20, 25, 30, 35, 40, 45, 50, 60, 75, 90].map((d) => ({
-                    value: String(d),
-                    label: `${d} วินาที`,
-                  }))}
-                  className="w-full md:w-64"
-                />
+                <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                  {[4, 6, 8].map((len) => (
+                    <button
+                      key={len}
+                      type="button"
+                      onClick={() => setCSceneLen(len)}
+                      className={
+                        cSceneLen === len
+                          ? "rounded-full border border-amber-400 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-300"
+                          : "rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400 hover:border-amber-500"
+                      }
+                    >
+                      {len}s
+                    </button>
+                  ))}
+                  <span className="ml-1 text-xs text-zinc-400">
+                    = {shotCount} ฉาก × {cSceneLen} วิ = <b className="text-amber-300">{shotCount * cSceneLen} วินาที</b>
+                  </span>
+                </div>
+                {selectedRecipe && (
+                  <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-2.5">
+                    <div className="mb-1 text-[11px] text-zinc-500">
+                      ฉากที่จะออก (จากสูตร “{selectedRecipe.label}” · {shotCount} ฉาก) — แก้จำนวน/ลำดับได้ที่หน้าสูตรคลิป:
+                    </div>
+                    <ol className="space-y-0.5">
+                      {selectedRecipe.sceneFlow.map((s, i) => (
+                        <li key={i} className="text-xs text-zinc-300">
+                          <span className="font-semibold text-zinc-200">{i + 1}. {s.name}</span>{" "}
+                          <span className="text-zinc-500">· {cSceneLen} วิ{s.note ? ` — ${s.note}` : ""}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                {!cFormat && (
+                  <p className="mt-1 text-[11px] text-zinc-500">* ไม่ได้เลือกสูตร = ระบบใช้สูตรอัตโนมัติตามหมวดสินค้า (แสดงตัวอย่างจาก “สินค้าทั่วไป”)</p>
+                )}
               </div>
             </div>
             <div className="flex gap-2">
